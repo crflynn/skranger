@@ -5,7 +5,7 @@ from setuptools import setup
 import numpy as np
 from Cython.Build import cythonize
 
-top = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+top = os.path.dirname(os.path.abspath(__file__))
 ranger_src = os.path.join("ranger", "cpp_version", "src")
 
 include_dirs = [
