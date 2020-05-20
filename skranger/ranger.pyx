@@ -5,8 +5,8 @@ from cython.operator cimport dereference
 from libcpp cimport bool
 from libcpp.memory cimport unique_ptr
 from libcpp.string cimport string
-from libcpp.vector cimport vector
 from libcpp.utility cimport move
+from libcpp.vector cimport vector
 
 cimport ranger_
 
@@ -15,8 +15,8 @@ cdef class DataNumpy:
     """Cython wrapper for DataNumpy class in C++.
 
     This wraps the Data class in C++, which encapsulates training data passed to the
-    random forest classes. It allows us to pass numpy arrays into the Data object as
-    pointers which get stored in vectors.
+    random forest classes. It allows us to pass numpy arrays as a ranger-compatible
+    Data object.
     """
     cdef unique_ptr[ranger_.DataNumpy] c_data
 
@@ -67,7 +67,7 @@ cpdef dict ranger(
     unsigned int seed,
     unsigned int num_threads,
     bool write_forest,
-    ranger_.ImportanceMode importance_mode_r,
+    ranger_.ImportanceMode importance_mode,
     unsigned int min_node_size,
     vector[vector[double]]& split_select_weights,
     bool use_split_select_weights,
@@ -81,7 +81,7 @@ cpdef dict ranger(
     vector[string]& unordered_variable_names,
     bool use_unordered_variable_names,
     bool save_memory,
-    ranger_.SplitRule splitrule_r,
+    ranger_.SplitRule splitrule,
     vector[double]& case_weights,
     bool use_case_weights,
     vector[double]& class_weights,
@@ -91,7 +91,7 @@ cpdef dict ranger(
     double alpha,
     double minprop,
     bool holdout,
-    ranger_.PredictionType prediction_type_r,
+    ranger_.PredictionType prediction_type,
     unsigned int num_random_splits,
     # sparse matrix sparse_x,
     bool use_sparse_data,
@@ -146,12 +146,11 @@ cpdef dict ranger(
         if not use_regularization_factor:
             regularization_factor.clear()
 
-        # TODO
-        # if verbose:
-        #     # verbose_out = sys.stdout
-        #     verbose_out = new ranger_.ostream()
-        # else:
-        #     verbose_out = new ranger_.ostream()
+        # FIXME no output?
+        if verbose:
+            verbose_out = <ranger_.ostream*> &ranger_.cout
+        else:
+            verbose_out = <ranger_.ostream*> new ranger_.stringstream()
 
         # FIXME ignore sparse for now
         # if use_sparse_data:
@@ -188,7 +187,7 @@ cpdef dict ranger(
             verbose_out,
             seed,
             num_threads,
-            importance_mode_r,
+            importance_mode,
             min_node_size,
             split_select_weights,
             always_split_variable_names,
@@ -196,7 +195,7 @@ cpdef dict ranger(
             sample_with_replacement,
             unordered_variable_names,
             save_memory,
-            splitrule_r,
+            splitrule,
             case_weights,
             inbag,
             predict_all,
@@ -205,7 +204,7 @@ cpdef dict ranger(
             alpha,
             minprop,
             holdout,
-            prediction_type_r,
+            prediction_type,
             num_random_splits,
             order_snps,
             max_depth,
@@ -240,7 +239,7 @@ cpdef dict ranger(
 
         dereference(forest).run(False, oob_error)
 
-        if use_split_select_weights and importance_mode_r != ranger_.ImportanceMode.IMP_NONE:
+        if use_split_select_weights and importance_mode != ranger_.ImportanceMode.IMP_NONE:
             if verbose_out:
                 verbose_out.write("Warning: Split select weights used. Variable importance measures are only comparable for variables with equal weights.\n", 1)
 
@@ -260,9 +259,9 @@ cpdef dict ranger(
         if not prediction_mode:
             result["mtry"] = dereference(forest).getMtry()
             result["min_node_size"] = dereference(forest).getMinNodeSize()
-            if importance_mode_r != ranger_.ImportanceMode.IMP_NONE:
+            if importance_mode != ranger_.ImportanceMode.IMP_NONE:
                 result["variable_importance"] = dereference(forest).getVariableImportance()
-                if importance_mode_r == ranger_.ImportanceMode.IMP_PERM_CASEWISE:
+                if importance_mode == ranger_.ImportanceMode.IMP_PERM_CASEWISE:
                     result["variable_importance_local"] = dereference(forest).getVariableImportanceCasewise()
             result["prediction_error"] = dereference(forest).getOverallPredictionError()
 

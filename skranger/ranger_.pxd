@@ -4,24 +4,15 @@ from libcpp.string cimport string
 from libcpp.vector cimport vector
 
 
+cdef extern from "<sstream>" namespace "std":
+    cdef cppclass stringstream:
+        stringstream() except +
+
 # https://stackoverflow.com/questions/30984078/cython-working-with-c-streams
 cdef extern from "<iostream>" namespace "std":
+    ostream cout
     cdef cppclass ostream:
         ostream& write(const char*, int) except +
-
-# obviously std::ios_base isn't a namespace, but this lets
-# Cython generate the correct C++ code
-cdef extern from "<iostream>" namespace "std::ios_base":
-    cdef cppclass open_mode:
-        pass
-    cdef open_mode binary
-    # you can define other constants as needed
-
-cdef extern from "<fstream>" namespace "std":
-    cdef cppclass ofstream(ostream):
-        # constructors
-        ofstream(const char*) except +
-        ofstream(const char*, open_mode) except+
 
 # Enums required as input for the ForestClassifier
 cdef extern from "../ranger/cpp_version/src/globals.h" namespace "ranger":
