@@ -12,3 +12,7 @@ class TestRandomForestClassifier:
         print("predicting")
         pred = rfc.predict(iris_X)
         print(pred)
+        print("predicting")
+        pred = rfc.predict_proba(iris_X)
+        print(pred)
+        print(rfc.classes_)

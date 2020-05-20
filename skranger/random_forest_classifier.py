@@ -88,8 +88,8 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
         self.max_depth = max_depth
         self.replace = replace
         self.sample_fraction = sample_fraction
-        self.case_weights = case_weights or []
-        self.class_weights = class_weights or []
+        self.case_weights = case_weights
+        self.class_weights = class_weights
         self.split_rule = split_rule
         self.num_random_splits = num_random_splits
         self.split_select_weights = split_select_weights or []
@@ -111,7 +111,7 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
         self.variable_names_ = [str(r).encode() for r in range(X.shape[1])]
 
         self.forest_ = ranger.ranger(
-            1,  # tree_type
+            9,  # tree_type, TREE_PROBABILITY enables predict_proba
             np.asfortranarray(X.astype("float64")),
             np.asfortranarray(y.astype("float64")),
             self.variable_names_,
@@ -123,7 +123,7 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
             True,  # write_forest
             self.importance_mode_,
             self.min_node_size,
-            self.split_select_weights,
+            self.split_select_weights or [],
             False,  # use_split_select_weights
             [],  # always_split_variable_names
             False,  # use_always_split_variable_names
@@ -136,9 +136,9 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
             False,  # use_unordered_variable_names
             self.save_memory,
             self.split_rule_,
-            self.case_weights,
+            self.case_weights or [],
             False,  # use_case_weights
-            self.class_weights,
+            self.class_weights or [],
             False,  # predict_all
             False,  # keep_inbag
             self.sample_fraction_,
@@ -157,10 +157,11 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
             False,  # use_regularization_factor
             self.regularization_usedepth,
         )
+        self.classes_ = np.array(self.forest_["forest"]["class_values"])
 
     def predict(self, X):
         result = ranger.ranger(
-            1,  # tree_type
+            1,  # tree_type, TREE_CLASSIFICATION for class predictions
             np.asfortranarray(X.astype("float64")),
             np.array([]),
             self.variable_names_,
@@ -172,7 +173,7 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
             True,  # write_forest
             self.importance_mode_,
             self.min_node_size,
-            self.split_select_weights,
+            self.split_select_weights or [],
             False,  # use_split_select_weights
             [],  # always_split_variable_names
             False,  # use_always_split_variable_names
@@ -185,9 +186,9 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
             False,  # use_unordered_variable_names
             self.save_memory,
             self.split_rule_,
-            self.case_weights,
+            self.case_weights or [],
             False,  # use_case_weights
-            self.class_weights,
+            self.class_weights or [],
             False,  # predict_all
             False,  # keep_inbag
             self.sample_fraction_,
@@ -209,7 +210,54 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
         return np.array(result["predictions"])
 
     def predict_proba(self, X):
-        pass
+        result = ranger.ranger(
+            9,  # tree_type, TREE_PROBABILITY for class probabilities
+            np.asfortranarray(X.astype("float64")),
+            np.array([]),
+            self.variable_names_,
+            self.mtry,
+            self.num_trees,
+            True,  # verbose
+            self.seed,
+            self.num_threads,
+            True,  # write_forest
+            self.importance_mode_,
+            self.min_node_size,
+            self.split_select_weights or [],
+            False,  # use_split_select_weights
+            [],  # always_split_variable_names
+            False,  # use_always_split_variable_names
+            True,  # prediction_mode
+            self.forest_["forest"],  # loaded_forest
+            np.asfortranarray([[]]),  # snp_data
+            self.replace,  # sample_with_replacement
+            False,  # probability
+            self.unordered_variable_names_,
+            False,  # use_unordered_variable_names
+            self.save_memory,
+            self.split_rule_,
+            self.case_weights or [],
+            False,  # use_case_weights
+            self.class_weights or [],
+            False,  # predict_all
+            False,  # keep_inbag
+            self.sample_fraction_,
+            0.5,  # alpha
+            0.1,  # minprop
+            self.holdout,
+            1,  # prediction_type
+            self.num_random_splits,
+            False,  # use_sparse_data
+            self.order_snps_,
+            self.oob_error,
+            self.max_depth,
+            [],  # inbag
+            False,  # use_inbag
+            self.regularization_factor_,
+            False,  # use_regularization_factor
+            self.regularization_usedepth,
+        )
+        return np.array(result["predictions"])
 
     def _validate_parameters(self, X, y):
         check_X_y(X, y)
