@@ -4,10 +4,6 @@ from libcpp.string cimport string
 from libcpp.vector cimport vector
 
 
-cdef extern from *:
-    unique_ptr[ForestClassification] dynamic_cast_forest_classification "dynamic_cast<ranger::ForestClassification&>" (unique_ptr[Forest])
-
-
 # https://stackoverflow.com/questions/30984078/cython-working-with-c-streams
 cdef extern from "<iostream>" namespace "std":
     cdef cppclass ostream:
