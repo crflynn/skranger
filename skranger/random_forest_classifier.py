@@ -8,11 +8,7 @@ from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
 from sklearn.utils import check_X_y
 
-from skranger.ranger import ForestClassification
-from skranger.ranger import ImportanceMode
-from skranger.ranger import MemoryMode
-from skranger.ranger import PredictionType
-from skranger.ranger import SplitRule
+import skranger.ranger as ranger
 
 
 class RandomForestClassifier(ClassifierMixin, BaseEstimator):
@@ -57,6 +53,7 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
     :param bool save_memory: Save memory at the cost of speed growing trees.
     :param int seed: Random seed value.
     """
+
     def __init__(
         self,
         num_trees=500,
@@ -96,8 +93,8 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
         self.class_weights = class_weights
         self.split_rule = split_rule
         self.num_random_splits = num_random_splits
-        self.split_select_weights = split_select_weights
-        self.always_split_variables = always_split_variables
+        self.split_select_weights = split_select_weights or []
+        self.alwayqs_split_variables = always_split_variables
         self.respect_unordered_factors = respect_unordered_factors
         self.scale_permutation_importance = scale_permutation_importance
         self.local_importance = local_importance
@@ -112,40 +109,156 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
     def fit(self, X, y):
         self._validate_parameters(X, y)
 
-        # array setup
-        xx = np.asfortranarray(X.astype("float64"))
-        yy = np.asfortranarray(y.astype("float64"))
+        self.variable_names_ = [str(r).encode() for r in range(X.shape[1])]
 
-        # create and train
-        self.forest_ = ForestClassification(
-            MemoryMode.MEM_DOUBLE,  # memory mode
-            xx,  # x
-            yy,  # y
-            self.mtry_,  # mtry
-            "output_prefix".encode(),  # output prefix
-            self.num_trees,  # num trees
-            self.seed,  # seed
-            self.num_threads,  # num threads
-            ImportanceMode.IMP_PERM_BREIMAN,  # importance mode
-            self.min_node_size,  # min node size
-            False,  # prediction mode
-            self.replace,  # sample with replacement
-            self.unordered_variable_names_,  # unordered variable names
-            self.save_memory,  # memory save splitting
-            self.split_rule_,  # split rule
-            False,  # predict all
-            self.sample_fraction_,  # sample fraction
-            0.5,  # alpha, ignored in classification, used for maxstat splitrule
-            0.1,  # minprop, ignored in classification, used for maxstat splitrule
-            self.holdout,  # holdout
-            PredictionType.RESPONSE,  # prediction type
-            self.num_random_splits,  # num random splits
-            self.order_snps_,  # order snps
-            self.max_depth,  # max depth
-            self.regularization_factor_,  # regularization factor
-            self.regularization_usedepth,  # regularization usedepth
+        self.forest_ = ranger.ranger(
+            9,  # tree_type, TREE_PROBABILITY enables predict_proba
+            np.asfortranarray(X.astype("float64")),
+            np.asfortranarray(y.astype("float64")),
+            self.variable_names_,
+            self.mtry,
+            self.num_trees,
+            True,  # verbose
+            self.seed,
+            self.num_threads,
+            True,  # write_forest
+            self.importance_mode_,
+            self.min_node_size,
+            self.split_select_weights or [],
+            False,  # use_split_select_weights
+            [],  # always_split_variable_names
+            False,  # use_always_split_variable_names
+            False,  # prediction_mode
+            {},  # loaded_forest
+            np.asfortranarray([[]]),  # snp_data
+            self.replace,  # sample_with_replacement
+            False,  # probability
+            self.unordered_variable_names_,
+            False,  # use_unordered_variable_names
+            self.save_memory,
+            self.split_rule_,
+            self.case_weights or [],
+            False,  # use_case_weights
+            self.class_weights or [],
+            False,  # predict_all
+            False,  # keep_inbag
+            self.sample_fraction_,
+            0.5,  # alpha
+            0.1,  # minprop
+            self.holdout,
+            1,  # prediction_type
+            self.num_random_splits,
+            False,  # use_sparse_data
+            self.order_snps_,
+            self.oob_error,
+            self.max_depth,
+            [],  # inbag
+            False,  # use_inbag
+            self.regularization_factor_,
+            False,  # use_regularization_factor
+            self.regularization_usedepth,
         )
-        self.forest_.run(False, self.oob_error)
+        self.classes_ = np.array(self.forest_["forest"]["class_values"])
+
+    def predict(self, X):
+        result = ranger.ranger(
+            1,  # tree_type, TREE_CLASSIFICATION for class predictions
+            np.asfortranarray(X.astype("float64")),
+            np.array([]),
+            self.variable_names_,
+            self.mtry,
+            self.num_trees,
+            True,  # verbose
+            self.seed,
+            self.num_threads,
+            True,  # write_forest
+            self.importance_mode_,
+            self.min_node_size,
+            self.split_select_weights or [],
+            False,  # use_split_select_weights
+            [],  # always_split_variable_names
+            False,  # use_always_split_variable_names
+            True,  # prediction_mode
+            self.forest_["forest"],  # loaded_forest
+            np.asfortranarray([[]]),  # snp_data
+            self.replace,  # sample_with_replacement
+            False,  # probability
+            self.unordered_variable_names_,
+            False,  # use_unordered_variable_names
+            self.save_memory,
+            self.split_rule_,
+            self.case_weights or [],
+            False,  # use_case_weights
+            self.class_weights or [],
+            False,  # predict_all
+            False,  # keep_inbag
+            self.sample_fraction_,
+            0.5,  # alpha
+            0.1,  # minprop
+            self.holdout,
+            1,  # prediction_type
+            self.num_random_splits,
+            False,  # use_sparse_data
+            self.order_snps_,
+            self.oob_error,
+            self.max_depth,
+            [],  # inbag
+            False,  # use_inbag
+            self.regularization_factor_,
+            False,  # use_regularization_factor
+            self.regularization_usedepth,
+        )
+        return np.array(result["predictions"])
+
+    def predict_proba(self, X):
+        result = ranger.ranger(
+            9,  # tree_type, TREE_PROBABILITY for class probabilities
+            np.asfortranarray(X.astype("float64")),
+            np.array([]),
+            self.variable_names_,
+            self.mtry,
+            self.num_trees,
+            True,  # verbose
+            self.seed,
+            self.num_threads,
+            True,  # write_forest
+            self.importance_mode_,
+            self.min_node_size,
+            self.split_select_weights or [],
+            False,  # use_split_select_weights
+            [],  # always_split_variable_names
+            False,  # use_always_split_variable_names
+            True,  # prediction_mode
+            self.forest_["forest"],  # loaded_forest
+            np.asfortranarray([[]]),  # snp_data
+            self.replace,  # sample_with_replacement
+            False,  # probability
+            self.unordered_variable_names_,
+            False,  # use_unordered_variable_names
+            self.save_memory,
+            self.split_rule_,
+            self.case_weights or [],
+            False,  # use_case_weights
+            self.class_weights or [],
+            False,  # predict_all
+            False,  # keep_inbag
+            self.sample_fraction_,
+            0.5,  # alpha
+            0.1,  # minprop
+            self.holdout,
+            1,  # prediction_type
+            self.num_random_splits,
+            False,  # use_sparse_data
+            self.order_snps_,
+            self.oob_error,
+            self.max_depth,
+            [],  # inbag
+            False,  # use_inbag
+            self.regularization_factor_,
+            False,  # use_regularization_factor
+            self.regularization_usedepth,
+        )
+        return np.array(result["predictions"])
 
     def _validate_parameters(self, X, y):
         check_X_y(X, y)
@@ -185,11 +298,11 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
 
     def _set_split_rule(self):
         if self.split_rule == "gini":
-            self.split_rule_ = SplitRule.LOGRANK
+            self.split_rule_ = 1  # ranger_.SplitRule.LOGRANK
         elif self.split_rule == "extratrees":
-            self.split_rule_ = SplitRule.EXTRATREES
+            self.split_rule_ = 5  # ranger_.SplitRule.EXTRATREES
         elif self.split_rule == "hellinger":
-            self.split_rule_ = SplitRule.HELLINGER
+            self.split_rule_ = 7  # ranger_.SplitRule.HELLINGER
         else:
             raise ValueError("split rule must be either gini, extratrees, or hellinger")
 
@@ -232,23 +345,17 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
     def _set_importance_mode(self):
         # Note IMP_PERM_LIAW is unused
         if self.importance is None or self.importance == "none":
-            self.importance_mode_ = ImportanceMode.IMP_NONE
+            self.importance_mode_ = 0  # ranger_.ImportanceMode.IMP_NONE
         elif self.importance == "impurity":
-            self.importance_mode_ = ImportanceMode.IMP_GINI
+            self.importance_mode_ = 1  # ranger_.ImportanceMode.IMP_GINI
         elif self.importance == "impurity_corrected" or self.importance == "impurity_unbiased":
-            self.importance_mode_ = ImportanceMode.IMP_GINI_CORRECTED
+            self.importance_mode_ = 5  # ranger_.ImportanceMode.IMP_GINI_CORRECTED
         elif self.importance == "permutation":
             if self.local_importance:
-                self.importance_mode_ = ImportanceMode.IMP_PERM_CASEWISE
+                self.importance_mode_ = 6  # ranger_.ImportanceMode.IMP_PERM_CASEWISE
             elif self.scale_permutation_importance:
-                self.importance_mode_ = ImportanceMode.IMP_PERM_BREIMAN
+                self.importance_mode_ = 2  # ranger_.ImportanceMode.IMP_PERM_BREIMAN
             else:
-                self.importance_mode_ = ImportanceMode.IMP_PERM_RAW
+                self.importance_mode_ = 3  # ranger_.ImportanceMode.IMP_PERM_RAW
         else:
             raise ValueError("unkown importance mode")
-
-    def predict(self, X):
-        pass
-
-    def predict_proba(self, X):
-        pass
