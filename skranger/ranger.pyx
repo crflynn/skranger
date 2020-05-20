@@ -146,13 +146,14 @@ cpdef dict ranger(
         if not use_regularization_factor:
             regularization_factor.clear()
 
+        # TODO
         # if verbose:
         #     # verbose_out = sys.stdout
         #     verbose_out = new ranger_.ostream()
         # else:
         #     verbose_out = new ranger_.ostream()
 
-        # ignore sparse for now
+        # FIXME ignore sparse for now
         # if use_sparse_data:
         #     num_rows = x.shape[0]
         #     num_cols = x.shape[1]
@@ -163,22 +164,22 @@ cpdef dict ranger(
         # if use_sparse_data:
         #     data = unique_ptr[DataNumpy](x, y, variable_names)
         # else:
+
         data = DataNumpy(x, y, variable_names)
 
         # ignore snp data
 
         if treetype == ranger_.TreeType.TREE_CLASSIFICATION:
             if probability:
-                # forest = make_unique[ranger_.ForestProbability]()
-                pass
+                forest.reset(new ranger_.ForestProbability())
             else:
                 forest.reset(new ranger_.ForestClassification())
-        # elif treetype == ranger_.TreeType.TREE_REGRESSION:
-        #     forest = make_unique[ForestRegression]()
-        # elif treetype == ranger_.TreeType.TREE_SURVIVAL:
-        #     forest = make_unique[ForestSurvival]()
-        # elif treetype == ranger_.TreeType.TREE_PROBABILITY:
-        #     forest = make_unique[ForestProbability]()
+        elif treetype == ranger_.TreeType.TREE_REGRESSION:
+            forest.reset(new ranger_.ForestRegression())
+        elif treetype == ranger_.TreeType.TREE_SURVIVAL:
+            forest.reset(new ranger_.ForestSurvival())
+        elif treetype == ranger_.TreeType.TREE_PROBABILITY:
+            forest.reset(new ranger_.ForestProbability())
 
         dereference(forest).initR(
             move(data.c_data),
@@ -221,25 +222,21 @@ cpdef dict ranger(
             if treetype == ranger_.TreeType.TREE_CLASSIFICATION:
                 class_values = loaded_forest["class_values"]
                 (<ranger_.ForestClassification*> forest.get()).loadForest(num_trees, child_node_ids, split_var_ids, split_values, class_values, is_ordered)
-            # elif treetype == ranger_.TreeType.TREE_REGRESSION:
-            #     temp_fr = dynamic_cast[ranger_.ForestRegression](*forest)
-            #     temp_fr.loadForest(num_trees, child_node_ids, split_var_ids, split_values, is_ordered)
-            # elif treetype == ranger_.TreeType.TREE_SURVIVAL:
-            #     chf = loaded_forest["chf"]
-            #     unique_timepoints = loaded_forest["unique.death.times"]
-            #     temp_fs = dynamic_cast[ranger_.ForestSurvival](*forest)
-            #     temp_fs.loadForest(num_trees, child_node_ids, split_var_ids, split_values, chf, unique_timepoints, is_ordered)
-            # elif treetype == ranger_.TreeType.TREE_PROBABILITY:
-            #     class_values = loaded_forest["class.values"]
-            #     terminal_class_counts = loaded_forest["terminal.class.counts"]
-            #     temp_fp = dynamic_cast[ranger_.ForestProbability](*forest)
-            #     temp_fp.loadForest(num_trees, child_node_ids, split_var_ids, split_values, class_values, terminal_class_counts, is_ordered)
+            elif treetype == ranger_.TreeType.TREE_REGRESSION:
+                (<ranger_.ForestRegression*> forest.get()).loadForest(num_trees, child_node_ids, split_var_ids, split_values, is_ordered)
+            elif treetype == ranger_.TreeType.TREE_SURVIVAL:
+                chf = loaded_forest["chf"]
+                unique_timepoints = loaded_forest["unique_death_times"]
+                (<ranger_.ForestSurvival*> forest.get()).loadForest(num_trees, child_node_ids, split_var_ids, split_values, chf, unique_timepoints, is_ordered)
+            elif treetype == ranger_.TreeType.TREE_PROBABILITY:
+                class_values = loaded_forest["class_values"]
+                terminal_class_counts = loaded_forest["terminal_class_counts"]
+                (<ranger_.ForestProbability*> forest.get()).loadForest(num_trees, child_node_ids, split_var_ids, split_values, class_values, terminal_class_counts, is_ordered)
         else:
             if treetype == ranger_.TreeType.TREE_CLASSIFICATION and not class_weights.empty():
                 (<ranger_.ForestClassification*> forest.get()).setClassWeights(class_weights)
-            # elif treetype == ranger_.TreeType.TREE_PROBABILITY and not class_weights.empty():
-            #     temp_fp = dynamic_cast[ranger_.ForestProbability](*forest)
-            #     temp_fp.setClassWeights(class_weights)
+            elif treetype == ranger_.TreeType.TREE_PROBABILITY and not class_weights.empty():
+                (<ranger_.ForestProbability*> forest.get()).setClassWeights(class_weights)
 
         dereference(forest).run(False, oob_error)
 
@@ -258,9 +255,8 @@ cpdef dict ranger(
 
         result["num_trees"] = dereference(forest).getNumTrees()
         result["num_independent_variables"] = dereference(forest).getNumIndependentVariables()
-        # if treetype == ranger_.TreeType.TREE_SURVIVAL:
-        #     temp_fs = dynamic_cast[ranger_.ForestSurvival](*forest)
-        #     result["unique_death_times"] = temp_fs.getUniqueTimepoints()
+        if treetype == ranger_.TreeType.TREE_SURVIVAL:
+            result["unique_death_times"] = (<ranger_.ForestSurvival*> forest.get()).getUniqueTimepoints()
         if not prediction_mode:
             result["mtry"] = dereference(forest).getMtry()
             result["min_node_size"] = dereference(forest).getMinNodeSize()
@@ -282,6 +278,7 @@ cpdef dict ranger(
                 "is_ordered": dereference(forest).getIsOrderedVariable()
             }
 
+            # FIXME Cannot assign type 'iterator' to 'size_type'
             # if snp_data.nrow() > 1 and order_snps:
             #     snp_order = forest.getSnpOrder()
             #     forest_object["snp_order"] = vector[vector[size_t]](snp_order.begin(), snp_order.begin() + snp_data.ncol())
@@ -291,14 +288,12 @@ cpdef dict ranger(
                 forest_object["class_values"] = []
                 for c in class_values_[:class_values_.size()]:
                     forest_object["class_values"].append(c)
-            # elif treetype == ranger_.TreeType.TREE_PROBABILITY:
-            #     temp_fp = dynamic_cast[ranger_.ForestProbability](*forest)
-            #     forest_object["class_values"] = temp_fp.getClassValues()
-            #     forest_object["terminal_class_counts"] = temp_fp.getTerminalClassCounts()
-            # elif treetype == ranger_.TreeType.TREE_SURVIVAL:
-            #     temp_fs = dynamic_cast[ranger_.ForestSurvival](*forest)
-            #     forest_object["chf"] = temp_fs.getChf()
-            #     forest_object["unique_death_times"] = temp_fs.getUniqueTimepoints()
+            elif treetype == ranger_.TreeType.TREE_PROBABILITY:
+                forest_object["class_values"] = (<ranger_.ForestProbability*> forest.get()).getClassValues()
+                forest_object["terminal_class_counts"] = (<ranger_.ForestProbability*> forest.get()).getTerminalClassCounts()
+            elif treetype == ranger_.TreeType.TREE_SURVIVAL:
+                forest_object["chf"] = (<ranger_.ForestSurvival*> forest.get()).getChf()
+                forest_object["unique_death_times"] = (<ranger_.ForestSurvival*> forest.get()).getUniqueTimepoints()
             result["forest"] = forest_object
 
         if not verbose:
