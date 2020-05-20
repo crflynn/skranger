@@ -1,47 +1,14 @@
-import sys
-
 import cython
 import numpy as np
 cimport numpy as np
 from cython.operator cimport dereference
 from libcpp cimport bool
-from libcpp.cast cimport dynamic_cast
-from libcpp.memory cimport make_unique
 from libcpp.memory cimport unique_ptr
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 from libcpp.utility cimport move
 
 cimport ranger_
-
-# # Enums required as input for the ForestClassifier
-# cpdef enum MemoryMode:
-#     MEM_DOUBLE = 0,
-#     MEM_FLOAT = 1,
-#     MEM_CHAR = 2
-#
-# # the c++ code is mis-ordered also
-# cpdef enum ImportanceMode:
-#     IMP_NONE = 0,
-#     IMP_GINI = 1,
-#     IMP_PERM_BREIMAN = 2,
-#     IMP_PERM_LIAW = 4,
-#     IMP_PERM_RAW = 3,
-#     IMP_GINI_CORRECTED = 5,
-#     IMP_PERM_CASEWISE = 6
-#
-# cpdef enum SplitRule:
-#     LOGRANK = 1,
-#     AUC = 2,
-#     AUC_IGNORE_TIES = 3,
-#     MAXSTAT = 4,
-#     EXTRATREES = 5,
-#     BETA = 6,
-#     HELLINGER = 7
-#
-# cpdef enum PredictionType:
-#     RESPONSE = 1,
-#     TERMINALNODES = 2
 
 
 cdef class DataNumpy:
@@ -87,75 +54,6 @@ cdef class DataNumpy:
 
     def set_y(self, size_t col, size_t row, double value, bool& error):
         return dereference(self.c_data).set_y(col, row, value, error)
-#
-# cdef class ForestClassification:
-#     """Cython wrapper for ranger's ForestClassification class."""
-#     cdef unique_ptr[ranger_.ForestClassification] c_fc
-#
-#     @cython.boundscheck(False)
-#     @cython.wraparound(False)
-#     def __cinit__(self,
-#         ranger_.MemoryMode memory_mode,
-#         np.ndarray[double, ndim=2, mode="fortran"] x,
-#         np.ndarray[double, ndim=1, mode="fortran"] y,
-#         int mtry,
-#         char* output_prefix,
-#         int num_trees,
-#         int seed,
-#         int num_threads,
-#         ranger_.ImportanceMode importance_mode,
-#         int min_node_size,
-#         bool prediction_mode,
-#         bool sample_with_replacement,
-#         const vector[string]& unordered_variable_names,
-#         bool memory_saving_splitting,
-#         ranger_.SplitRule splitrule,
-#         bool predict_all,
-#         vector[double]& sample_fraction,
-#         double alpha,
-#         double minprop,
-#         bool holdout,
-#         ranger_.PredictionType prediction_type,
-#         int num_random_splits,
-#         bool order_snps,
-#         int max_depth,
-#         const vector[double]& regularization_factor,
-#         bool regularization_usedepth
-#     ):
-#         variable_names = [str(r).encode() for r in range(x.shape[1])]
-#         data = DataNumpy(x, y, variable_names)
-#         self.c_fc.reset(new ranger_.ForestClassification())
-#         dereference(self.c_fc).init(
-#             memory_mode,
-#             move(data.c_data),
-#             mtry,
-#             output_prefix,
-#             num_trees,
-#             seed,
-#             num_threads,
-#             importance_mode,
-#             min_node_size,
-#             prediction_mode,
-#             sample_with_replacement,
-#             unordered_variable_names,
-#             memory_saving_splitting,
-#             splitrule,
-#             predict_all,
-#             sample_fraction,
-#             alpha,
-#             minprop,
-#             holdout,
-#             prediction_type,
-#             num_random_splits,
-#             order_snps,
-#             max_depth,
-#             regularization_factor,
-#             regularization_usedepth,
-#         )
-#
-#     def run(self, bool verbose, bool compute_oob_error):
-#         dereference(self.c_fc).run(verbose, compute_oob_error)
-
 
 
 cpdef dict ranger(
@@ -176,7 +74,7 @@ cpdef dict ranger(
     vector[string]& always_split_variable_names,
     bool use_always_split_variable_names,
     bool prediction_mode,
-    list loaded_forest,
+    dict loaded_forest,
     np.ndarray[double, ndim=2, mode="fortran"] snp_data,
     bool sample_with_replacement,
     bool probability,
@@ -206,6 +104,7 @@ cpdef dict ranger(
     bool use_regularization_factor,
     bool regularization_usedepth,
 ):
+    # print(locals())
     result = {}
 
     # cdef declarations must be at the function level
@@ -252,7 +151,6 @@ cpdef dict ranger(
         #     verbose_out = new ranger_.ostream()
         # else:
         #     verbose_out = new ranger_.ostream()
-
 
         # ignore sparse for now
         # if use_sparse_data:
@@ -315,13 +213,13 @@ cpdef dict ranger(
         )
 
         if prediction_mode:
-            child_node_ids = loaded_forest["child.nodeIDs"]
-            split_var_ids = loaded_forest["split.varIDs"]
-            split_values = loaded_forest["split.values"]
-            is_ordered = loaded_forest["is.ordered"]
+            child_node_ids = loaded_forest["child_node_ids"]
+            split_var_ids = loaded_forest["splits_var_ids"]
+            split_values = loaded_forest["split_values"]
+            is_ordered = loaded_forest["is_ordered"]
 
             if treetype == ranger_.TreeType.TREE_CLASSIFICATION:
-                class_values = loaded_forest["class.values"]
+                class_values = loaded_forest["class_values"]
                 (<ranger_.ForestClassification*> forest.get()).loadForest(num_trees, child_node_ids, split_var_ids, split_values, class_values, is_ordered)
             # elif treetype == ranger_.TreeType.TREE_REGRESSION:
             #     temp_fr = dynamic_cast[ranger_.ForestRegression](*forest)

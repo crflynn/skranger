@@ -108,46 +108,13 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
     def fit(self, X, y):
         self._validate_parameters(X, y)
 
-        # array setup
-        xx = np.asfortranarray(X.astype("float64"))
-        yy = np.asfortranarray(y.astype("float64"))
-        variable_names = [str(r).encode() for r in range(X.shape[1])]
-        # create and train
-        # self.forest_ = ForestClassification(
-        #     MemoryMode.MEM_DOUBLE,  # memory mode
-        #     xx,  # x
-        #     yy,  # y
-        #     self.mtry_,  # mtry
-        #     "output_prefix".encode(),  # output prefix
-        #     self.num_trees,  # num trees
-        #     self.seed,  # seed
-        #     self.num_threads,  # num threads
-        #     ImportanceMode.IMP_PERM_BREIMAN,  # importance mode
-        #     self.min_node_size,  # min node size
-        #     False,  # prediction mode
-        #     self.replace,  # sample with replacement
-        #     self.unordered_variable_names_,  # unordered variable names
-        #     self.save_memory,  # memory save splitting
-        #     self.split_rule_,  # split rule
-        #     False,  # predict all
-        #     self.sample_fraction_,  # sample fraction
-        #     0.5,  # alpha, ignored in classification, used for maxstat splitrule
-        #     0.1,  # minprop, ignored in classification, used for maxstat splitrule
-        #     self.holdout,  # holdout
-        #     PredictionType.RESPONSE,  # prediction type
-        #     self.num_random_splits,  # num random splits
-        #     self.order_snps_,  # order snps
-        #     self.max_depth,  # max depth
-        #     self.regularization_factor_,  # regularization factor
-        #     self.regularization_usedepth,  # regularization usedepth
-        # )
-        # self.forest_.run(False, self.oob_error)
+        self.variable_names_ = [str(r).encode() for r in range(X.shape[1])]
 
-        results = ranger.ranger(
+        self.forest_ = ranger.ranger(
             1,  # tree_type
-            xx,
-            yy,
-            variable_names,
+            np.asfortranarray(X.astype("float64")),
+            np.asfortranarray(y.astype("float64")),
+            self.variable_names_,
             self.mtry,
             self.num_trees,
             True,  # verbose
@@ -161,7 +128,7 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
             [],  # always_split_variable_names
             False,  # use_always_split_variable_names
             False,  # prediction_mode
-            [],  # loaded_forest
+            {},  # loaded_forest
             np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
@@ -190,7 +157,59 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
             False,  # use_regularization_factor
             self.regularization_usedepth,
         )
-        print(results)
+
+    def predict(self, X):
+        result = ranger.ranger(
+            1,  # tree_type
+            np.asfortranarray(X.astype("float64")),
+            np.array([]),
+            self.variable_names_,
+            self.mtry,
+            self.num_trees,
+            True,  # verbose
+            self.seed,
+            self.num_threads,
+            True,  # write_forest
+            self.importance_mode_,
+            self.min_node_size,
+            self.split_select_weights,
+            False,  # use_split_select_weights
+            [],  # always_split_variable_names
+            False,  # use_always_split_variable_names
+            True,  # prediction_mode
+            self.forest_["forest"],  # loaded_forest
+            np.asfortranarray([[]]),  # snp_data
+            self.replace,  # sample_with_replacement
+            False,  # probability
+            self.unordered_variable_names_,
+            False,  # use_unordered_variable_names
+            self.save_memory,
+            self.split_rule_,
+            self.case_weights,
+            False,  # use_case_weights
+            self.class_weights,
+            False,  # predict_all
+            False,  # keep_inbag
+            self.sample_fraction_,
+            0.5,  # alpha
+            0.1,  # minprop
+            self.holdout,
+            1,  # prediction_type
+            self.num_random_splits,
+            False,  # use_sparse_data
+            self.order_snps_,
+            self.oob_error,
+            self.max_depth,
+            [],  # inbag
+            False,  # use_inbag
+            self.regularization_factor_,
+            False,  # use_regularization_factor
+            self.regularization_usedepth,
+        )
+        return np.array(result["predictions"])
+
+    def predict_proba(self, X):
+        pass
 
     def _validate_parameters(self, X, y):
         check_X_y(X, y)
@@ -291,9 +310,3 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
                 self.importance_mode_ = 3  # ranger_.ImportanceMode.IMP_PERM_RAW
         else:
             raise ValueError("unkown importance mode")
-
-    def predict(self, X):
-        pass
-
-    def predict_proba(self, X):
-        pass
