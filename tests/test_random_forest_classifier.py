@@ -2,7 +2,6 @@ from skranger import RandomForestClassifier
 
 
 class TestRandomForestClassifier:
-
     def test_init(self):
         _ = RandomForestClassifier()
 
@@ -12,7 +11,7 @@ class TestRandomForestClassifier:
         print("predicting")
         pred = rfc.predict(iris_X)
         print(pred)
-        print("predicting")
+        print("probabilities")
         pred = rfc.predict_proba(iris_X)
         print(pred)
         print(rfc.classes_)

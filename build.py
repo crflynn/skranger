@@ -5,9 +5,12 @@ from setuptools import setup
 import numpy as np
 from Cython.Build import cythonize
 
+# skranger project directory
 top = os.path.dirname(os.path.abspath(__file__))
+# the cpp source code
 ranger_src = os.path.join("ranger", "cpp_version", "src")
 
+# include skranger, ranger, and numpy headers
 include_dirs = [
     ".",
     os.path.join(top, ranger_src),
@@ -19,6 +22,11 @@ include_dirs = [
 
 
 def find_pyx_files(directory, files=None):
+    """Recursively find all Cython extension files.
+
+    :param str directory: The directory in which to recursively crawl for .pyx files.
+    :param list files: A list of files in which to append discovered .pyx files.
+    """
     if files is None:
         files = []
     for file in os.listdir(directory):
@@ -30,10 +38,14 @@ def find_pyx_files(directory, files=None):
     return files
 
 
-def create_extension(name):
-    path = name.replace(".", os.path.sep) + ".pyx"
+def create_extension(module_name):
+    """Create a setuptools build extension for a Cython extension file.
+
+    :param str module_name: The name of the module
+    """
+    path = module_name.replace(".", os.path.sep) + ".pyx"
     return Extension(
-        name,
+        module_name,
         sources=[path],
         include_dirs=include_dirs,
         language="c++",

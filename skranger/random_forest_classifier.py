@@ -53,6 +53,7 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
     :param bool save_memory: Save memory at the cost of speed growing trees.
     :param int seed: Random seed value.
     """
+
     def __init__(
         self,
         num_trees=500,

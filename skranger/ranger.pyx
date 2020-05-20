@@ -1,7 +1,7 @@
 import cython
 import numpy as np
 cimport numpy as np
-from cython.operator cimport dereference
+from cython.operator cimport dereference as deref
 from libcpp cimport bool
 from libcpp.memory cimport unique_ptr
 from libcpp.string cimport string
@@ -41,19 +41,19 @@ cdef class DataNumpy:
         )
 
     def get_x(self, size_t row, size_t col):
-        return dereference(self.c_data).get_x(row, col)
+        return deref(self.c_data).get_x(row, col)
 
     def get_y(self, size_t row, size_t col):
-        return dereference(self.c_data).get_y(row, col)
+        return deref(self.c_data).get_y(row, col)
 
     def reserve_memory(self, size_t y_cols):
-        return dereference(self.c_data).reserveMemory(y_cols)
+        return deref(self.c_data).reserveMemory(y_cols)
 
     def set_x(self, size_t col, size_t row, double value, bool& error):
-        return dereference(self.c_data).set_x(col, row, value, error)
+        return deref(self.c_data).set_x(col, row, value, error)
 
     def set_y(self, size_t col, size_t row, double value, bool& error):
-        return dereference(self.c_data).set_y(col, row, value, error)
+        return deref(self.c_data).set_y(col, row, value, error)
 
 
 cpdef dict ranger(
@@ -180,7 +180,7 @@ cpdef dict ranger(
         elif treetype == ranger_.TreeType.TREE_PROBABILITY:
             forest.reset(new ranger_.ForestProbability())
 
-        dereference(forest).initR(
+        deref(forest).initR(
             move(data.c_data),
             mtry,
             num_trees,
@@ -237,44 +237,44 @@ cpdef dict ranger(
             elif treetype == ranger_.TreeType.TREE_PROBABILITY and not class_weights.empty():
                 (<ranger_.ForestProbability*> forest.get()).setClassWeights(class_weights)
 
-        dereference(forest).run(False, oob_error)
+        deref(forest).run(False, oob_error)
 
         if use_split_select_weights and importance_mode != ranger_.ImportanceMode.IMP_NONE:
             if verbose_out:
                 verbose_out.write("Warning: Split select weights used. Variable importance measures are only comparable for variables with equal weights.\n", 1)
 
-        predictions = dereference(forest).getPredictions()
+        predictions = deref(forest).getPredictions()
         if predictions.size() == 1:
             if predictions[0].size() == 1:
-                result["predictions"] = dereference(forest).getPredictions()[0][0]
+                result["predictions"] = deref(forest).getPredictions()[0][0]
             else:
-                result["predictions"] = dereference(forest).getPredictions()[0]
+                result["predictions"] = deref(forest).getPredictions()[0]
         else:
-            result["predictions"] = dereference(forest).getPredictions()
+            result["predictions"] = deref(forest).getPredictions()
 
-        result["num_trees"] = dereference(forest).getNumTrees()
-        result["num_independent_variables"] = dereference(forest).getNumIndependentVariables()
+        result["num_trees"] = deref(forest).getNumTrees()
+        result["num_independent_variables"] = deref(forest).getNumIndependentVariables()
         if treetype == ranger_.TreeType.TREE_SURVIVAL:
             result["unique_death_times"] = (<ranger_.ForestSurvival*> forest.get()).getUniqueTimepoints()
         if not prediction_mode:
-            result["mtry"] = dereference(forest).getMtry()
-            result["min_node_size"] = dereference(forest).getMinNodeSize()
+            result["mtry"] = deref(forest).getMtry()
+            result["min_node_size"] = deref(forest).getMinNodeSize()
             if importance_mode != ranger_.ImportanceMode.IMP_NONE:
-                result["variable_importance"] = dereference(forest).getVariableImportance()
+                result["variable_importance"] = deref(forest).getVariableImportance()
                 if importance_mode == ranger_.ImportanceMode.IMP_PERM_CASEWISE:
-                    result["variable_importance_local"] = dereference(forest).getVariableImportanceCasewise()
-            result["prediction_error"] = dereference(forest).getOverallPredictionError()
+                    result["variable_importance_local"] = deref(forest).getVariableImportanceCasewise()
+            result["prediction_error"] = deref(forest).getOverallPredictionError()
 
         if keep_inbag:
-            result["inbag_counts"] = dereference(forest).getInbagCounts()
+            result["inbag_counts"] = deref(forest).getInbagCounts()
 
         if write_forest:
             forest_object = {
-                "num_trees": dereference(forest).getNumTrees(),
-                "child_node_ids": dereference(forest).getChildNodeIDs(),
-                "splits_var_ids": dereference(forest).getSplitVarIDs(),
-                "split_values": dereference(forest).getSplitValues(),
-                "is_ordered": dereference(forest).getIsOrderedVariable()
+                "num_trees": deref(forest).getNumTrees(),
+                "child_node_ids": deref(forest).getChildNodeIDs(),
+                "splits_var_ids": deref(forest).getSplitVarIDs(),
+                "split_values": deref(forest).getSplitValues(),
+                "is_ordered": deref(forest).getIsOrderedVariable()
             }
 
             # FIXME Cannot assign type 'iterator' to 'size_type'
@@ -298,10 +298,8 @@ cpdef dict ranger(
         if not verbose:
             del verbose_out
 
-    except KeyboardInterrupt as exc:
-        return result
     except Exception as exc:
-        print(exc)
-        return result
+        print(result)
+        raise exc
 
     return result
