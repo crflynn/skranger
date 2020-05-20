@@ -225,7 +225,7 @@ cdef extern from "../ranger/cpp_version/src/Forest/ForestClassification.cpp":
 cdef extern from "../ranger/cpp_version/src/Forest/ForestClassification.h" namespace "ranger":
     cdef cppclass ForestClassification(Forest):
         ForestClassification() except +
-        const vector[double]* getClassValues()
+        const vector[double]& getClassValues()
         void loadForest(
             size_t num_trees,
             vector[vector[vector[size_t]]]& forest_child_nodeIDs,
@@ -236,23 +236,23 @@ cdef extern from "../ranger/cpp_version/src/Forest/ForestClassification.h" names
         )
         void setClassWeights(vector[double]& class_weights)
 
-cdef extern from "../ranger/cpp_version/src/Forest/ForestRegression.cpp":
-    pass
-
-cdef extern from "../ranger/cpp_version/src/Forest/ForestRegression.h" namespace "ranger":
-    cdef cppclass ForestRegression(Forest):
-        ForestRegression() except +
-
-cdef extern from "../ranger/cpp_version/src/Forest/ForestProbability.cpp":
-    pass
-
-cdef extern from "../ranger/cpp_version/src/Forest/ForestProbability.h" namespace "ranger":
-    cdef cppclass ForestProbability(Forest):
-        ForestProbability() except +
-
-cdef extern from "../ranger/cpp_version/src/Forest/ForestSurvival.cpp":
-    pass
-
-cdef extern from "../ranger/cpp_version/src/Forest/ForestSurvival.h" namespace "ranger":
-    cdef cppclass ForestSurvival(Forest):
-        ForestSurvival() except +
+# cdef extern from "../ranger/cpp_version/src/Forest/ForestRegression.cpp":
+#     pass
+#
+# cdef extern from "../ranger/cpp_version/src/Forest/ForestRegression.h" namespace "ranger":
+#     cdef cppclass ForestRegression(Forest):
+#         ForestRegression() except +
+#
+# cdef extern from "../ranger/cpp_version/src/Forest/ForestProbability.cpp":
+#     pass
+#
+# cdef extern from "../ranger/cpp_version/src/Forest/ForestProbability.h" namespace "ranger":
+#     cdef cppclass ForestProbability(Forest):
+#         ForestProbability() except +
+#
+# cdef extern from "../ranger/cpp_version/src/Forest/ForestSurvival.cpp":
+#     pass
+#
+# cdef extern from "../ranger/cpp_version/src/Forest/ForestSurvival.h" namespace "ranger":
+#     cdef cppclass ForestSurvival(Forest):
+#         ForestSurvival() except +
