@@ -93,7 +93,7 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
         self.class_weights = class_weights
         self.split_rule = split_rule
         self.num_random_splits = num_random_splits
-        self.split_select_weights = split_select_weights or []
+        self.split_select_weights = split_select_weights
         self.alwayqs_split_variables = always_split_variables
         self.respect_unordered_factors = respect_unordered_factors
         self.scale_permutation_importance = scale_permutation_importance
@@ -111,7 +111,7 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
 
         self.variable_names_ = [str(r).encode() for r in range(X.shape[1])]
 
-        self.forest_ = ranger.ranger(
+        self.ranger_forest_ = ranger.ranger(
             9,  # tree_type, TREE_PROBABILITY enables predict_proba
             np.asfortranarray(X.astype("float64")),
             np.asfortranarray(y.astype("float64")),
@@ -158,7 +158,9 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
             False,  # use_regularization_factor
             self.regularization_usedepth,
         )
-        self.classes_ = np.array(self.forest_["forest"]["class_values"])
+        self.classes_ = np.array(self.ranger_forest_["forest"]["class_values"])
+        self.n_classes_ = len(self.classes_)
+        self.n_features_ = X.shape[0]
 
     def predict(self, X):
         result = ranger.ranger(
@@ -179,7 +181,7 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
             [],  # always_split_variable_names
             False,  # use_always_split_variable_names
             True,  # prediction_mode
-            self.forest_["forest"],  # loaded_forest
+            self.ranger_forest_["forest"],  # loaded_forest
             np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
@@ -229,7 +231,7 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
             [],  # always_split_variable_names
             False,  # use_always_split_variable_names
             True,  # prediction_mode
-            self.forest_["forest"],  # loaded_forest
+            self.ranger_forest_["forest"],  # loaded_forest
             np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
@@ -259,6 +261,10 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
             self.regularization_usedepth,
         )
         return np.array(result["predictions"])
+
+    def predict_log_proba(self, X):
+        proba = self.predict_proba(X)
+        return np.log(proba)
 
     def _validate_parameters(self, X, y):
         check_X_y(X, y)
