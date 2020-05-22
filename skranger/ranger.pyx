@@ -230,7 +230,7 @@ cpdef dict ranger(
             elif treetype == ranger_.TreeType.TREE_PROBABILITY and not class_weights.empty():
                 (<ranger_.ForestProbability*> forest.get()).setClassWeights(class_weights)
 
-        deref(forest).run(False, oob_error)
+        deref(forest).run(verbose, oob_error)
 
         if use_split_select_weights and importance_mode != ranger_.ImportanceMode.IMP_NONE:
             if verbose_out:
