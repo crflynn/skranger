@@ -23,7 +23,6 @@ class TestRangerForestClassifier:
         rfc.fit(iris_X, iris_y)
         pred = rfc.predict(iris_X)
         assert len(pred) == iris_X.shape[0]
-        print(pred)
 
     def test_predict_proba(self, iris_X, iris_y):
         rfc = RangerForestClassifier()
