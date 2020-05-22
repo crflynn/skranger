@@ -1,12 +1,9 @@
-"""Scikit-learn wrapper for ranger.
-
-As a reference, here is the R documentation:
-https://cran.r-project.org/web/packages/ranger/ranger.pdf
-"""
+"""Scikit-learn wrapper for ranger."""
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
 from sklearn.utils import check_X_y
+from sklearn.utils.validation import _check_sample_weight
 
 import skranger.ranger as ranger
 
@@ -15,6 +12,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
     """Ranger Random Forest implementation for sci-kit learn.
 
     :param int num_trees: The number of tree classifiers to train
+    :param bool verbose: Enable ranger's verbose logging
     :param int/callable mtry: The number of variables to split on each node. When a
         callable is passed, the function must accept a single parameter which is the
         number of features passed, and return some value between 1 and the number of
@@ -28,7 +26,6 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
     :param sample_fraction: The fraction of observations to sample. The default is 1
         when sampling with replacement, and 0.632 otherwise. This can be a vector of
         class specific values.
-    :param list case_weights: Weights for training observations when sampling.
     :param list class_weights: Weights for the outcome classes.
     :param str split_rule: One of ``gini``, ``extratrees``, ``hellinger``;
         default ``gini``.
@@ -57,6 +54,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
     def __init__(
         self,
         num_trees=500,
+        verbose=False,
         mtry=0,
         importance="none",
         probability=False,
@@ -64,7 +62,6 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         max_depth=0,
         replace=True,
         sample_fraction=None,
-        case_weights=None,
         class_weights=None,
         split_rule="gini",
         num_random_splits=1,
@@ -82,6 +79,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         seed=42,
     ):
         self.num_trees = num_trees
+        self.verbose = verbose
         self.mtry = mtry
         self.importance = importance
         self.probability = probability
@@ -89,12 +87,11 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         self.max_depth = max_depth
         self.replace = replace
         self.sample_fraction = sample_fraction
-        self.case_weights = case_weights
         self.class_weights = class_weights
         self.split_rule = split_rule
         self.num_random_splits = num_random_splits
         self.split_select_weights = split_select_weights
-        self.alwayqs_split_variables = always_split_variables
+        self.always_split_variables = always_split_variables
         self.respect_unordered_factors = respect_unordered_factors
         self.scale_permutation_importance = scale_permutation_importance
         self.local_importance = local_importance
@@ -106,11 +103,23 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         self.save_memory = save_memory
         self.seed = seed
 
-    def fit(self, X, y):
+    def fit(self, X, y, sample_weight=None):
+        if sample_weight is not None:
+            sample_weight = _check_sample_weight(sample_weight, X)
+
+        # Check the init parameters
         self._validate_parameters(X, y)
 
+        # Map classes to indices
+        y = y.copy()
+        self.classes_, y = np.unique(y, return_inverse=True)
+        self.n_classes_ = len(self.classes_)
+
+        # Store X info
+        self.n_features_ = X.shape[1]
         self.variable_names_ = [str(r).encode() for r in range(X.shape[1])]
 
+        # Fit the forest
         self.ranger_forest_ = ranger.ranger(
             9,  # tree_type, TREE_PROBABILITY enables predict_proba
             np.asfortranarray(X.astype("float64")),
@@ -118,7 +127,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
             self.variable_names_,
             self.mtry,
             self.num_trees,
-            True,  # verbose
+            self.verbose,
             self.seed,
             self.num_threads,
             True,  # write_forest
@@ -126,7 +135,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
             self.min_node_size,
             self.split_select_weights or [],
             False,  # use_split_select_weights
-            [],  # always_split_variable_names
+            self.always_split_variables or [],  # always_split_variable_names
             False,  # use_always_split_variable_names
             False,  # prediction_mode
             {},  # loaded_forest
@@ -137,7 +146,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
             False,  # use_unordered_variable_names
             self.save_memory,
             self.split_rule_,
-            self.case_weights or [],
+            sample_weight or [],  # case_weights
             False,  # use_case_weights
             self.class_weights or [],
             False,  # predict_all
@@ -158,14 +167,11 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
             False,  # use_regularization_factor
             self.regularization_usedepth,
         )
-        self.classes_ = np.array(self.ranger_forest_["forest"]["class_values"])
-        self.n_classes_ = len(self.classes_)
-        self.n_features_ = X.shape[0]
         return self
 
     def predict(self, X):
         probas = self.predict_proba(X)
-        return np.argmax(probas, 1)
+        return self.classes_.take(np.argmax(probas, axis=1), axis=0)
 
     def predict_proba(self, X):
         result = ranger.ranger(
@@ -175,7 +181,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
             self.variable_names_,
             self.mtry,
             self.num_trees,
-            True,  # verbose
+            self.verbose,
             self.seed,
             self.num_threads,
             False,  # write_forest
@@ -183,7 +189,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
             self.min_node_size,
             self.split_select_weights or [],
             False,  # use_split_select_weights
-            [],  # always_split_variable_names
+            self.always_split_variables or [],  # always_split_variable_names
             False,  # use_always_split_variable_names
             True,  # prediction_mode
             self.ranger_forest_["forest"],  # loaded_forest
@@ -194,7 +200,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
             False,  # use_unordered_variable_names
             self.save_memory,
             self.split_rule_,
-            self.case_weights or [],
+            [],  # case_weights
             False,  # use_case_weights
             self.class_weights or [],
             False,  # predict_all
