@@ -11,7 +11,7 @@ from sklearn.utils import check_X_y
 import skranger.ranger as ranger
 
 
-class RandomForestClassifier(ClassifierMixin, BaseEstimator):
+class RangerForestClassifier(ClassifierMixin, BaseEstimator):
     """Ranger Random Forest implementation for sci-kit learn.
 
     :param int num_trees: The number of tree classifiers to train
@@ -35,7 +35,7 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
     :param int num_random_splits: The number of trees for the ``extratrees`` splitrule.
     :param list split_select_weights: Vector of weights between 0 and 1 of probabilities
         to select variables for splitting.
-    :param list always_split_variables:
+    :param list always_split_variables:  TODO
     :param str respect_unordered_factors: One of ``ignore``, ``order``, ``partition``.
         The default is ``partition`` for the ``extratrees`` splitrule, otherwise the
         default is ``ignore``.
@@ -161,56 +161,11 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
         self.classes_ = np.array(self.ranger_forest_["forest"]["class_values"])
         self.n_classes_ = len(self.classes_)
         self.n_features_ = X.shape[0]
+        return self.ranger_forest_
 
     def predict(self, X):
-        result = ranger.ranger(
-            1,  # tree_type, TREE_CLASSIFICATION for class predictions
-            np.asfortranarray(X.astype("float64")),
-            np.array([]),
-            self.variable_names_,
-            self.mtry,
-            self.num_trees,
-            True,  # verbose
-            self.seed,
-            self.num_threads,
-            True,  # write_forest
-            self.importance_mode_,
-            self.min_node_size,
-            self.split_select_weights or [],
-            False,  # use_split_select_weights
-            [],  # always_split_variable_names
-            False,  # use_always_split_variable_names
-            True,  # prediction_mode
-            self.ranger_forest_["forest"],  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
-            self.replace,  # sample_with_replacement
-            False,  # probability
-            self.unordered_variable_names_,
-            False,  # use_unordered_variable_names
-            self.save_memory,
-            self.split_rule_,
-            self.case_weights or [],
-            False,  # use_case_weights
-            self.class_weights or [],
-            False,  # predict_all
-            False,  # keep_inbag
-            self.sample_fraction_,
-            0.5,  # alpha
-            0.1,  # minprop
-            self.holdout,
-            1,  # prediction_type
-            self.num_random_splits,
-            False,  # use_sparse_data
-            self.order_snps_,
-            self.oob_error,
-            self.max_depth,
-            [],  # inbag
-            False,  # use_inbag
-            self.regularization_factor_,
-            False,  # use_regularization_factor
-            self.regularization_usedepth,
-        )
-        return np.array(result["predictions"])
+        probas = self.predict_proba(X)
+        return np.argmax(probas, 1)
 
     def predict_proba(self, X):
         result = ranger.ranger(
@@ -223,7 +178,7 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
             True,  # verbose
             self.seed,
             self.num_threads,
-            True,  # write_forest
+            False,  # write_forest
             self.importance_mode_,
             self.min_node_size,
             self.split_select_weights or [],
@@ -260,6 +215,7 @@ class RandomForestClassifier(ClassifierMixin, BaseEstimator):
             False,  # use_regularization_factor
             self.regularization_usedepth,
         )
+        print(result)
         return np.array(result["predictions"])
 
     def predict_log_proba(self, X):

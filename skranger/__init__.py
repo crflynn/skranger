@@ -1,1 +1,1 @@
-from skranger.random_forest_classifier import RandomForestClassifier
+from skranger.ranger_forest_classifier import RangerForestClassifier
