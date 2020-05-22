@@ -107,7 +107,6 @@ cpdef dict ranger(
     # print(locals())
     result = {}
 
-    # cdef declarations must be at the function level
     cdef unique_ptr[ranger_.Forest] forest
 
     cdef ranger_.ostream* verbose_out
@@ -119,15 +118,12 @@ cpdef dict ranger(
     cdef vector[vector[size_t]] split_var_ids
     cdef vector[vector[double]] split_values
     cdef vector[bool] is_ordered
-
     cdef vector[double] class_values
     cdef vector[double] class_values_
     cdef vector[vector[vector[double]]] chf
     cdef vector[double] unique_timepoints
     cdef vector[vector[vector[double]]] terminal_class_counts
-
     cdef vector[vector[vector[double]]] predictions
-
     cdef vector[vector[size_t]] snp_order
 
     try:
@@ -146,7 +142,6 @@ cpdef dict ranger(
         if not use_regularization_factor:
             regularization_factor.clear()
 
-        # FIXME no output?
         if verbose:
             verbose_out = <ranger_.ostream*> &ranger_.cout
         else:
@@ -165,8 +160,6 @@ cpdef dict ranger(
         # else:
 
         data = DataNumpy(x, y, variable_names)
-
-        # ignore snp data
 
         if treetype == ranger_.TreeType.TREE_CLASSIFICATION:
             if probability:
@@ -246,11 +239,11 @@ cpdef dict ranger(
         predictions = deref(forest).getPredictions()
         if predictions.size() == 1:
             if predictions[0].size() == 1:
-                result["predictions"] = deref(forest).getPredictions()[0][0]
+                result["predictions"] = predictions[0][0]
             else:
-                result["predictions"] = deref(forest).getPredictions()[0]
+                result["predictions"] = predictions[0]
         else:
-            result["predictions"] = deref(forest).getPredictions()
+            result["predictions"] = predictions
 
         result["num_trees"] = deref(forest).getNumTrees()
         result["num_independent_variables"] = deref(forest).getNumIndependentVariables()
@@ -277,11 +270,6 @@ cpdef dict ranger(
                 "is_ordered": deref(forest).getIsOrderedVariable()
             }
 
-            # FIXME Cannot assign type 'iterator' to 'size_type'
-            # if snp_data.nrow() > 1 and order_snps:
-            #     snp_order = forest.getSnpOrder()
-            #     forest_object["snp_order"] = vector[vector[size_t]](snp_order.begin(), snp_order.begin() + snp_data.ncol())
-
             if treetype == ranger_.TreeType.TREE_CLASSIFICATION:
                 class_values_ = (<ranger_.ForestClassification*> forest.get()).getClassValues()
                 forest_object["class_values"] = []
@@ -299,7 +287,6 @@ cpdef dict ranger(
             del verbose_out
 
     except Exception as exc:
-        print(result)
         raise exc
 
     return result
