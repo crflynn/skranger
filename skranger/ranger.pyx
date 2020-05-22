@@ -237,7 +237,6 @@ cpdef dict ranger(
                 verbose_out.write("Warning: Split select weights used. Variable importance measures are only comparable for variables with equal weights.\n", 1)
 
         predictions = deref(forest).getPredictions()
-        print(predictions)
         if predictions.size() == 1:
             if predictions[0].size() == 1:
                 result["predictions"] = predictions[0][0]
