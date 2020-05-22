@@ -6,7 +6,7 @@ from sklearn.base import clone
 from skranger import RangerForestClassifier
 
 
-class TestRandomForestClassifier:
+class TestRangerForestClassifier:
     def test_init(self):
         _ = RangerForestClassifier()
 

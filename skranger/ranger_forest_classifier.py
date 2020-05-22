@@ -161,7 +161,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         self.classes_ = np.array(self.ranger_forest_["forest"]["class_values"])
         self.n_classes_ = len(self.classes_)
         self.n_features_ = X.shape[0]
-        return self.ranger_forest_
+        return self
 
     def predict(self, X):
         probas = self.predict_proba(X)
@@ -215,7 +215,6 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
             False,  # use_regularization_factor
             self.regularization_usedepth,
         )
-        print(result)
         return np.array(result["predictions"])
 
     def predict_log_proba(self, X):
