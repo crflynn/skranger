@@ -1,13 +1,16 @@
+"""Cython header file for C++ classes from ranger, skranger, and C++ std."""
 from libcpp cimport bool
 from libcpp.memory cimport unique_ptr
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 
 
+# Wrap stringstream for when verbose == False
 cdef extern from "<sstream>" namespace "std":
     cdef cppclass stringstream:
         stringstream() except +
 
+# Wrap cout/iostream for when verbose == True
 # https://stackoverflow.com/questions/30984078/cython-working-with-c-streams
 cdef extern from "<iostream>" namespace "std":
     ostream cout
@@ -84,10 +87,8 @@ cdef extern from "DataNumpy.h" namespace "ranger":
             size_t num_cols
         )
 
-# Inherit from the forest class for the classifier
 cdef extern from "../ranger/cpp_version/src/Forest/Forest.cpp":
     pass
-
 
 cdef extern from "../ranger/cpp_version/src/Forest/Forest.h" namespace "ranger":
     cdef cppclass Forest:
@@ -166,7 +167,6 @@ cdef extern from "../ranger/cpp_version/src/Forest/Forest.h" namespace "ranger":
         const vector[double]& getVariableImportance()
         const vector[double]& getVariableImportanceCasewise()
 
-# Needed reference to be able to import in python
 cdef extern from "../ranger/cpp_version/src/utility/utility.cpp":
     pass
 
@@ -178,7 +178,6 @@ cdef extern from "../ranger/cpp_version/src/utility/utility.h" namespace "ranger
         unsigned int num_parts
     )
 
-# Needed reference to be able to import in python
 cdef extern from "../ranger/cpp_version/src/Tree/Tree.cpp":
     pass
 
@@ -191,7 +190,6 @@ cdef extern from "../ranger/cpp_version/src/Tree/Tree.h" namespace "ranger":
             vector[double]& split_values
         )
 
-# Needed reference to be able to import in python
 cdef extern from "../ranger/cpp_version/src/Tree/TreeClassification.cpp":
     pass
 
@@ -205,7 +203,6 @@ cdef extern from "../ranger/cpp_version/src/Tree/TreeClassification.h" namespace
             vector[double]* class_weights
         )
 
-# Needed reference to be able to import in python
 cdef extern from "../ranger/cpp_version/src/Tree/TreeSurvival.cpp":
     pass
 
@@ -217,7 +214,6 @@ cdef extern from "../ranger/cpp_version/src/Tree/TreeSurvival.h" namespace "rang
             vector[size_t]* response_timepointIDs,
         )
 
-# Needed reference to be able to import in python
 cdef extern from "../ranger/cpp_version/src/Tree/TreeRegression.cpp":
     pass
 
@@ -229,7 +225,6 @@ cdef extern from "../ranger/cpp_version/src/Tree/TreeRegression.h" namespace "ra
             vector[size_t]& split_varIDs,
         )
 
-# Needed reference to be able to import in python
 cdef extern from "../ranger/cpp_version/src/Tree/TreeProbability.cpp":
     pass
 
@@ -243,7 +238,6 @@ cdef extern from "../ranger/cpp_version/src/Tree/TreeProbability.h" namespace "r
             vector[double]* class_weights
         )
 
-# The classifier, inherits from Forest
 cdef extern from "../ranger/cpp_version/src/Forest/ForestClassification.cpp":
     pass
 

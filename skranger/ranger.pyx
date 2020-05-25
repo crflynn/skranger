@@ -12,7 +12,7 @@ cimport ranger_
 
 
 cdef class DataNumpy:
-    """Cython wrapper for DataNumpy class in C++.
+    """Cython wrapper for DataNumpy C++ class in ``DataNumpy.h``.
 
     This wraps the Data class in C++, which encapsulates training data passed to the
     random forest classes. It allows us to pass numpy arrays as a ranger-compatible
@@ -104,6 +104,38 @@ cpdef dict ranger(
     bool use_regularization_factor,
     bool regularization_usedepth,
 ):
+    """Cython function interface to ranger.
+    
+    Provides an entrypoint into the ranger C++ code, and returns a result object
+    with ranger-specific random forest implementation objects for serializing and
+    deserializing random forests. The result object is a python dictionary containing
+    forest structures, metadata, and predictions (if in prediction mode). The structure
+    of results is (depending on forest type):
+    
+    {
+        "predictions": [[]],
+        "num_trees": int,
+        "num_independent_variables": int,
+        "mtry": int,
+        "min_node_size": int,
+        "prediction_error": float,
+        "inbag_counts": -,
+        "unique_death_times": -,
+        "variable_importance": -,
+        "variable_importance_local": -,
+        "forest": {
+            "num_trees": int,
+            "child_node_ids": [[[]]],
+            "splits_var_ids": [[]],
+            "split_values": [[]],
+            "is_ordered": [],
+            "class_values": [],
+            "terminal_class_counts": [[[]]],
+            "chf": -,
+            "unique_death_times": -,
+        },
+    }
+    """
     # print(locals())
     result = {}
 
