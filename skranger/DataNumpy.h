@@ -34,7 +34,6 @@ public:
     }
 
     if (col < num_cols_no_snp) {
-//      std::cout << col * num_rows + row << std::endl;
       return x[col * num_rows + row];
     } else {
       return getSnp(row, col, col_permuted);

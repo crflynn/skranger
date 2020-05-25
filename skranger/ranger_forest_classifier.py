@@ -11,6 +11,10 @@ import skranger.ranger as ranger
 class RangerForestClassifier(ClassifierMixin, BaseEstimator):
     """Ranger Random Forest implementation for sci-kit learn.
 
+    Provides a sklearn classifier interface to the Ranger C++ library using Cython. The
+    argument names to the constructor are similar to the C++ library and accompanied R
+    package for familiarity.
+
     :param int num_trees: The number of tree classifiers to train
     :param bool verbose: Enable ranger's verbose logging
     :param int/callable mtry: The number of variables to split on each node. When a
@@ -19,7 +23,6 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         features.
     :param str importance: One of one of ``none``, ``impurity``, ``impurity_corrected``,
         ``permutation``.
-    :param bool probability: Grow a probability forest as in Malley et al. (2012)
     :param int min_node_size: The minimal node size.
     :param int max_depth: The maximal tree depth; 0 means unlimited.
     :param bool replace: Sample with replacement.
@@ -32,7 +35,8 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
     :param int num_random_splits: The number of trees for the ``extratrees`` splitrule.
     :param list split_select_weights: Vector of weights between 0 and 1 of probabilities
         to select variables for splitting.
-    :param list always_split_variables:  TODO
+    :param list always_split_variables:  Variables which should always be selected for
+        splitting.
     :param str respect_unordered_factors: One of ``ignore``, ``order``, ``partition``.
         The default is ``partition`` for the ``extratrees`` splitrule, otherwise the
         default is ``ignore``.
@@ -43,8 +47,8 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
     :param list regularization_factor: A vector of regularization factors for the
         features.
     :param bool regularization_usedepth: Whether to consider depth in regularization.
-    :param bool holdout: Hold-out all samples with case weight 0 and use these for variable
-        importance and prediction error.
+    :param bool holdout: Hold-out all samples with case weight 0 and use these for
+        variable importance and prediction error.
     :param bool oob_error: Whether to calculate OOB prediction error.
     :param int num_threads: The number of threads. Default is number of CPU cores.
     :param bool save_memory: Save memory at the cost of speed growing trees.
@@ -53,11 +57,10 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
 
     def __init__(
         self,
-        num_trees=500,
+        num_trees=100,
         verbose=False,
         mtry=0,
         importance="none",
-        probability=False,
         min_node_size=0,
         max_depth=0,
         replace=True,
@@ -82,7 +85,6 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         self.verbose = verbose
         self.mtry = mtry
         self.importance = importance
-        self.probability = probability
         self.min_node_size = min_node_size
         self.max_depth = max_depth
         self.replace = replace
@@ -104,6 +106,12 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         self.seed = seed
 
     def fit(self, X, y, sample_weight=None):
+        """Fit the ranger random forest using training data.
+
+        :param np.ndarray X: training input features
+        :param np.ndarray y: training input classes
+        :param np.ndarray sample_weight: optional weights for input samples
+        """
         if sample_weight is not None:
             sample_weight = _check_sample_weight(sample_weight, X)
 
@@ -134,20 +142,20 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
             self.importance_mode_,
             self.min_node_size,
             self.split_select_weights or [],
-            False,  # use_split_select_weights
+            bool(self.split_select_weights),  # use_split_select_weights
             self.always_split_variables or [],  # always_split_variable_names
-            False,  # use_always_split_variable_names
+            bool(self.always_split_variables),  # use_always_split_variable_names
             False,  # prediction_mode
             {},  # loaded_forest
             np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             self.unordered_variable_names_,
-            False,  # use_unordered_variable_names
+            bool(self.unordered_variable_names_),  # use_unordered_variable_names
             self.save_memory,
             self.split_rule_,
             sample_weight or [],  # case_weights
-            False,  # use_case_weights
+            bool(sample_weight),  # use_case_weights
             self.class_weights or [],
             False,  # predict_all
             False,  # keep_inbag
@@ -170,12 +178,20 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         return self
 
     def predict(self, X):
+        """Predict classes from X.
+
+        :param array2d X: predict input features
+        """
         probas = self.predict_proba(X)
         return self.classes_.take(np.argmax(probas, axis=1), axis=0)
 
     def predict_proba(self, X):
+        """Predict probabilities for classes from X.
+
+        :param array2d X: predict input features
+        """
         result = ranger.ranger(
-            9,  # tree_type, TREE_PROBABILITY for class probabilities
+            9,  # tree_type, TREE_PROBABILITY
             np.asfortranarray(X.astype("float64")),
             np.array([]),
             self.variable_names_,
@@ -188,16 +204,16 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
             self.importance_mode_,
             self.min_node_size,
             self.split_select_weights or [],
-            False,  # use_split_select_weights
+            bool(self.split_select_weights),  # use_split_select_weights
             self.always_split_variables or [],  # always_split_variable_names
-            False,  # use_always_split_variable_names
+            bool(self.always_split_variables),  # use_always_split_variable_names
             True,  # prediction_mode
             self.ranger_forest_["forest"],  # loaded_forest
             np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             self.unordered_variable_names_,
-            False,  # use_unordered_variable_names
+            bool(self.unordered_variable_names_),  # use_unordered_variable_names
             self.save_memory,
             self.split_rule_,
             [],  # case_weights
@@ -218,16 +234,21 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
             [],  # inbag
             False,  # use_inbag
             self.regularization_factor_,
-            False,  # use_regularization_factor
+            self.use_regularization_factor_,
             self.regularization_usedepth,
         )
         return np.array(result["predictions"])
 
     def predict_log_proba(self, X):
+        """Predict log probabilities for classes from X.
+
+        :param array2d X: predict input features
+        """
         proba = self.predict_proba(X)
         return np.log(proba)
 
     def _validate_parameters(self, X, y):
+        """Validate ranger parameters and set defaults."""
         check_X_y(X, y)
         self._set_respect_unordered_factors()
         # TODO order mode recoding
@@ -245,6 +266,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         self._set_unordered_variable_names()
 
     def _set_unordered_variable_names(self):
+        """Determine unordered variable names."""
         if self.respect_unordered_factors == "partition":
             # TODO check which ones are ordered and factored
             pass
@@ -254,6 +276,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
             raise ValueError("respect ordered factors must be one of `partition`, `ignore` or `order`")
 
     def _evaluate_mtry(self, num_features):
+        """Evaluate mtry if callable."""
         if callable(self.mtry):
             self.mtry_ = self.mtry(num_features)
             if self.mtry_ < 1 or self.mtry_ > num_features:
@@ -264,6 +287,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
                 raise ValueError("mtry must be between 0 and number of features")
 
     def _set_split_rule(self):
+        """Set split rule to enum value."""
         if self.split_rule == "gini":
             self.split_rule_ = 1  # ranger_.SplitRule.LOGRANK
         elif self.split_rule == "extratrees":
@@ -280,6 +304,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
             raise ValueError("random splits must be 1 when split rule is not extratrees")
 
     def _set_respect_unordered_factors(self):
+        """Set ``respect_unordered_factors`` based on ``split_rule``."""
         if self.respect_unordered_factors is None:
             if self.split_rule == "extratrees":
                 self.respect_unordered_factors = "partition"
@@ -287,9 +312,10 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
                 self.respect_unordered_factors = "ignore"
 
     def _check_set_regularization(self, num_features):
-        """Check, set the regularization factor to either [] or length num_features"""
+        """Check, set the regularization factor to either [] or length num_features."""
         if self.regularization_factor is None:
             self.regularization_factor = []
+            self.use_regularization_factor_ = False
             return
         if len(self.regularization_factor) > 0:
             if max(self.regularization_factor) > 1:
@@ -310,6 +336,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
             self.use_regularization_factor_ = True
 
     def _set_importance_mode(self):
+        """Set the importance mode based on ``importance`` and ``local_importance``."""
         # Note IMP_PERM_LIAW is unused
         if self.importance is None or self.importance == "none":
             self.importance_mode_ = 0  # ranger_.ImportanceMode.IMP_NONE
