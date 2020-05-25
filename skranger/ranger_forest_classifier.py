@@ -4,6 +4,8 @@ from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
 from sklearn.utils import check_X_y
 from sklearn.utils.validation import _check_sample_weight
+from sklearn.utils.validation import check_array
+from sklearn.utils.validation import check_is_fitted
 
 import skranger.ranger as ranger
 
@@ -49,10 +51,29 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
     :param bool regularization_usedepth: Whether to consider depth in regularization.
     :param bool holdout: Hold-out all samples with case weight 0 and use these for
         variable importance and prediction error.
-    :param bool oob_error: Whether to calculate OOB prediction error.
+    :param bool oob_error: Whether to calculate out-of-bag prediction error.
     :param int num_threads: The number of threads. Default is number of CPU cores.
     :param bool save_memory: Save memory at the cost of speed growing trees.
     :param int seed: Random seed value.
+
+    :ivar list classes\_: The class labels determined from the fit input ``y``.
+    :ivar int n_classes\_: The number of unique class labels from the fit input ``y``.
+    :ivar int n_features\_: The number of features (columns) from the fit input ``X``.
+    :ivar list variable_names\_: Names for the features of the fit input ``X``.
+    :ivar dict ranger_forest\_: The returned result object from calling C++ ranger.
+    :ivar int mtry\_: The mtry value as determined if ``mtry`` is callable, otherwise
+        it is the same as ``mtry``.
+    :ivar list sample_fraction\_: The sample fraction determined by input validation
+    :ivar list regularization_factor\_: The regularization factors determined by input
+        validation.
+    :ivar list unordered_variable_names\_: The unordered variable names determined by
+        input validation.
+    :ivar int split_rule\_: The split rule integer corresponding to ranger enum
+        ``SplitRule``.
+    :ivar bool use_regularization_factor\_: Input validation determined bool for using
+        regularization factor input parameter.
+    :ivar int importance_mode\_: The importance mode integer corresponding to ranger
+        enum ``ImportanceMode``.
     """
 
     def __init__(
@@ -112,6 +133,8 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         :param np.ndarray y: training input classes
         :param np.ndarray sample_weight: optional weights for input samples
         """
+        # Check input
+        X, y = check_X_y(X, y)
         if sample_weight is not None:
             sample_weight = _check_sample_weight(sample_weight, X)
 
@@ -183,13 +206,16 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         :param array2d X: predict input features
         """
         probas = self.predict_proba(X)
-        return self.classes_.take(np.argmax(probas, axis=1), axis=0)
+        return self.classes_.take(np.argmax(np.atleast_2d(probas), axis=1), axis=0)
 
     def predict_proba(self, X):
         """Predict probabilities for classes from X.
 
         :param array2d X: predict input features
         """
+        check_is_fitted(self)
+        X = check_array(X)
+
         result = ranger.ranger(
             9,  # tree_type, TREE_PROBABILITY
             np.asfortranarray(X.astype("float64")),
@@ -249,7 +275,6 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
 
     def _validate_parameters(self, X, y):
         """Validate ranger parameters and set defaults."""
-        check_X_y(X, y)
         self._set_respect_unordered_factors()
         # TODO order mode recoding
         self._evaluate_mtry(X.shape[1])
