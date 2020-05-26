@@ -41,7 +41,7 @@ public:
   }
 
   double get_y(size_t row, size_t col) const override {
-    return y[row];
+    return y[col * num_rows + row];
   }
 
   void reserveMemory(size_t y_cols) override {
@@ -54,7 +54,7 @@ public:
   }
 
   void set_y(size_t col, size_t row, double value, bool& error) override {
-    y[row] = value;
+    y[col * num_rows + row] = value;
   }
 
 private:

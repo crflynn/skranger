@@ -7,11 +7,12 @@ from sklearn.utils.validation import _check_sample_weight
 from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
 
-import skranger.ranger as ranger
+from skranger.base import RangerValidationMixin
+from skranger.ensemble import ranger
 
 
-class RangerForestClassifier(ClassifierMixin, BaseEstimator):
-    """Ranger Random Forest implementation for sci-kit learn.
+class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimator):
+    """Ranger Random Forest Probability/Classification implementation for sci-kit learn.
 
     Provides a sklearn classifier interface to the Ranger C++ library using Cython. The
     argument names to the constructor are similar to the C++ library and accompanied R
@@ -133,6 +134,8 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         :param np.ndarray y: training input classes
         :param np.ndarray sample_weight: optional weights for input samples
         """
+        self.tree_type_ = 9  # tree_type, TREE_PROBABILITY enables predict_proba
+
         # Check input
         X, y = check_X_y(X, y)
         if sample_weight is not None:
@@ -152,9 +155,9 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
 
         # Fit the forest
         self.ranger_forest_ = ranger.ranger(
-            9,  # tree_type, TREE_PROBABILITY enables predict_proba
+            self.tree_type_,
             np.asfortranarray(X.astype("float64")),
-            np.asfortranarray(y.astype("float64")),
+            np.asfortranarray(np.atleast_2d(y).astype("float64")),
             self.variable_names_,
             self.mtry,
             self.num_trees,
@@ -206,7 +209,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         :param array2d X: predict input features
         """
         probas = self.predict_proba(X)
-        return self.classes_.take(np.argmax(np.atleast_2d(probas), axis=1), axis=0)
+        return self.classes_.take(np.argmax(probas, axis=1), axis=0)
 
     def predict_proba(self, X):
         """Predict probabilities for classes from X.
@@ -219,7 +222,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         result = ranger.ranger(
             9,  # tree_type, TREE_PROBABILITY
             np.asfortranarray(X.astype("float64")),
-            np.array([]),
+            np.array([[]]),
             self.variable_names_,
             self.mtry,
             self.num_trees,
@@ -263,7 +266,7 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
             self.use_regularization_factor_,
             self.regularization_usedepth,
         )
-        return np.array(result["predictions"])
+        return np.atleast_2d(np.array(result["predictions"]))
 
     def predict_log_proba(self, X):
         """Predict log probabilities for classes from X.
@@ -272,109 +275,3 @@ class RangerForestClassifier(ClassifierMixin, BaseEstimator):
         """
         proba = self.predict_proba(X)
         return np.log(proba)
-
-    def _validate_parameters(self, X, y):
-        """Validate ranger parameters and set defaults."""
-        self._set_respect_unordered_factors()
-        # TODO order mode recoding
-        self._evaluate_mtry(X.shape[1])
-        self._set_importance_mode()
-        self._check_set_regularization(X.shape[1])
-
-        self.sample_fraction_ = self.sample_fraction or [1.0 if self.replace else 0.632]
-
-        self.regularization_factor_ = self.regularization_factor or [1.0] * X.shape[1]
-
-        self._set_split_rule()
-        self.order_snps_ = self.respect_unordered_factors == "order"
-
-        self._set_unordered_variable_names()
-
-    def _set_unordered_variable_names(self):
-        """Determine unordered variable names."""
-        if self.respect_unordered_factors == "partition":
-            # TODO check which ones are ordered and factored
-            pass
-        elif self.respect_unordered_factors == "ignore" or self.respect_unordered_factors == "order":
-            self.unordered_variable_names_ = []
-        else:
-            raise ValueError("respect ordered factors must be one of `partition`, `ignore` or `order`")
-
-    def _evaluate_mtry(self, num_features):
-        """Evaluate mtry if callable."""
-        if callable(self.mtry):
-            self.mtry_ = self.mtry(num_features)
-            if self.mtry_ < 1 or self.mtry_ > num_features:
-                raise ValueError("mtry function must evaluate to between 1 and number of features")
-        else:
-            self.mtry_ = self.mtry
-            if self.mtry_ < 0 or self.mtry_ > num_features:
-                raise ValueError("mtry must be between 0 and number of features")
-
-    def _set_split_rule(self):
-        """Set split rule to enum value."""
-        if self.split_rule == "gini":
-            self.split_rule_ = 1  # ranger_.SplitRule.LOGRANK
-        elif self.split_rule == "extratrees":
-            self.split_rule_ = 5  # ranger_.SplitRule.EXTRATREES
-        elif self.split_rule == "hellinger":
-            self.split_rule_ = 7  # ranger_.SplitRule.HELLINGER
-        else:
-            raise ValueError("split rule must be either gini, extratrees, or hellinger")
-
-        if self.split_rule == "extratrees" and self.respect_unordered_factors == "partition" and self.save_memory:
-            raise ValueError("save memory is not possible with extratrees split rule and unordered predictors")
-
-        if self.num_random_splits > 1 and self.split_rule != "extratrees":
-            raise ValueError("random splits must be 1 when split rule is not extratrees")
-
-    def _set_respect_unordered_factors(self):
-        """Set ``respect_unordered_factors`` based on ``split_rule``."""
-        if self.respect_unordered_factors is None:
-            if self.split_rule == "extratrees":
-                self.respect_unordered_factors = "partition"
-            else:
-                self.respect_unordered_factors = "ignore"
-
-    def _check_set_regularization(self, num_features):
-        """Check, set the regularization factor to either [] or length num_features."""
-        if self.regularization_factor is None:
-            self.regularization_factor = []
-            self.use_regularization_factor_ = False
-            return
-        if len(self.regularization_factor) > 0:
-            if max(self.regularization_factor) > 1:
-                raise ValueError("The regularization coefficients must be <= 1")
-            if max(self.regularization_factor) <= 0:
-                raise ValueError("The regularization coefficients must be > 0")
-            if len(self.regularization_factor) != 1 and len(self.regularization_factor) != num_features:
-                raise ValueError("There must be either one 1 or (number of features) regularization coefficients")
-            if len(self.regularization_factor) == 1:
-                self.regularization_factor = self.regularization_factor * num_features
-        if all([r == 1 for r in self.regularization_factor]):
-            self.regularization_factor = []
-            self.use_regularization_factor_ = False
-        else:
-            if self.num_threads != 1:
-                self.num_threads = 1
-                # TODO Warn parallelization cannot be used with regularization
-            self.use_regularization_factor_ = True
-
-    def _set_importance_mode(self):
-        """Set the importance mode based on ``importance`` and ``local_importance``."""
-        # Note IMP_PERM_LIAW is unused
-        if self.importance is None or self.importance == "none":
-            self.importance_mode_ = 0  # ranger_.ImportanceMode.IMP_NONE
-        elif self.importance == "impurity":
-            self.importance_mode_ = 1  # ranger_.ImportanceMode.IMP_GINI
-        elif self.importance == "impurity_corrected" or self.importance == "impurity_unbiased":
-            self.importance_mode_ = 5  # ranger_.ImportanceMode.IMP_GINI_CORRECTED
-        elif self.importance == "permutation":
-            if self.local_importance:
-                self.importance_mode_ = 6  # ranger_.ImportanceMode.IMP_PERM_CASEWISE
-            elif self.scale_permutation_importance:
-                self.importance_mode_ = 2  # ranger_.ImportanceMode.IMP_PERM_BREIMAN
-            else:
-                self.importance_mode_ = 3  # ranger_.ImportanceMode.IMP_PERM_RAW
-        else:
-            raise ValueError("unkown importance mode")

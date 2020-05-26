@@ -1,3 +1,4 @@
+"""Cython implementation for ranger and Data child classes."""
 import cython
 import numpy as np
 cimport numpy as np
@@ -24,19 +25,18 @@ cdef class DataNumpy:
     @cython.wraparound(False)
     def __cinit__(self,
         np.ndarray[double, ndim=2, mode="fortran"] x not None,
-        np.ndarray[double, ndim=1, mode="fortran"] y not None,
+        np.ndarray[double, ndim=2, mode="fortran"] y not None,
         vector[string] variable_names,
     ):
-        cdef int num_rows, num_cols
-        num_rows = x.shape[0]
-        num_cols = x.shape[1]
+        cdef int num_rows = x.shape[0]
+        cdef int num_cols = x.shape[1]
         self.c_data.reset(
             new ranger_.DataNumpy(
                 &x[0, 0],
-                &y[0],
+                &y[0, 0],
                 variable_names,
                 num_rows,
-                num_cols
+                num_cols,
             )
         )
 
@@ -59,7 +59,7 @@ cdef class DataNumpy:
 cpdef dict ranger(
     ranger_.TreeType treetype,
     np.ndarray[double, ndim=2, mode="fortran"] x,
-    np.ndarray[double, ndim=1, mode="fortran"] y,
+    np.ndarray[double, ndim=2, mode="fortran"] y,
     vector[char*] variable_names,
     unsigned int mtry,
     unsigned int num_trees,
@@ -131,7 +131,7 @@ cpdef dict ranger(
             "is_ordered": [],
             "class_values": [],
             "terminal_class_counts": [[[]]],
-            "chf": -,
+            "cumulative_hazard_function": -,
             "unique_death_times": -,
         },
     }
@@ -143,24 +143,19 @@ cpdef dict ranger(
 
     cdef ranger_.ostream* verbose_out
 
-    cdef size_t num_rows
-    cdef size_t num_cols
-
     cdef vector[vector[vector[size_t]]] child_node_ids
     cdef vector[vector[size_t]] split_var_ids
     cdef vector[vector[double]] split_values
     cdef vector[bool] is_ordered
     cdef vector[double] class_values
     cdef vector[double] class_values_
-    cdef vector[vector[vector[double]]] chf
+    cdef vector[vector[vector[double]]] cumulative_hazard_function
     cdef vector[double] unique_timepoints
     cdef vector[vector[vector[double]]] terminal_class_counts
     cdef vector[vector[vector[double]]] predictions
     cdef vector[vector[size_t]] snp_order
 
     try:
-        variable_names = [str(r).encode() for r in range(x.shape[1])]
-
         if not use_split_select_weights:
             split_select_weights.clear()
         if not use_always_split_variable_names:
@@ -249,9 +244,9 @@ cpdef dict ranger(
             elif treetype == ranger_.TreeType.TREE_REGRESSION:
                 (<ranger_.ForestRegression*> forest.get()).loadForest(num_trees, child_node_ids, split_var_ids, split_values, is_ordered)
             elif treetype == ranger_.TreeType.TREE_SURVIVAL:
-                chf = loaded_forest["chf"]
+                cumulative_hazard_function = loaded_forest["cumulative_hazard_function"]
                 unique_timepoints = loaded_forest["unique_death_times"]
-                (<ranger_.ForestSurvival*> forest.get()).loadForest(num_trees, child_node_ids, split_var_ids, split_values, chf, unique_timepoints, is_ordered)
+                (<ranger_.ForestSurvival*> forest.get()).loadForest(num_trees, child_node_ids, split_var_ids, split_values, cumulative_hazard_function, unique_timepoints, is_ordered)
             elif treetype == ranger_.TreeType.TREE_PROBABILITY:
                 class_values = loaded_forest["class_values"]
                 terminal_class_counts = loaded_forest["terminal_class_counts"]
@@ -311,7 +306,7 @@ cpdef dict ranger(
                 forest_object["class_values"] = (<ranger_.ForestProbability*> forest.get()).getClassValues()
                 forest_object["terminal_class_counts"] = (<ranger_.ForestProbability*> forest.get()).getTerminalClassCounts()
             elif treetype == ranger_.TreeType.TREE_SURVIVAL:
-                forest_object["chf"] = (<ranger_.ForestSurvival*> forest.get()).getChf()
+                forest_object["cumulative_hazard_function"] = (<ranger_.ForestSurvival*> forest.get()).getChf()
                 forest_object["unique_death_times"] = (<ranger_.ForestSurvival*> forest.get()).getUniqueTimepoints()
             result["forest"] = forest_object
 

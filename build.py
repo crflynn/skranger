@@ -12,7 +12,9 @@ ranger_src = os.path.join("ranger", "cpp_version", "src")
 
 # include skranger, ranger, and numpy headers
 include_dirs = [
-    ".",
+    top,
+    os.path.join(top, "skranger"),
+    os.path.join(top, "skranger", "ensemble"),
     os.path.join(top, ranger_src),
     os.path.join(top, ranger_src, "Forest"),
     os.path.join(top, ranger_src, "Tree"),

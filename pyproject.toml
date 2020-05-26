@@ -51,6 +51,8 @@ pytest = "^5.4.1"
 jupyter = "^1.0.0"
 sphinx = "^3.0.3"
 sphinx-rtd-theme = "^0.4.3"
+scikit-survival = "^0.12.0"
+pandas = "^1.0.3"
 
 
 [build-system]

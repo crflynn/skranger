@@ -1,4 +1,4 @@
-"""Cython header file for C++ classes from ranger, skranger, and C++ std."""
+"""Cython definition file for C++ classes from ranger, skranger, and C++ std."""
 from libcpp cimport bool
 from libcpp.memory cimport unique_ptr
 from libcpp.string cimport string
@@ -85,6 +85,66 @@ cdef extern from "DataNumpy.h" namespace "ranger":
             vector[string] variable_names,
             size_t num_rows,
             size_t num_cols
+        )
+
+cdef extern from "../ranger/cpp_version/src/Tree/Tree.cpp":
+    pass
+
+cdef extern from "../ranger/cpp_version/src/Tree/Tree.h" namespace "ranger":
+    cdef cppclass Tree:
+        Tree() except +
+        Tree(
+            vector[vector[size_t]]& child_nodeIDs,
+            vector[size_t]& split_varIDs,
+            vector[double]& split_values
+        )
+
+cdef extern from "../ranger/cpp_version/src/Tree/TreeClassification.cpp":
+    pass
+
+cdef extern from "../ranger/cpp_version/src/Tree/TreeClassification.h" namespace "ranger":
+    cdef cppclass TreeClassification(Tree):
+        TreeClassification() except +
+        TreeClassification(
+            vector[double]* class_values,
+            vector[unsigned int]* response_classIDs,
+            vector[vector[size_t]]* sampleIDs_per_class,
+            vector[double]* class_weights
+        )
+
+cdef extern from "../ranger/cpp_version/src/Tree/TreeSurvival.cpp":
+    pass
+
+cdef extern from "../ranger/cpp_version/src/Tree/TreeSurvival.h" namespace "ranger":
+    cdef cppclass TreeSurvival(Tree):
+        TreeSurvival() except +
+        TreeSurvival(
+            vector[double]* unique_timepoints,
+            vector[size_t]* response_timepointIDs,
+        )
+
+cdef extern from "../ranger/cpp_version/src/Tree/TreeRegression.cpp":
+    pass
+
+cdef extern from "../ranger/cpp_version/src/Tree/TreeRegression.h" namespace "ranger":
+    cdef cppclass TreeRegression(Tree):
+        TreeRegression() except +
+        TreeRegression(
+            vector[vector[size_t]]& child_nodeIDs,
+            vector[size_t]& split_varIDs,
+        )
+
+cdef extern from "../ranger/cpp_version/src/Tree/TreeProbability.cpp":
+    pass
+
+cdef extern from "../ranger/cpp_version/src/Tree/TreeProbability.h" namespace "ranger":
+    cdef cppclass TreeProbability(Tree):
+        TreeProbability() except +
+        TreeProbability(
+            vector[double]* class_values,
+            vector[unsigned int]* response_classIDs,
+            vector[vector[size_t]]* sampleIDs_per_class,
+            vector[double]* class_weights
         )
 
 cdef extern from "../ranger/cpp_version/src/Forest/Forest.cpp":
@@ -177,66 +237,6 @@ cdef extern from "../ranger/cpp_version/src/utility/utility.h" namespace "ranger
         unsigned int end,
         unsigned int num_parts
     )
-
-cdef extern from "../ranger/cpp_version/src/Tree/Tree.cpp":
-    pass
-
-cdef extern from "../ranger/cpp_version/src/Tree/Tree.h" namespace "ranger":
-    cdef cppclass Tree:
-        Tree() except +
-        Tree(
-            vector[size_t]& child_nodeIDs,
-            vector[size_t]& split_varIDs,
-            vector[double]& split_values
-        )
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeClassification.cpp":
-    pass
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeClassification.h" namespace "ranger":
-    cdef cppclass TreeClassification(Tree):
-        TreeClassification() except +
-        TreeClassification(
-            vector[double]* class_values,
-            vector[unsigned int]* response_classIDs,
-            vector[vector[size_t]]* sampleIDs_per_class,
-            vector[double]* class_weights
-        )
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeSurvival.cpp":
-    pass
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeSurvival.h" namespace "ranger":
-    cdef cppclass TreeSurvival(Tree):
-        TreeSurvival() except +
-        TreeSurvival(
-            vector[double]* unique_timepoints,
-            vector[size_t]* response_timepointIDs,
-        )
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeRegression.cpp":
-    pass
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeRegression.h" namespace "ranger":
-    cdef cppclass TreeRegression(Tree):
-        TreeRegression() except +
-        TreeRegression(
-            vector[vector[size_t]]& child_nodeIDs,
-            vector[size_t]& split_varIDs,
-        )
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeProbability.cpp":
-    pass
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeProbability.h" namespace "ranger":
-    cdef cppclass TreeProbability(Tree):
-        TreeProbability() except +
-        TreeProbability(
-            vector[double]* class_values,
-            vector[unsigned int]* response_classIDs,
-            vector[vector[size_t]]* sampleIDs_per_class,
-            vector[double]* class_weights
-        )
 
 cdef extern from "../ranger/cpp_version/src/Forest/ForestClassification.cpp":
     pass
