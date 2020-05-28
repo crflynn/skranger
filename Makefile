@@ -1,5 +1,6 @@
 .PHONY: build
 build:
+	poetry run python build.py clean
 	poetry run python build.py build_ext --inplace --force
 
 .PHONY: docs

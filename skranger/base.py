@@ -40,12 +40,10 @@ class RangerValidationMixin:
     def _set_split_rule(self):
         """Set split rule to enum value."""
         if self.split_rule == "extratrees" and self.respect_unordered_factors == "partition" and self.save_memory:
-            raise ValueError(
-                "save memory is not possible with extratrees split rule and unordered predictors")
+            raise ValueError("save memory is not possible with extratrees split rule and unordered predictors")
 
         if self.num_random_splits > 1 and self.split_rule != "extratrees":
-            raise ValueError(
-                "random splits must be 1 when split rule is not extratrees")
+            raise ValueError("random splits must be 1 when split rule is not extratrees")
 
         if self.tree_type_ in (1, 9):  # classification/probability
             if self.split_rule == "gini":

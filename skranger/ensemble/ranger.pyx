@@ -9,7 +9,7 @@ from libcpp.string cimport string
 from libcpp.utility cimport move
 from libcpp.vector cimport vector
 
-cimport ranger_
+from skranger.ensemble cimport ranger_
 
 
 cdef class DataNumpy:
