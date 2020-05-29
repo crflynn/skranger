@@ -1,0 +1,2 @@
+class RangerForestRegressor:
+    pass
