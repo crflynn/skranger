@@ -253,6 +253,26 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         )
         return result
 
-    def predict(self, X):
+    def predict_cumulative_hazard_function(self, X):
+        """Predict cumulative hazard function.
+
+        :param array2d X: predict input features
+        """
         result = self._predict(X)
-        return np.atleast_2d(np.array(result["predictions"]))
+        return np.atleast_2d(result["predictions"])
+
+    def predict_survival_function(self, X):
+        """Predict survival function.
+
+        :param array2d X: predict input features
+        """
+        chf = self.predict_cumulative_hazard_function(X)
+        return np.exp(-chf)
+
+    def predict(self, X):
+        """Predict risk score.
+
+        :param array2d X: predict input features
+        """
+        chf = self.predict_cumulative_hazard_function(X)
+        return chf.sum(1)
