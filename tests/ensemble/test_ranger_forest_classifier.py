@@ -1,7 +1,10 @@
 import pickle
 import tempfile
 
+import pytest
 from sklearn.base import clone
+from sklearn.exceptions import NotFittedError
+from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import RangerForestClassifier
 
@@ -12,7 +15,10 @@ class TestRangerForestClassifier:
 
     def test_fit(self, iris_X, iris_y):
         rfc = RangerForestClassifier()
+        with pytest.raises(NotFittedError):
+            check_is_fitted(rfc)
         rfc.fit(iris_X, iris_y)
+        check_is_fitted(rfc)
         assert hasattr(rfc, "classes_")
         assert hasattr(rfc, "n_classes_")
         assert hasattr(rfc, "ranger_forest_")

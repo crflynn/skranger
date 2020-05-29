@@ -1,8 +1,11 @@
+import numpy as np
+
+
 class RangerValidationMixin:
     def _validate_parameters(self, X, y):
         """Validate ranger parameters and set defaults."""
         self._set_respect_unordered_factors()
-        # TODO order mode recoding
+        # TODO order mode recoding?
         self._evaluate_mtry(X.shape[1])
         self._set_importance_mode()
         self._check_set_regularization(X.shape[1])
@@ -11,7 +14,7 @@ class RangerValidationMixin:
 
         self.regularization_factor_ = self.regularization_factor or [1.0] * X.shape[1]
 
-        self._set_split_rule()
+        self._set_split_rule(y)
         self.order_snps_ = self.respect_unordered_factors == "order"
 
         self._set_unordered_variable_names()
@@ -37,7 +40,7 @@ class RangerValidationMixin:
             if self.mtry_ < 0 or self.mtry_ > num_features:
                 raise ValueError("mtry must be between 0 and number of features")
 
-    def _set_split_rule(self):
+    def _set_split_rule(self, y):
         """Set split rule to enum value."""
         if self.split_rule == "extratrees" and self.respect_unordered_factors == "partition" and self.save_memory:
             raise ValueError("save memory is not possible with extratrees split rule and unordered predictors")
@@ -55,7 +58,21 @@ class RangerValidationMixin:
             else:
                 raise ValueError("split rule must be either gini, extratrees, or hellinger")
 
-        elif self.tree_type_ == 5:
+        elif self.tree_type_ == 3:  # regression
+            if self.split_rule == "variance":
+                self.split_rule_ = 1  # ranger_.SplitRule.LOGRANK
+            elif self.split_rule == "extratrees":
+                self.split_rule_ = 5  # ranger_.SplitRule.EXTRATREES
+            elif self.split_rule == "maxstat":
+                self.split_rule_ = 4  # ranger_.SplitRule.MAXSTAT
+            elif self.split_rule == "beta":
+                self.split_rule_ = 6  # ranger_.SplitRule.BETA
+                if np.max(y) > 1 or np.max(y) < 0:
+                    raise ValueError("Targets must be between 0 and 1 for beta splitrule")
+            else:
+                raise ValueError("split rule must be either variance, extratrees, maxstat or beta")
+
+        elif self.tree_type_ == 5:  # survival
             if self.split_rule == "logrank":
                 self.split_rule_ = 1  # ranger_.SplitRule.LOGRANK
             elif self.split_rule == "extratrees":
