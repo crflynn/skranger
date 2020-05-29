@@ -32,6 +32,18 @@ class TestRangerForestSurvival:
         pred = rfs.predict(lung_X)
         assert len(pred) == lung_X.shape[0]
 
+    def test_predict_cumulative_hazard_function(self, lung_X, lung_y):
+        rfs = RangerForestSurvival(num_trees=N)
+        rfs.fit(lung_X, lung_y)
+        pred = rfs.predict_cumulative_hazard_function(lung_X)
+        assert len(pred) == lung_X.shape[0]
+
+    def test_predict_survival_function(self, lung_X, lung_y):
+        rfs = RangerForestSurvival(num_trees=N)
+        rfs.fit(lung_X, lung_y)
+        pred = rfs.predict_survival_function(lung_X)
+        assert len(pred) == lung_X.shape[0]
+
     def test_serialize(self, lung_X, lung_y):
         tf = tempfile.TemporaryFile()
         rfs = RangerForestSurvival(num_trees=N)
