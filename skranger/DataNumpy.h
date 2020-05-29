@@ -11,9 +11,9 @@ namespace ranger {
 class DataNumpy: public Data {
 public:
   DataNumpy() = default;
-  DataNumpy(double* x, double* y, std::vector<std::string> variable_names, size_t num_rows, size_t num_cols) {
+  DataNumpy(double* x, double* y, std::vector<std::string> variable_names, size_t num_rows, size_t num_cols, size_t num_cols_y) {
     std::vector<double> xv(x, x + num_cols * num_rows);
-    std::vector<double> yv(y, y + num_rows);
+    std::vector<double> yv(y, y + num_cols_y * num_rows);
     this->x = xv;
     this->y = yv;
     this->variable_names = variable_names;

@@ -84,7 +84,8 @@ cdef extern from "DataNumpy.h" namespace "ranger":
             double* y,
             vector[string] variable_names,
             size_t num_rows,
-            size_t num_cols
+            size_t num_cols,
+            size_t num_cols_y
         )
 
 cdef extern from "../../ranger/src/Tree.cpp":

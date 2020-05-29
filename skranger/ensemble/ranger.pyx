@@ -30,6 +30,7 @@ cdef class DataNumpy:
     ):
         cdef int num_rows = x.shape[0]
         cdef int num_cols = x.shape[1]
+        cdef int num_cols_y = y.shape[1]
         self.c_data.reset(
             new ranger_.DataNumpy(
                 &x[0, 0],
@@ -37,6 +38,7 @@ cdef class DataNumpy:
                 variable_names,
                 num_rows,
                 num_cols,
+                num_cols_y,
             )
         )
 

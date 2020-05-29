@@ -1,9 +1,5 @@
 .PHONY: build
 build:
-	rm -rf build/
-	rm -f skranger/ensemble/ranger.cpp
-	rm -f skranger/ensemble/ranger.cpython*
-	rm -f skranger/ensemble/ranger.html
 	poetry run python build.py clean
 	poetry run python build.py build_ext --inplace --force
 
