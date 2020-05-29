@@ -1,7 +1,6 @@
 #include "globals.h"
 #include "utility.h"
 #include "Data.h"
-//#include "Forest.h"
 
 #ifndef DATANUMPY_H_
 #define DATANUMPY_H_

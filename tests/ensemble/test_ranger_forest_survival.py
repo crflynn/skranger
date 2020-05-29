@@ -5,37 +5,38 @@ from sklearn.base import clone
 
 from skranger.ensemble import RangerForestSurvival
 
+N = 10
+
 
 class TestRangerForestSurvival:
     def test_init(self):
         _ = RangerForestSurvival()
 
-    def test_fit(self, iris_X, iris_y):
-        rfc = RangerForestSurvival()
-        rfc.fit(iris_X, iris_y)
-        assert hasattr(rfc, "classes_")
-        assert hasattr(rfc, "n_classes_")
-        assert hasattr(rfc, "ranger_forest_")
-        assert hasattr(rfc, "n_features_")
+    def test_fit(self, lung_X, lung_y):
+        rfs = RangerForestSurvival(num_trees=N)
+        rfs.fit(lung_X, lung_y)
+        assert hasattr(rfs, "event_times_")
+        assert hasattr(rfs, "cumulative_hazard_function_")
+        assert hasattr(rfs, "ranger_forest_")
+        assert hasattr(rfs, "n_features_")
 
-    def test_predict(self, iris_X, iris_y):
-        rfc = RangerForestSurvival()
-        rfc.fit(iris_X, iris_y)
-        pred = rfc.predict(iris_X)
-        print(pred)
-        assert len(pred) == iris_X.shape[0]
+    def test_predict(self, lung_X, lung_y):
+        rfs = RangerForestSurvival(num_trees=N)
+        rfs.fit(lung_X, lung_y)
+        pred = rfs.predict(lung_X)
+        assert len(pred) == lung_X.shape[0]
 
-    def test_serialize(self, iris_X, iris_y):
+    def test_serialize(self, lung_X, lung_y):
         tf = tempfile.TemporaryFile()
-        rfc = RangerForestSurvival()
-        rfc.fit(iris_X, iris_y)
-        pickle.dump(rfc, tf)
+        rfs = RangerForestSurvival(num_trees=N)
+        rfs.fit(lung_X, lung_y)
+        pickle.dump(rfs, tf)
         tf.seek(0)
-        new_rfc = pickle.load(tf)
-        pred = new_rfc.predict(iris_X)
-        assert len(pred) == iris_X.shape[0]
+        new_rfs = pickle.load(tf)
+        pred = new_rfs.predict(lung_X)
+        assert len(pred) == lung_X.shape[0]
 
-    def test_clone(self, iris_X, iris_y):
-        rfc = RangerForestSurvival()
-        rfc.fit(iris_X, iris_y)
-        clone(rfc)
+    def test_clone(self, lung_X, lung_y):
+        rfs = RangerForestSurvival(num_trees=N)
+        rfs.fit(lung_X, lung_y)
+        clone(rfs)

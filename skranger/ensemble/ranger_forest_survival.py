@@ -9,7 +9,7 @@ from skranger.ensemble import ranger
 
 
 class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
-    """Ranger Random Forest Survival implementation for sci-kit learn.
+    r"""Ranger Random Forest Survival implementation for sci-kit learn.
 
     Provides a sklearn interface to the Ranger C++ library using Cython. The
     argument names to the constructor are similar to the C++ library and accompanied R
@@ -196,7 +196,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             self.regularization_usedepth,
         )
         self.event_times_ = np.array(self.ranger_forest_["forest"]["unique_death_times"])
-        self.cumulative_hazard_function = np.array(self.ranger_forest_["forest"]["cumulative_hazard_function"])
+        self.cumulative_hazard_function_ = np.array(self.ranger_forest_["forest"]["cumulative_hazard_function"])
         return self
 
     def _predict(self, X):
@@ -254,4 +254,4 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
 
     def predict(self, X):
         result = self._predict(X)
-        return np.array(result["predictions"])
+        return np.atleast_2d(np.array(result["predictions"]))

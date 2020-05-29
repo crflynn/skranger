@@ -12,7 +12,7 @@ from skranger.ensemble import ranger
 
 
 class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimator):
-    """Ranger Random Forest Probability/Classification implementation for sci-kit learn.
+    r"""Ranger Random Forest Probability/Classification implementation for sci-kit learn.
 
     Provides a sklearn classifier interface to the Ranger C++ library using Cython. The
     argument names to the constructor are similar to the C++ library and accompanied R

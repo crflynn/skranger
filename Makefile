@@ -15,3 +15,6 @@ fmt:
 	poetry run isort -y
 	poetry run black .
 
+.PHONY: test
+test:
+	poetry run pytest tests/
