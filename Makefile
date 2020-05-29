@@ -1,5 +1,6 @@
 .PHONY: build
 build:
+	poetry run python build.py clean
 	poetry run python build.py build_ext --inplace --force
 
 .PHONY: docs
@@ -14,3 +15,6 @@ fmt:
 	poetry run isort -y
 	poetry run black .
 
+.PHONY: test
+test:
+	poetry run pytest tests/

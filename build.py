@@ -8,15 +8,14 @@ from Cython.Build import cythonize
 # skranger project directory
 top = os.path.dirname(os.path.abspath(__file__))
 # the cpp source code
-ranger_src = os.path.join("ranger", "cpp_version", "src")
+ranger_src = os.path.join("ranger", "src")
 
 # include skranger, ranger, and numpy headers
 include_dirs = [
-    ".",
+    top,
+    os.path.join(top, "skranger"),
+    os.path.join(top, "skranger", "ensemble"),
     os.path.join(top, ranger_src),
-    os.path.join(top, ranger_src, "Forest"),
-    os.path.join(top, ranger_src, "Tree"),
-    os.path.join(top, ranger_src, "utility"),
     np.get_include(),
 ]
 
@@ -49,14 +48,19 @@ def create_extension(module_name):
         sources=[path],
         include_dirs=include_dirs,
         language="c++",
-        extra_compile_args=["-std=c++11", "-Wall"],
+        extra_compile_args=["-std=c++11"],
         extra_link_args=["-std=c++11", "-g"],
+        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
     )
 
 
 ext_modules = [create_extension(name) for name in find_pyx_files("skranger")]
 
-setup(ext_modules=cythonize(ext_modules, gdb_debug=True))
+setup(
+    ext_modules=cythonize(
+        ext_modules, gdb_debug=False, force=True, annotate=True, compiler_directives={"language_level": "3"}
+    )
+)
 
 
 def build(setup_kwargs):

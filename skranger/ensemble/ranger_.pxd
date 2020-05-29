@@ -1,4 +1,4 @@
-"""Cython header file for C++ classes from ranger, skranger, and C++ std."""
+"""Cython definition file for C++ classes from ranger, skranger, and C++ std."""
 from libcpp cimport bool
 from libcpp.memory cimport unique_ptr
 from libcpp.string cimport string
@@ -18,13 +18,13 @@ cdef extern from "<iostream>" namespace "std":
         ostream& write(const char*, int) except +
 
 # Enums required as input for the ForestClassifier
-cdef extern from "../ranger/cpp_version/src/globals.h" namespace "ranger":
+cdef extern from "../../ranger/src/globals.h" namespace "ranger":
     cpdef enum MemoryMode:
         MEM_DOUBLE = 0,
         MEM_FLOAT = 1,
         MEM_CHAR = 2
 
-cdef extern from "../ranger/cpp_version/src/globals.h" namespace "ranger":
+cdef extern from "../../ranger/src/globals.h" namespace "ranger":
     # the c++ code is mis-ordered also
     cpdef enum ImportanceMode:
         IMP_NONE = 0,
@@ -35,7 +35,7 @@ cdef extern from "../ranger/cpp_version/src/globals.h" namespace "ranger":
         IMP_GINI_CORRECTED = 5,
         IMP_PERM_CASEWISE = 6
 
-cdef extern from "../ranger/cpp_version/src/globals.h" namespace "ranger":
+cdef extern from "../../ranger/src/globals.h" namespace "ranger":
     cpdef enum SplitRule:
         LOGRANK = 1,
         AUC = 2,
@@ -45,12 +45,12 @@ cdef extern from "../ranger/cpp_version/src/globals.h" namespace "ranger":
         BETA = 6,
         HELLINGER = 7
 
-cdef extern from "../ranger/cpp_version/src/globals.h" namespace "ranger":
+cdef extern from "../../ranger/src/globals.h" namespace "ranger":
     cpdef enum PredictionType:
         RESPONSE = 1,
         TERMINALNODES = 2
 
-cdef extern from "../ranger/cpp_version/src/globals.h" namespace "ranger":
+cdef extern from "../../ranger/src/globals.h" namespace "ranger":
     cpdef enum TreeType:
         TREE_CLASSIFICATION = 1,
         TREE_REGRESSION = 3,
@@ -58,10 +58,10 @@ cdef extern from "../ranger/cpp_version/src/globals.h" namespace "ranger":
         TREE_PROBABILITY = 9
 
 # Inherit from the Data class so that we can pass numpy array based data objects
-cdef extern from "../ranger/cpp_version/src/utility/Data.cpp":
+cdef extern from "../../ranger/src/Data.cpp":
     pass
 
-cdef extern from "../ranger/cpp_version/src/utility/Data.h" namespace "ranger":
+cdef extern from "../../ranger/src/Data.h" namespace "ranger":
     cdef cppclass Data:
         Data() except +
         double get_x(size_t row, size_t col)
@@ -84,13 +84,74 @@ cdef extern from "DataNumpy.h" namespace "ranger":
             double* y,
             vector[string] variable_names,
             size_t num_rows,
-            size_t num_cols
+            size_t num_cols,
+            size_t num_cols_y
         )
 
-cdef extern from "../ranger/cpp_version/src/Forest/Forest.cpp":
+cdef extern from "../../ranger/src/Tree.cpp":
     pass
 
-cdef extern from "../ranger/cpp_version/src/Forest/Forest.h" namespace "ranger":
+cdef extern from "../../ranger/src/Tree.h" namespace "ranger":
+    cdef cppclass Tree:
+        Tree() except +
+        Tree(
+            vector[vector[size_t]]& child_nodeIDs,
+            vector[size_t]& split_varIDs,
+            vector[double]& split_values
+        )
+
+cdef extern from "../../ranger/src/TreeClassification.cpp":
+    pass
+
+cdef extern from "../../ranger/src/TreeClassification.h" namespace "ranger":
+    cdef cppclass TreeClassification(Tree):
+        TreeClassification() except +
+        TreeClassification(
+            vector[double]* class_values,
+            vector[unsigned int]* response_classIDs,
+            vector[vector[size_t]]* sampleIDs_per_class,
+            vector[double]* class_weights
+        )
+
+cdef extern from "../../ranger/src/TreeSurvival.cpp":
+    pass
+
+cdef extern from "../../ranger/src/TreeSurvival.h" namespace "ranger":
+    cdef cppclass TreeSurvival(Tree):
+        TreeSurvival() except +
+        TreeSurvival(
+            vector[double]* unique_timepoints,
+            vector[size_t]* response_timepointIDs,
+        )
+
+cdef extern from "../../ranger/src/TreeRegression.cpp":
+    pass
+
+cdef extern from "../../ranger/src/TreeRegression.h" namespace "ranger":
+    cdef cppclass TreeRegression(Tree):
+        TreeRegression() except +
+        TreeRegression(
+            vector[vector[size_t]]& child_nodeIDs,
+            vector[size_t]& split_varIDs,
+        )
+
+cdef extern from "../../ranger/src/TreeProbability.cpp":
+    pass
+
+cdef extern from "../../ranger/src/TreeProbability.h" namespace "ranger":
+    cdef cppclass TreeProbability(Tree):
+        TreeProbability() except +
+        TreeProbability(
+            vector[double]* class_values,
+            vector[unsigned int]* response_classIDs,
+            vector[vector[size_t]]* sampleIDs_per_class,
+            vector[double]* class_weights
+        )
+
+cdef extern from "../../ranger/src/Forest.cpp":
+    pass
+
+cdef extern from "../../ranger/src/Forest.h" namespace "ranger":
     cdef cppclass Forest:
         Forest() except +
         void init(
@@ -167,10 +228,10 @@ cdef extern from "../ranger/cpp_version/src/Forest/Forest.h" namespace "ranger":
         const vector[double]& getVariableImportance()
         const vector[double]& getVariableImportanceCasewise()
 
-cdef extern from "../ranger/cpp_version/src/utility/utility.cpp":
+cdef extern from "../../ranger/src/utility.cpp":
     pass
 
-cdef extern from "../ranger/cpp_version/src/utility/utility.h" namespace "ranger":
+cdef extern from "../../ranger/src/utility.h" namespace "ranger":
     void equalSplit(
         vector[unsigned int]& result,
         unsigned int start,
@@ -178,70 +239,10 @@ cdef extern from "../ranger/cpp_version/src/utility/utility.h" namespace "ranger
         unsigned int num_parts
     )
 
-cdef extern from "../ranger/cpp_version/src/Tree/Tree.cpp":
+cdef extern from "../../ranger/src/ForestClassification.cpp":
     pass
 
-cdef extern from "../ranger/cpp_version/src/Tree/Tree.h" namespace "ranger":
-    cdef cppclass Tree:
-        Tree() except +
-        Tree(
-            vector[size_t]& child_nodeIDs,
-            vector[size_t]& split_varIDs,
-            vector[double]& split_values
-        )
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeClassification.cpp":
-    pass
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeClassification.h" namespace "ranger":
-    cdef cppclass TreeClassification(Tree):
-        TreeClassification() except +
-        TreeClassification(
-            vector[double]* class_values,
-            vector[unsigned int]* response_classIDs,
-            vector[vector[size_t]]* sampleIDs_per_class,
-            vector[double]* class_weights
-        )
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeSurvival.cpp":
-    pass
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeSurvival.h" namespace "ranger":
-    cdef cppclass TreeSurvival(Tree):
-        TreeSurvival() except +
-        TreeSurvival(
-            vector[double]* unique_timepoints,
-            vector[size_t]* response_timepointIDs,
-        )
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeRegression.cpp":
-    pass
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeRegression.h" namespace "ranger":
-    cdef cppclass TreeRegression(Tree):
-        TreeRegression() except +
-        TreeRegression(
-            vector[vector[size_t]]& child_nodeIDs,
-            vector[size_t]& split_varIDs,
-        )
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeProbability.cpp":
-    pass
-
-cdef extern from "../ranger/cpp_version/src/Tree/TreeProbability.h" namespace "ranger":
-    cdef cppclass TreeProbability(Tree):
-        TreeProbability() except +
-        TreeProbability(
-            vector[double]* class_values,
-            vector[unsigned int]* response_classIDs,
-            vector[vector[size_t]]* sampleIDs_per_class,
-            vector[double]* class_weights
-        )
-
-cdef extern from "../ranger/cpp_version/src/Forest/ForestClassification.cpp":
-    pass
-
-cdef extern from "../ranger/cpp_version/src/Forest/ForestClassification.h" namespace "ranger":
+cdef extern from "../../ranger/src/ForestClassification.h" namespace "ranger":
     cdef cppclass ForestClassification(Forest):
         ForestClassification() except +
         const vector[double]& getClassValues()
@@ -255,10 +256,10 @@ cdef extern from "../ranger/cpp_version/src/Forest/ForestClassification.h" names
         )
         void setClassWeights(vector[double]& class_weights)
 
-cdef extern from "../ranger/cpp_version/src/Forest/ForestRegression.cpp":
+cdef extern from "../../ranger/src/ForestRegression.cpp":
     pass
 
-cdef extern from "../ranger/cpp_version/src/Forest/ForestRegression.h" namespace "ranger":
+cdef extern from "../../ranger/src/ForestRegression.h" namespace "ranger":
     cdef cppclass ForestRegression(Forest):
         ForestRegression() except +
         void loadForest(
@@ -269,10 +270,10 @@ cdef extern from "../ranger/cpp_version/src/Forest/ForestRegression.h" namespace
             vector[bool]& is_ordered_variable,
         )
 
-cdef extern from "../ranger/cpp_version/src/Forest/ForestProbability.cpp":
+cdef extern from "../../ranger/src/ForestProbability.cpp":
     pass
 
-cdef extern from "../ranger/cpp_version/src/Forest/ForestProbability.h" namespace "ranger":
+cdef extern from "../../ranger/src/ForestProbability.h" namespace "ranger":
     cdef cppclass ForestProbability(Forest):
         ForestProbability() except +
         vector[double]& getClassValues()
@@ -288,10 +289,10 @@ cdef extern from "../ranger/cpp_version/src/Forest/ForestProbability.h" namespac
             vector[bool]& is_ordered_variable,
         )
 
-cdef extern from "../ranger/cpp_version/src/Forest/ForestSurvival.cpp":
+cdef extern from "../../ranger/src/ForestSurvival.cpp":
     pass
 
-cdef extern from "../ranger/cpp_version/src/Forest/ForestSurvival.h" namespace "ranger":
+cdef extern from "../../ranger/src/ForestSurvival.h" namespace "ranger":
     cdef cppclass ForestSurvival(Forest):
         ForestSurvival() except +
         vector[vector[vector[double]]] getChf()

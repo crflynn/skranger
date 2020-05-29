@@ -5,3 +5,4 @@ Ranger Forest Classifier
 
 .. autoclass:: skranger.ranger_forest_classifier.RangerForestClassifier
     :members:
+    :inherited-members:

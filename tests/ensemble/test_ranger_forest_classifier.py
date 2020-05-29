@@ -3,7 +3,7 @@ import tempfile
 
 from sklearn.base import clone
 
-from skranger import RangerForestClassifier
+from skranger.ensemble import RangerForestClassifier
 
 
 class TestRangerForestClassifier:
