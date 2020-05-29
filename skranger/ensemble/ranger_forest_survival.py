@@ -1,11 +1,12 @@
+"""Scikit-learn wrapper for ranger survival."""
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.utils.validation import _check_sample_weight
 from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
 
-from skranger.base import RangerValidationMixin
 from skranger.ensemble import ranger
+from skranger.ensemble.base import RangerValidationMixin
 
 
 class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
@@ -235,8 +236,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             False,  # predict_all
             False,  # keep_inbag
             self.sample_fraction_,
-            0.5,  # alpha
-            0.1,  # minprop
+            0.5,  # alpha # TODO
+            0.1,  # minprop # TODO
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,

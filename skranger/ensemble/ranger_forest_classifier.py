@@ -1,4 +1,4 @@
-"""Scikit-learn wrapper for ranger."""
+"""Scikit-learn wrapper for ranger classification."""
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
@@ -7,8 +7,8 @@ from sklearn.utils.validation import _check_sample_weight
 from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
 
-from skranger.base import RangerValidationMixin
 from skranger.ensemble import ranger
+from skranger.ensemble.base import RangerValidationMixin
 
 
 class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimator):
@@ -220,7 +220,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         X = check_array(X)
 
         result = ranger.ranger(
-            9,  # tree_type, TREE_PROBABILITY
+            self.tree_type_,
             np.asfortranarray(X.astype("float64")),
             np.array([[]]),
             self.variable_names_,

@@ -1,9 +1,21 @@
 import pytest
+from sklearn.datasets import load_boston
 from sklearn.datasets import load_iris
 from sksurv.datasets import load_veterans_lung_cancer
 
+_boston_X, _boston_y = load_boston(True)
 _iris_X, _iris_y = load_iris(True)
 _lung_X, _lung_y = load_veterans_lung_cancer()
+
+
+@pytest.fixture
+def boston_X():
+    return _boston_X
+
+
+@pytest.fixture
+def boston_y():
+    return _boston_y
 
 
 @pytest.fixture
