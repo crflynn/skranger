@@ -1,5 +1,7 @@
-import numpy as np
 import warnings
+
+import numpy as np
+
 
 class RangerValidationMixin:
     def _validate_parameters(self, X, y):
