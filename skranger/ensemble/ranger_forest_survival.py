@@ -16,9 +16,9 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
     argument names to the constructor are similar to the C++ library and accompanied R
     package for familiarity.
 
-    :param int num_trees: The number of tree classifiers to train
+    :param int n_estimators: The number of tree classifiers to train
     :param bool verbose: Enable ranger's verbose logging
-    :param int/callable mtry: The number of variables to split on each node. When a
+    :param int/callable mtry: The number of features to split on each node. When a
         callable is passed, the function must accept a single parameter which is the
         number of features passed, and return some value between 1 and the number of
         features.
@@ -33,7 +33,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
     :param bool keep_inbag: If true, save how often observations are in-bag in each
         tree. These will be stored in the ``ranger_forest_`` attribute under the key
         ``"inbag_counts"``.
-    :param list inbag: A list of size ``num_trees``, containing inbag counts for each
+    :param list inbag: A list of size ``n_estimators``, containing inbag counts for each
         observation. Can be used for stratified sampling.
     :param str split_rule: One of ``logrank``, ``extratrees``, ``C``, or ``maxstat``,
         default ``logrank``.
@@ -43,10 +43,12 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
     :param float minprop: Lower quantile of covariate distribution to be considered for
         splitting for ``maxstat`` split rule.
     :param list split_select_weights: Vector of weights between 0 and 1 of probabilities
-        to select variables for splitting.
-    :param list always_split_variables:  Variables which should always be selected for
+        to select features for splitting.
+    :param list always_split_features:  Features which should always be selected for
         splitting. A list of column index values.
-    :param str respect_unordered_factors: One of ``ignore``, ``order``, ``partition``.
+    :param list categorical_features: A list of column index values which should be
+        considered categorical, or unordered.
+    :param str respect_categorical_features: One of ``ignore``, ``order``, ``partition``.
         The default is ``partition`` for the ``extratrees`` splitrule, otherwise the
         default is ``ignore``.
     :param bool scale_permutation_importance: For ``permutation`` importance,
@@ -57,20 +59,20 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         features.
     :param bool regularization_usedepth: Whether to consider depth in regularization.
     :param bool holdout: Hold-out all samples with case weight 0 and use these for
-        variable importance and prediction error.
+        feature importance and prediction error.
     :param bool oob_error: Whether to calculate out-of-bag prediction error.
-    :param int num_threads: The number of threads. Default is number of CPU cores.
+    :param int n_jobs: The number of threads. Default is number of CPU cores.
     :param int seed: Random seed value.
 
     :ivar int n_features\_: The number of features (columns) from the fit input ``X``.
-    :ivar list variable_names\_: Names for the features of the fit input ``X``.
+    :ivar list feature_names\_: Names for the features of the fit input ``X``.
     :ivar dict ranger_forest\_: The returned result object from calling C++ ranger.
     :ivar int mtry\_: The mtry value as determined if ``mtry`` is callable, otherwise
         it is the same as ``mtry``.
     :ivar list sample_fraction\_: The sample fraction determined by input validation
     :ivar list regularization_factor\_: The regularization factors determined by input
         validation.
-    :ivar list unordered_variable_names\_: The unordered variable names determined by
+    :ivar list unordered_feature_names\_: The unordered feature names determined by
         input validation.
     :ivar int split_rule\_: The split rule integer corresponding to ranger enum
         ``SplitRule``.
@@ -82,7 +84,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
 
     def __init__(
         self,
-        num_trees=100,
+        n_estimators=100,
         verbose=False,
         mtry=0,
         importance="none",
@@ -97,18 +99,19 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         alpha=0.5,
         minprop=0.1,
         split_select_weights=None,
-        always_split_variables=None,
-        respect_unordered_factors=None,
+        always_split_features=None,
+        categorical_features=None,
+        respect_categorical_features=None,
         scale_permutation_importance=False,
         local_importance=False,
         regularization_factor=None,
         regularization_usedepth=False,
         holdout=False,
         oob_error=False,
-        num_threads=0,
+        n_jobs=0,
         seed=42,
     ):
-        self.num_trees = num_trees
+        self.n_estimators = n_estimators
         self.verbose = verbose
         self.mtry = mtry
         self.importance = importance
@@ -123,15 +126,16 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         self.alpha = alpha
         self.minprop = minprop
         self.split_select_weights = split_select_weights
-        self.always_split_variables = always_split_variables
-        self.respect_unordered_factors = respect_unordered_factors
+        self.always_split_features = always_split_features
+        self.categorical_features = categorical_features
+        self.respect_categorical_features = respect_categorical_features
         self.scale_permutation_importance = scale_permutation_importance
         self.local_importance = local_importance
         self.regularization_factor = regularization_factor
         self.regularization_usedepth = regularization_usedepth
         self.holdout = holdout
         self.oob_error = oob_error
-        self.num_threads = num_threads
+        self.n_jobs = n_jobs
         self.seed = seed
 
     def fit(self, X, y, sample_weight=None):
@@ -156,39 +160,39 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         self._validate_parameters(X, y)
 
         # Set X info
-        self.variable_names_ = [str(c).encode() for c in range(X.shape[1])]
+        self.feature_names_ = [str(c).encode() for c in range(X.shape[1])]
         self.n_features_ = X.shape[1]
 
-        if self.always_split_variables is not None:
-            always_split_variables = [str(c).encode() for c in self.always_split_variables]
+        if self.always_split_features is not None:
+            always_split_features = [str(c).encode() for c in self.always_split_features]
         else:
-            always_split_variables = []
+            always_split_features = []
 
         # Fit the forest
         self.ranger_forest_ = ranger.ranger(
             self.tree_type_,
             np.asfortranarray(X.astype("float64")),
             np.asfortranarray(y.astype("float64")),
-            self.variable_names_,
+            self.feature_names_,  # variable_names
             self.mtry,
-            self.num_trees,
+            self.n_estimators,  # num_threads
             self.verbose,
             self.seed,
-            self.num_threads,
+            self.n_jobs_,  # num_threads
             True,  # write_forest
             self.importance_mode_,
             self.min_node_size,
             self.split_select_weights or [],
             bool(self.split_select_weights),  # use_split_select_weights
-            always_split_variables,  # always_split_variable_names
-            bool(always_split_variables),  # use_always_split_variable_names
+            always_split_features,  # always_split_variable_names
+            bool(always_split_features),  # use_always_split_variable_names
             False,  # prediction_mode
             {},  # loaded_forest
             np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
-            self.unordered_variable_names_,
-            bool(self.unordered_variable_names_),  # use_unordered_variable_names
+            self.categorical_features_,  # unordered_feature_names
+            bool(self.categorical_features_),  # use_unordered_features
             False,  # save_memory
             self.split_rule_,
             sample_weight or [],  # case_weights
@@ -224,12 +228,12 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             self.tree_type_,
             np.asfortranarray(X.astype("float64")),
             np.asfortranarray([[]]),
-            self.variable_names_,
+            self.feature_names_,  # variable_names
             self.mtry,
-            self.num_trees,
+            self.n_estimators,  # num_threads
             self.verbose,
             self.seed,
-            self.num_threads,
+            self.n_jobs_,  # num_threads
             False,  # write_forest
             self.importance_mode_,
             self.min_node_size,
@@ -242,8 +246,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
-            self.unordered_variable_names_,
-            bool(self.unordered_variable_names_),  # use_unordered_variable_names
+            self.categorical_features_,  # unordered_feature_names
+            bool(self.categorical_features_),  # use_unordered_features
             False,  # save_memory
             self.split_rule_,
             [],  # case_weights
