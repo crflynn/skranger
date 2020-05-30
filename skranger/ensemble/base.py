@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 
 
@@ -116,7 +118,7 @@ class RangerValidationMixin:
         else:
             if self.num_threads != 1:
                 self.num_threads = 1
-                # TODO Warn parallelization cannot be used with regularization
+                warnings.warn("Parallelization cannot be used with regularization.")
             self.use_regularization_factor_ = True
 
     def _set_importance_mode(self):
