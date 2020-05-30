@@ -10,9 +10,9 @@ from skranger.ensemble.base import RangerValidationMixin
 
 
 class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
-    r"""Ranger Random Forest Survival implementation for sci-kit learn.
+    r"""Ranger Random Forest Survival implementation for sci-kit survival.
 
-    Provides a sklearn interface to the Ranger C++ library using Cython. The
+    Provides a sksurv interface to the Ranger C++ library using Cython. The
     argument names to the constructor are similar to the C++ library and accompanied R
     package for familiarity.
 
@@ -218,7 +218,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         result = ranger.ranger(
             self.tree_type_,
             np.asfortranarray(X.astype("float64")),
-            np.array([[]]),
+            np.asfortranarray([[]]),
             self.variable_names_,
             self.mtry,
             self.num_trees,

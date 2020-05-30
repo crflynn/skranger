@@ -224,7 +224,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         result = ranger.ranger(
             self.tree_type_,
             np.asfortranarray(X.astype("float64")),
-            np.array([[]]),
+            np.asfortranarray([[]]),
             self.variable_names_,
             self.mtry,
             self.num_trees,
