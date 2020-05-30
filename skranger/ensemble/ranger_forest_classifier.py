@@ -186,8 +186,8 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             False,  # predict_all
             False,  # keep_inbag
             self.sample_fraction_,
-            0.5,  # alpha
-            0.1,  # minprop
+            0.5,  # alpha, ignored because maxstat can't be used on classification
+            0.1,  # minprop, ignored because maxstat can't be used on classification
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
@@ -222,7 +222,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         result = ranger.ranger(
             self.tree_type_,
             np.asfortranarray(X.astype("float64")),
-            np.array([[]]),
+            np.asfortranarray([[]]),
             self.variable_names_,
             self.mtry,
             self.num_trees,
