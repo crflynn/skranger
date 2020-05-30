@@ -58,10 +58,10 @@ The ``RangerForestClassifier`` predictor uses ``ranger``'s ForestProbability cla
     probabilities = rfc.predict_proba(X_test)
     print(probabilities)
     # [[0.01333333 0.98666667 0.        ]
-    # [0.         0.         1.        ]
-    # ...
-    # [0.98746032 0.01253968 0.        ]
-    # [0.99       0.01       0.        ]]
+    #  [0.         0.         1.        ]
+    #  ...
+    #  [0.98746032 0.01253968 0.        ]
+    #  [0.99       0.01       0.        ]]
 
 
 RangerForestRegressor
@@ -84,10 +84,10 @@ The ``RangerForestRegressor`` predictor uses ``ranger``'s ForestRegression class
     predictions = rfr.predict(X_test)
     print(predictions)
     # [20.01270808 24.65041667 11.97722067 20.10345    26.48676667 42.19045952
-    # 19.821      31.51163333  8.34169603 18.94511667 20.21901915 16.01440705
-    # ...
-    # 18.37752952 19.34765    20.13355    21.19648333 18.91611667 15.58964837
-    # 31.4223    ]
+    #  19.821      31.51163333  8.34169603 18.94511667 20.21901915 16.01440705
+    #  ...
+    #  18.37752952 19.34765    20.13355    21.19648333 18.91611667 15.58964837
+    #  31.4223    ]
 
 
 RangerForestSurvival
