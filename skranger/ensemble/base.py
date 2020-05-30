@@ -8,6 +8,7 @@ class RangerValidationMixin:
         # TODO order mode recoding?
         self._evaluate_mtry(X.shape[1])
         self._set_importance_mode()
+        self._check_inbag()
         self._check_set_regularization(X.shape[1])
 
         self.sample_fraction_ = self.sample_fraction or [1.0 if self.replace else 0.632]
@@ -136,3 +137,12 @@ class RangerValidationMixin:
                 self.importance_mode_ = 3  # ranger_.ImportanceMode.IMP_PERM_RAW
         else:
             raise ValueError("unkown importance mode")
+
+    def _check_inbag(self):
+        if self.inbag:
+            if self.case_weights:
+                raise ValueError("Cannot use inbag and case_weights.")
+            if len(self.sample_fraction_) > 1:
+                raise ValueError("Cannot use class sampling and inbag.")
+            if len(self.inbag) != self.num_trees:
+                raise ValueError("Size of inbag must be equal to num_trees.")

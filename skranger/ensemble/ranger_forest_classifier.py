@@ -36,6 +36,8 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
     :param bool keep_inbag: If true, save how often observations are in-bag in each
         tree. These will be stored in the ``ranger_forest_`` attribute under the key
         ``"inbag_counts"``.
+    :param list inbag: A list of size ``num_trees``, containing inbag counts for each
+        observation. Can be used for stratified sampling.
     :param str split_rule: One of ``gini``, ``extratrees``, ``hellinger``;
         default ``gini``.
     :param int num_random_splits: The number of trees for the ``extratrees`` splitrule.
@@ -92,6 +94,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         sample_fraction=None,
         class_weights=None,
         keep_inbag=False,
+        inbag=None,
         split_rule="gini",
         num_random_splits=1,
         split_select_weights=None,
@@ -117,6 +120,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         self.sample_fraction = sample_fraction
         self.class_weights = class_weights
         self.keep_inbag = keep_inbag
+        self.inbag = inbag
         self.split_rule = split_rule
         self.num_random_splits = num_random_splits
         self.split_select_weights = split_select_weights
@@ -200,8 +204,8 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             self.order_snps_,
             self.oob_error,
             self.max_depth,
-            [],  # inbag
-            False,  # use_inbag
+            self.inbag or [],
+            bool(self.inbag),  # use_inbag
             self.regularization_factor_,
             False,  # use_regularization_factor
             self.regularization_usedepth,
@@ -265,8 +269,8 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             self.order_snps_,
             self.oob_error,
             self.max_depth,
-            [],  # inbag
-            False,  # use_inbag
+            self.inbag or [],
+            bool(self.inbag),  # use_inbag
             self.regularization_factor_,
             self.use_regularization_factor_,
             self.regularization_usedepth,

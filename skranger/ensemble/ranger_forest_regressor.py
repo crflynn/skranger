@@ -1,4 +1,7 @@
-"""Scikit-learn wrapper for ranger regression."""
+"""Scikit-learn wrapper for ranger regression.
+
+TODO quantreg
+"""
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import RegressorMixin
@@ -35,6 +38,8 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
     :param bool keep_inbag: If true, save how often observations are in-bag in each
         tree. These will be stored in the ``ranger_forest_`` attribute under the key
         ``"inbag_counts"``.
+    :param list inbag: A list of size ``num_trees``, containing inbag counts for each
+        observation. Can be used for stratified sampling.
     :param str split_rule: One of ``variance``, ``extratrees``, ``maxstat``, ``beta``;
         default ``variance``.
     :param int num_random_splits: The number of trees for the ``extratrees`` splitrule.
@@ -62,8 +67,6 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
     :param int num_threads: The number of threads. Default is number of CPU cores.
     :param bool save_memory: Save memory at the cost of speed growing trees.
     :param int seed: Random seed value.
-
-    # TODO quantreg
 
     :ivar int n_features\_: The number of features (columns) from the fit input ``X``.
     :ivar list variable_names\_: Names for the features of the fit input ``X``.
@@ -94,6 +97,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         replace=True,
         sample_fraction=None,
         keep_inbag=False,
+        inbag=None,
         split_rule="variance",
         num_random_splits=1,
         alpha=0.5,
@@ -120,6 +124,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         self.replace = replace
         self.sample_fraction = sample_fraction
         self.keep_inbag = keep_inbag
+        self.inbag = inbag
         self.split_rule = split_rule
         self.num_random_splits = num_random_splits
         self.alpha = alpha
@@ -200,8 +205,8 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
             self.order_snps_,
             self.oob_error,
             self.max_depth,
-            [],  # inbag
-            False,  # use_inbag
+            self.inbag or [],
+            bool(self.inbag),  # use_inbag
             self.regularization_factor_,
             False,  # use_regularization_factor
             self.regularization_usedepth,
@@ -257,8 +262,8 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
             self.order_snps_,
             self.oob_error,
             self.max_depth,
-            [],  # inbag
-            False,  # use_inbag
+            self.inbag or [],
+            bool(self.inbag),  # use_inbag
             self.regularization_factor_,
             self.use_regularization_factor_,
             self.regularization_usedepth,
