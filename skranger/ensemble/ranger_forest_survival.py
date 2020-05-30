@@ -33,6 +33,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
     :param bool keep_inbag: If true, save how often observations are in-bag in each
         tree. These will be stored in the ``ranger_forest_`` attribute under the key
         ``"inbag_counts"``.
+    :param list inbag: A list of size ``num_trees``, containing inbag counts for each
+        observation. Can be used for stratified sampling.
     :param str split_rule: One of ``logrank``, ``extratrees``, ``C``, or ``maxstat``,
         default ``logrank``.
     :param int num_random_splits: The number of trees for the ``extratrees`` splitrule.
@@ -58,7 +60,6 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         variable importance and prediction error.
     :param bool oob_error: Whether to calculate out-of-bag prediction error.
     :param int num_threads: The number of threads. Default is number of CPU cores.
-    :param bool save_memory: Save memory at the cost of speed growing trees.
     :param int seed: Random seed value.
 
     :ivar int n_features\_: The number of features (columns) from the fit input ``X``.
@@ -90,6 +91,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         replace=True,
         sample_fraction=None,
         keep_inbag=False,
+        inbag=None,
         split_rule="logrank",
         num_random_splits=1,
         alpha=0.5,
@@ -104,7 +106,6 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         holdout=False,
         oob_error=False,
         num_threads=0,
-        save_memory=False,
         seed=42,
     ):
         self.num_trees = num_trees
@@ -116,6 +117,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         self.replace = replace
         self.sample_fraction = sample_fraction
         self.keep_inbag = keep_inbag
+        self.inbag = inbag
         self.split_rule = split_rule
         self.num_random_splits = num_random_splits
         self.alpha = alpha
@@ -130,7 +132,6 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         self.holdout = holdout
         self.oob_error = oob_error
         self.num_threads = num_threads
-        self.save_memory = save_memory
         self.seed = seed
 
     def fit(self, X, y, sample_weight=None):
@@ -183,7 +184,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             False,  # probability
             self.unordered_variable_names_,
             bool(self.unordered_variable_names_),  # use_unordered_variable_names
-            self.save_memory,
+            False,  # save_memory
             self.split_rule_,
             sample_weight or [],  # case_weights
             bool(sample_weight),  # use_case_weights
@@ -200,8 +201,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             self.order_snps_,
             self.oob_error,
             self.max_depth,
-            [],  # inbag
-            False,  # use_inbag
+            self.inbag or [],
+            bool(self.inbag),  # use_inbag
             self.regularization_factor_,
             False,  # use_regularization_factor
             self.regularization_usedepth,
@@ -238,7 +239,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             False,  # probability
             self.unordered_variable_names_,
             bool(self.unordered_variable_names_),  # use_unordered_variable_names
-            self.save_memory,
+            False,  # save_memory
             self.split_rule_,
             [],  # case_weights
             False,  # use_case_weights
@@ -255,8 +256,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             self.order_snps_,
             self.oob_error,
             self.max_depth,
-            [],  # inbag
-            False,  # use_inbag
+            self.inbag or [],
+            bool(self.inbag),  # use_inbag
             self.regularization_factor_,
             self.use_regularization_factor_,
             self.regularization_usedepth,
