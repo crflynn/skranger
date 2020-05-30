@@ -6,7 +6,8 @@ import numpy as np
 class RangerValidationMixin:
     def _validate_parameters(self, X, y):
         """Validate ranger parameters and set defaults."""
-        self._set_respect_unordered_factors()
+        self.n_jobs_ = max([self.n_jobs, 0])  # sklearn convention is -1 for all, ranger is 0
+        self._set_respect_categorical_features()
         self._evaluate_mtry(X.shape[1])
         self._set_importance_mode()
         self._check_inbag()
@@ -15,13 +16,12 @@ class RangerValidationMixin:
         self.regularization_factor_ = self.regularization_factor or [1.0] * X.shape[1]
         self._set_split_rule(y)
         self.order_snps_ = self.respect_categorical_features == "order"
-        self._set_unordered_features()
-        self.n_jobs_ = max([self.n_jobs, 0])  # sklearn convention is -1 for all, ranger is 0
+        self._set_categorical_features()
 
-    def _set_unordered_features(self):
+    def _set_categorical_features(self):
         """Determine categorical feature names."""
         if self.respect_categorical_features == "partition":
-            self.categorical_features_ = self.unordered_features or []
+            self.categorical_features_ = self.categorical_features or []
         elif self.respect_categorical_features == "ignore" or self.respect_categorical_features == "order":
             self.categorical_features_ = []
         else:
@@ -84,8 +84,8 @@ class RangerValidationMixin:
             else:
                 raise ValueError("split rule must be either logrank, extratrees, C or maxstat")
 
-    def _set_respect_unordered_factors(self):
-        """Set ``respect_unordered_factors`` based on ``split_rule``."""
+    def _set_respect_categorical_features(self):
+        """Set ``respect_categorical_features`` based on ``split_rule``."""
         if self.respect_categorical_features is None:
             if self.split_rule == "extratrees":
                 self.respect_categorical_features = "partition"
@@ -111,8 +111,8 @@ class RangerValidationMixin:
             self.regularization_factor = []
             self.use_regularization_factor_ = False
         else:
-            if self.n_jobs != 1:
-                self.n_jobs = 1
+            if self.n_jobs_ != 1:
+                self.n_jobs_ = 1
                 warnings.warn("Parallelization cannot be used with regularization.")
             self.use_regularization_factor_ = True
 
@@ -141,5 +141,5 @@ class RangerValidationMixin:
                 raise ValueError("Cannot use inbag and case_weights.")
             if len(self.sample_fraction_) > 1:
                 raise ValueError("Cannot use class sampling and inbag.")
-            if len(self.inbag) != self.num_trees:
-                raise ValueError("Size of inbag must be equal to num_trees.")
+            if len(self.inbag) != self.n_estimators:
+                raise ValueError("Size of inbag must be equal to n_estimators.")
