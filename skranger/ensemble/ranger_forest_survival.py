@@ -45,7 +45,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
     :param list split_select_weights: Vector of weights between 0 and 1 of probabilities
         to select variables for splitting.
     :param list always_split_variables:  Variables which should always be selected for
-        splitting.
+        splitting. A list of column index values.
     :param str respect_unordered_factors: One of ``ignore``, ``order``, ``partition``.
         The default is ``partition`` for the ``extratrees`` splitrule, otherwise the
         default is ``ignore``.
@@ -155,9 +155,14 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         # Check the init parameters
         self._validate_parameters(X, y)
 
-        # Store X info
+        # Set X info
+        self.variable_names_ = [str(c).encode() for c in range(X.shape[1])]
         self.n_features_ = X.shape[1]
-        self.variable_names_ = [str(r).encode() for r in range(X.shape[1])]
+
+        if self.always_split_variables is not None:
+            always_split_variables = [str(c).encode() for c in self.always_split_variables]
+        else:
+            always_split_variables = []
 
         # Fit the forest
         self.ranger_forest_ = ranger.ranger(
@@ -175,8 +180,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             self.min_node_size,
             self.split_select_weights or [],
             bool(self.split_select_weights),  # use_split_select_weights
-            self.always_split_variables or [],  # always_split_variable_names
-            bool(self.always_split_variables),  # use_always_split_variable_names
+            always_split_variables,  # always_split_variable_names
+            bool(always_split_variables),  # use_always_split_variable_names
             False,  # prediction_mode
             {},  # loaded_forest
             np.asfortranarray([[]]),  # snp_data
@@ -230,8 +235,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             self.min_node_size,
             self.split_select_weights or [],
             bool(self.split_select_weights),  # use_split_select_weights
-            self.always_split_variables or [],  # always_split_variable_names
-            bool(self.always_split_variables),  # use_always_split_variable_names
+            [],  # always_split_variable_names
+            False,  # use_always_split_variable_names
             True,  # prediction_mode
             self.ranger_forest_["forest"],  # loaded_forest
             np.asfortranarray([[]]),  # snp_data
