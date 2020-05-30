@@ -33,6 +33,9 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         when sampling with replacement, and 0.632 otherwise. This can be a vector of
         class specific values.
     :param list class_weights: Weights for the outcome classes.
+    :param bool keep_inbag: If true, save how often observations are in-bag in each
+        tree. These will be stored in the ``ranger_forest_`` attribute under the key
+        ``"inbag_counts"``.
     :param str split_rule: One of ``gini``, ``extratrees``, ``hellinger``;
         default ``gini``.
     :param int num_random_splits: The number of trees for the ``extratrees`` splitrule.
@@ -88,6 +91,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         replace=True,
         sample_fraction=None,
         class_weights=None,
+        keep_inbag=False,
         split_rule="gini",
         num_random_splits=1,
         split_select_weights=None,
@@ -112,6 +116,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         self.replace = replace
         self.sample_fraction = sample_fraction
         self.class_weights = class_weights
+        self.keep_inbag = keep_inbag
         self.split_rule = split_rule
         self.num_random_splits = num_random_splits
         self.split_select_weights = split_select_weights
@@ -176,7 +181,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
-            self.unordered_variable_names_,
+            self.unordered_variable_names_,  # TODO
             bool(self.unordered_variable_names_),  # use_unordered_variable_names
             self.save_memory,
             self.split_rule_,
@@ -184,7 +189,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             bool(sample_weight),  # use_case_weights
             self.class_weights or [],
             False,  # predict_all
-            False,  # keep_inbag
+            self.keep_inbag,
             self.sample_fraction_,
             0.5,  # alpha, ignored because maxstat can't be used on classification
             0.1,  # minprop, ignored because maxstat can't be used on classification
@@ -249,7 +254,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             False,  # use_case_weights
             self.class_weights or [],
             False,  # predict_all
-            False,  # keep_inbag
+            self.keep_inbag,
             self.sample_fraction_,
             0.5,  # alpha
             0.1,  # minprop

@@ -32,7 +32,9 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
     :param sample_fraction: The fraction of observations to sample. The default is 1
         when sampling with replacement, and 0.632 otherwise. This can be a vector of
         class specific values.
-    :param list class_weights: Weights for the outcome classes.
+    :param bool keep_inbag: If true, save how often observations are in-bag in each
+        tree. These will be stored in the ``ranger_forest_`` attribute under the key
+        ``"inbag_counts"``.
     :param str split_rule: One of ``variance``, ``extratrees``, ``maxstat``, ``beta``;
         default ``variance``.
     :param int num_random_splits: The number of trees for the ``extratrees`` splitrule.
@@ -91,7 +93,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         max_depth=0,
         replace=True,
         sample_fraction=None,
-        class_weights=None,
+        keep_inbag=False,
         split_rule="variance",
         num_random_splits=1,
         alpha=0.5,
@@ -117,7 +119,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         self.max_depth = max_depth
         self.replace = replace
         self.sample_fraction = sample_fraction
-        self.class_weights = class_weights
+        self.keep_inbag = keep_inbag
         self.split_rule = split_rule
         self.num_random_splits = num_random_splits
         self.alpha = alpha
@@ -185,9 +187,9 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
             self.split_rule_,
             sample_weight or [],  # case_weights
             bool(sample_weight),  # use_case_weights
-            self.class_weights or [],
+            [],  # class_weights
             False,  # predict_all
-            False,  # keep_inbag
+            self.keep_inbag,
             self.sample_fraction_,
             self.alpha,
             self.minprop,
@@ -242,9 +244,9 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
             self.split_rule_,
             [],  # case_weights
             False,  # use_case_weights
-            self.class_weights or [],
+            [],  # class_weights
             False,  # predict_all
-            False,  # keep_inbag
+            self.keep_inbag,
             self.sample_fraction_,
             self.alpha,
             self.minprop,
