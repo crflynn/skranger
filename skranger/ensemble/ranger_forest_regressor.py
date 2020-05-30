@@ -36,6 +36,10 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
     :param str split_rule: One of ``variance``, ``extratrees``, ``maxstat``, ``beta``;
         default ``variance``.
     :param int num_random_splits: The number of trees for the ``extratrees`` splitrule.
+    :param float alpha: Significance threshold to allow splitting for the ``maxstat``
+        split rule.
+    :param float minprop: Lower quantile of covariate distribution to be considered for
+        splitting for ``maxstat`` split rule.
     :param list split_select_weights: Vector of weights between 0 and 1 of probabilities
         to select variables for splitting.
     :param list always_split_variables:  Variables which should always be selected for
@@ -59,8 +63,6 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
 
     # TODO quantreg
 
-    :ivar list classes\_: The class labels determined from the fit input ``y``.
-    :ivar int n_classes\_: The number of unique class labels from the fit input ``y``.
     :ivar int n_features\_: The number of features (columns) from the fit input ``X``.
     :ivar list variable_names\_: Names for the features of the fit input ``X``.
     :ivar dict ranger_forest\_: The returned result object from calling C++ ranger.
@@ -92,6 +94,8 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         class_weights=None,
         split_rule="variance",
         num_random_splits=1,
+        alpha=0.5,
+        minprop=0.1,
         split_select_weights=None,
         always_split_variables=None,
         respect_unordered_factors=None,
@@ -116,6 +120,8 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         self.class_weights = class_weights
         self.split_rule = split_rule
         self.num_random_splits = num_random_splits
+        self.alpha = alpha
+        self.minprop = minprop
         self.split_select_weights = split_select_weights
         self.always_split_variables = always_split_variables
         self.respect_unordered_factors = respect_unordered_factors
@@ -183,8 +189,8 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
             False,  # predict_all
             False,  # keep_inbag
             self.sample_fraction_,
-            0.5,  # alpha
-            0.1,  # minprop
+            self.alpha,
+            self.minprop,
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
@@ -240,8 +246,8 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
             False,  # predict_all
             False,  # keep_inbag
             self.sample_fraction_,
-            0.5,  # alpha
-            0.1,  # minprop
+            self.alpha,
+            self.minprop,
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,

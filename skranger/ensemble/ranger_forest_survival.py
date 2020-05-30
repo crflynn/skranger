@@ -34,6 +34,10 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
     :param str split_rule: One of ``logrank``, ``extratrees``, ``C``, or ``maxstat``,
         default ``logrank``.
     :param int num_random_splits: The number of trees for the ``extratrees`` splitrule.
+    :param float alpha: Significance threshold to allow splitting for the ``maxstat``
+        split rule.
+    :param float minprop: Lower quantile of covariate distribution to be considered for
+        splitting for ``maxstat`` split rule.
     :param list split_select_weights: Vector of weights between 0 and 1 of probabilities
         to select variables for splitting.
     :param list always_split_variables:  Variables which should always be selected for
@@ -86,6 +90,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         class_weights=None,
         split_rule="logrank",
         num_random_splits=1,
+        alpha=0.5,
+        minprop=0.1,
         split_select_weights=None,
         always_split_variables=None,
         respect_unordered_factors=None,
@@ -110,6 +116,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         self.class_weights = class_weights
         self.split_rule = split_rule
         self.num_random_splits = num_random_splits
+        self.alpha = alpha
+        self.minprop = minprop
         self.split_select_weights = split_select_weights
         self.always_split_variables = always_split_variables
         self.respect_unordered_factors = respect_unordered_factors
@@ -181,8 +189,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             False,  # predict_all
             False,  # keep_inbag
             self.sample_fraction_,
-            0.5,  # alpha
-            0.1,  # minprop
+            self.alpha,
+            self.minprop,
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
@@ -236,8 +244,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             False,  # predict_all
             False,  # keep_inbag
             self.sample_fraction_,
-            0.5,  # alpha # TODO
-            0.1,  # minprop # TODO
+            self.alpha,
+            self.minprop,
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
