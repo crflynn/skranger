@@ -35,7 +35,7 @@ known_standard_library = ["setuptools"]
 name = "skranger"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["Flynn <crf204@gmail.com>"]
 build = "build.py"
 
 [tool.poetry.dependencies]

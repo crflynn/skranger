@@ -1,8 +1,3 @@
-.. skranger documentation master file, created by
-   sphinx-quickstart on Mon May 25 18:16:20 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 skranger
 ========
 
@@ -10,13 +5,6 @@ skranger
 
 The latest release of ``skranger`` uses version 0.12.1 of ``ranger``.
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-   ranger_forest_classifier
-   ranger_forest_regressor
-   ranger_forest_survival
 
 Installation
 ------------
@@ -138,13 +126,3 @@ License
 -------
 
 ``skranger`` is licensed under `GPLv3 <https://github.com/crflynn/skranger/blob/master/LICENSE.txt>`__.
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-
-
-.. * :ref:`modindex`
-.. * :ref:`search`
