@@ -141,9 +141,9 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
     def fit(self, X, y, sample_weight=None):
         """Fit the ranger random forest using training data.
 
-        :param np.ndarray X: training input features
-        :param np.ndarray y: training input classes
-        :param np.ndarray sample_weight: optional weights for input samples
+        :param array2d X: training input features
+        :param array1d y: training input target classes
+        :param array1d sample_weight: optional weights for input samples
         """
         self.tree_type_ = 9  # tree_type, TREE_PROBABILITY enables predict_proba
 
@@ -173,10 +173,10 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         self.ranger_forest_ = ranger.ranger(
             self.tree_type_,
             np.asfortranarray(X.astype("float64")),
-            np.asfortranarray(np.atleast_2d(y).astype("float64")),
+            np.asfortranarray(np.atleast_2d(y).astype("float64").transpose()),
             self.feature_names_,  # variable_names
-            self.mtry,
-            self.n_estimators,
+            self.mtry_,
+            self.n_estimators,  # num_trees
             self.verbose,
             self.seed,
             self.n_jobs_,  # num_threads
@@ -222,7 +222,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
     def predict(self, X):
         """Predict classes from X.
 
-        :param array2d X: predict input features
+        :param array2d X: prediction input features
         """
         probas = self.predict_proba(X)
         return self.classes_.take(np.argmax(probas, axis=1), axis=0)
@@ -230,7 +230,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
     def predict_proba(self, X):
         """Predict probabilities for classes from X.
 
-        :param array2d X: predict input features
+        :param array2d X: prediction input features
         """
         check_is_fitted(self)
         X = check_array(X)
@@ -240,8 +240,8 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             np.asfortranarray(X.astype("float64")),
             np.asfortranarray([[]]),
             self.feature_names_,  # variable_names
-            self.mtry,
-            self.n_estimators,
+            self.mtry_,
+            self.n_estimators,  # num_trees
             self.verbose,
             self.seed,
             self.n_jobs_,  # num_threads
@@ -287,7 +287,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
     def predict_log_proba(self, X):
         """Predict log probabilities for classes from X.
 
-        :param array2d X: predict input features
+        :param array2d X: prediction input features
         """
         proba = self.predict_proba(X)
         return np.log(proba)

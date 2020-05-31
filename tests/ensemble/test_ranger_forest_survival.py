@@ -8,7 +8,7 @@ from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import RangerForestSurvival
 
-N = 10
+N_ESTIMATORS = 10
 
 
 class TestRangerForestSurvival:
@@ -16,7 +16,7 @@ class TestRangerForestSurvival:
         _ = RangerForestSurvival()
 
     def test_fit(self, lung_X, lung_y):
-        rfs = RangerForestSurvival(n_estimators=N)
+        rfs = RangerForestSurvival(n_estimators=N_ESTIMATORS)
         with pytest.raises(NotFittedError):
             check_is_fitted(rfs)
         rfs.fit(lung_X, lung_y)
@@ -27,26 +27,26 @@ class TestRangerForestSurvival:
         assert hasattr(rfs, "n_features_")
 
     def test_predict(self, lung_X, lung_y):
-        rfs = RangerForestSurvival(n_estimators=N)
+        rfs = RangerForestSurvival(n_estimators=N_ESTIMATORS)
         rfs.fit(lung_X, lung_y)
         pred = rfs.predict(lung_X)
         assert len(pred) == lung_X.shape[0]
 
     def test_predict_cumulative_hazard_function(self, lung_X, lung_y):
-        rfs = RangerForestSurvival(n_estimators=N)
+        rfs = RangerForestSurvival(n_estimators=N_ESTIMATORS)
         rfs.fit(lung_X, lung_y)
         pred = rfs.predict_cumulative_hazard_function(lung_X)
         assert len(pred) == lung_X.shape[0]
 
     def test_predict_survival_function(self, lung_X, lung_y):
-        rfs = RangerForestSurvival(n_estimators=N)
+        rfs = RangerForestSurvival(n_estimators=N_ESTIMATORS)
         rfs.fit(lung_X, lung_y)
         pred = rfs.predict_survival_function(lung_X)
         assert len(pred) == lung_X.shape[0]
 
     def test_serialize(self, lung_X, lung_y):
         tf = tempfile.TemporaryFile()
-        rfs = RangerForestSurvival(n_estimators=N)
+        rfs = RangerForestSurvival(n_estimators=N_ESTIMATORS)
         rfs.fit(lung_X, lung_y)
         pickle.dump(rfs, tf)
         tf.seek(0)
@@ -55,6 +55,6 @@ class TestRangerForestSurvival:
         assert len(pred) == lung_X.shape[0]
 
     def test_clone(self, lung_X, lung_y):
-        rfs = RangerForestSurvival(n_estimators=N)
+        rfs = RangerForestSurvival(n_estimators=N_ESTIMATORS)
         rfs.fit(lung_X, lung_y)
         clone(rfs)

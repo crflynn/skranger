@@ -149,9 +149,9 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
     def fit(self, X, y, sample_weight=None):
         """Fit the ranger random forest using training data.
 
-        :param np.ndarray X: training input features
-        :param np.ndarray y: training input classes
-        :param np.ndarray sample_weight: optional weights for input samples
+        :param array2d X: training input features
+        :param array1d y: training input targets
+        :param array1d sample_weight: optional weights for input samples
         """
         self.tree_type_ = 3  # tree_type, TREE_REGRESSION
 
@@ -176,10 +176,10 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         self.ranger_forest_ = ranger.ranger(
             self.tree_type_,
             np.asfortranarray(X.astype("float64")),
-            np.asfortranarray(np.atleast_2d(y).astype("float64")),
+            np.asfortranarray(np.atleast_2d(y).astype("float64").transpose()),
             self.feature_names_,  # variable_names
-            self.mtry,
-            self.n_estimators,  # num_threads
+            self.mtry_,
+            self.n_estimators,  # num_trees
             self.verbose,
             self.seed,
             self.n_jobs_,  # num_threads
@@ -225,7 +225,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
     def predict(self, X):
         """Predict regression target for X.
 
-        :param array2d X: predict input features
+        :param array2d X: prediction input features
         """
         check_is_fitted(self)
         X = check_array(X)
@@ -235,8 +235,8 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
             np.asfortranarray(X.astype("float64")),
             np.asfortranarray([[]]),
             self.feature_names_,  # variable_names
-            self.mtry,
-            self.n_estimators,  # num_threads
+            self.mtry_,
+            self.n_estimators,  # num_trees
             self.verbose,
             self.seed,
             self.n_jobs_,  # num_threads
