@@ -17,4 +17,5 @@ fmt:
 
 .PHONY: test
 test:
-	poetry run pytest tests/
+	poetry run pytest --cov=skranger --cov-report=html tests/
+	open htmlcov/index.html

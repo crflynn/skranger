@@ -128,7 +128,7 @@ cpdef dict ranger(
         "forest": {
             "num_trees": int,
             "child_node_ids": [[[]]],
-            "splits_var_ids": [[]],
+            "split_var_ids": [[]],
             "split_values": [[]],
             "is_ordered": [],
             "class_values": [],
@@ -223,7 +223,7 @@ cpdef dict ranger(
 
         if prediction_mode:
             child_node_ids = loaded_forest["child_node_ids"]
-            split_var_ids = loaded_forest["splits_var_ids"]
+            split_var_ids = loaded_forest["split_var_ids"]
             split_values = loaded_forest["split_values"]
             is_ordered = loaded_forest["is_ordered"]
 
@@ -281,7 +281,7 @@ cpdef dict ranger(
             forest_object = {
                 "num_trees": deref(forest).getNumTrees(),
                 "child_node_ids": deref(forest).getChildNodeIDs(),
-                "splits_var_ids": deref(forest).getSplitVarIDs(),
+                "split_var_ids": deref(forest).getSplitVarIDs(),
                 "split_values": deref(forest).getSplitValues(),
                 "is_ordered": deref(forest).getIsOrderedVariable()
             }

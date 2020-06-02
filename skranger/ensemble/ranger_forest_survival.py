@@ -158,7 +158,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             sample_weight = _check_sample_weight(sample_weight, X)
 
         # Check the init parameters
-        self._validate_parameters(X, y)
+        self._validate_parameters(X, y, sample_weight)
 
         # Set X info
         self.feature_names_ = [str(c).encode() for c in range(X.shape[1])]
