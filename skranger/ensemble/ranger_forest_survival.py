@@ -141,9 +141,10 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
     def fit(self, X, y, sample_weight=None):
         """Fit the ranger random forest using training data.
 
-        :param np.ndarray X: training input features
-        :param np.ndarray y: training input survivals
-        :param np.ndarray sample_weight: optional weights for input samples
+        :param array2d X: training input features
+        :param array2d y: training input targets, rows of (bool, float)
+            representing (survival, time)
+        :param array1d sample_weight: optional weights for input samples
         """
         self.tree_type_ = 5  # tree_type, TREE_SURVIVAL
         # Check input
@@ -174,8 +175,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             np.asfortranarray(X.astype("float64")),
             np.asfortranarray(y.astype("float64")),
             self.feature_names_,  # variable_names
-            self.mtry,
-            self.n_estimators,  # num_threads
+            self.mtry_,
+            self.n_estimators,  # num_trees
             self.verbose,
             self.seed,
             self.n_jobs_,  # num_threads
@@ -229,8 +230,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             np.asfortranarray(X.astype("float64")),
             np.asfortranarray([[]]),
             self.feature_names_,  # variable_names
-            self.mtry,
-            self.n_estimators,  # num_threads
+            self.mtry_,
+            self.n_estimators,  # num_trees
             self.verbose,
             self.seed,
             self.n_jobs_,  # num_threads
@@ -276,7 +277,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
     def predict_cumulative_hazard_function(self, X):
         """Predict cumulative hazard function.
 
-        :param array2d X: predict input features
+        :param array2d X: prediction input features
         """
         result = self._predict(X)
         return np.atleast_2d(result["predictions"])
@@ -284,7 +285,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
     def predict_survival_function(self, X):
         """Predict survival function.
 
-        :param array2d X: predict input features
+        :param array2d X: prediction input features
         """
         chf = self.predict_cumulative_hazard_function(X)
         return np.exp(-chf)
@@ -292,7 +293,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
     def predict(self, X):
         """Predict risk score.
 
-        :param array2d X: predict input features
+        :param array2d X: prediction input features
         """
         chf = self.predict_cumulative_hazard_function(X)
         return chf.sum(1)

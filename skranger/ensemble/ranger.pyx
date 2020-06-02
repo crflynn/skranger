@@ -28,9 +28,9 @@ cdef class DataNumpy:
         np.ndarray[double, ndim=2, mode="fortran"] y not None,
         vector[string] variable_names,
     ):
-        cdef int num_rows = x.shape[0]
-        cdef int num_cols = x.shape[1]
-        cdef int num_cols_y = y.shape[1]
+        cdef size_t num_rows = x.shape[0]
+        cdef size_t num_cols = x.shape[1]
+        cdef size_t num_cols_y = y.shape[1]
         self.c_data.reset(
             new ranger_.DataNumpy(
                 &x[0, 0],
@@ -62,7 +62,7 @@ cpdef dict ranger(
     ranger_.TreeType treetype,
     np.ndarray[double, ndim=2, mode="fortran"] x,
     np.ndarray[double, ndim=2, mode="fortran"] y,
-    vector[char*] variable_names,
+    vector[string]& variable_names,
     unsigned int mtry,
     unsigned int num_trees,
     bool verbose,
@@ -155,7 +155,6 @@ cpdef dict ranger(
     cdef vector[double] unique_timepoints
     cdef vector[vector[vector[double]]] terminal_class_counts
     cdef vector[vector[vector[double]]] predictions
-    cdef vector[vector[size_t]] snp_order
 
     try:
         if not use_split_select_weights:
@@ -175,18 +174,6 @@ cpdef dict ranger(
             verbose_out = <ranger_.ostream*> &ranger_.cout
         else:
             verbose_out = <ranger_.ostream*> new ranger_.stringstream()
-
-        # FIXME ignore sparse for now
-        # if use_sparse_data:
-        #     num_rows = x.shape[0]
-        #     num_cols = x.shape[1]
-        # else:
-        #     num_rows = x.shape[0]
-        #     num_cols = x.shape[1]
-
-        # if use_sparse_data:
-        #     data = unique_ptr[DataNumpy](x, y, variable_names)
-        # else:
 
         data = DataNumpy(x, y, variable_names)
 
