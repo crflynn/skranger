@@ -27,8 +27,8 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
     :param int min_node_size: The minimal node size.
     :param int max_depth: The maximal tree depth; 0 means unlimited.
     :param bool replace: Sample with replacement.
-    :param float sample_fraction: The fraction of observations to sample. The default is 1
-        when sampling with replacement, and 0.632 otherwise. This can be a vector of
+    :param float/list sample_fraction: The fraction of observations to sample. The default is 1
+        when sampling with replacement, and 0.632 otherwise. This can be a list of
         class specific values.
     :param list class_weights: Weights for the outcome classes.
     :param bool keep_inbag: If true, save how often observations are in-bag in each
@@ -153,7 +153,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             sample_weight = _check_sample_weight(sample_weight, X)
 
         # Check the init parameters
-        self._validate_parameters(X, y)
+        self._validate_parameters(X, y, sample_weight)
 
         # Map classes to indices
         y = y.copy()

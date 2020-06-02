@@ -4,16 +4,15 @@ import numpy as np
 
 
 class RangerValidationMixin:
-    def _validate_parameters(self, X, y):
+    def _validate_parameters(self, X, y, sample_weights):
         """Validate ranger parameters and set defaults."""
         self.n_jobs_ = max([self.n_jobs, 0])  # sklearn convention is -1 for all, ranger is 0
         self._set_respect_categorical_features()
         self._evaluate_mtry(X.shape[1])
         self._set_importance_mode()
-        self._check_inbag()
-        self._check_set_regularization(X.shape[1])
         self.sample_fraction_ = self.sample_fraction or [1.0 if self.replace else 0.632]
-        self.regularization_factor_ = self.regularization_factor or [1.0] * X.shape[1]
+        self._check_inbag(sample_weights)
+        self._check_set_regularization(X.shape[1])
         self._set_split_rule(y)
         self.order_snps_ = self.respect_categorical_features == "order"
         self._set_categorical_features()
@@ -21,7 +20,9 @@ class RangerValidationMixin:
     def _set_categorical_features(self):
         """Determine categorical feature names."""
         if self.respect_categorical_features == "partition":
-            self.categorical_features_ = self.categorical_features or []
+            self.categorical_features_ = (
+                [str(c).encode() for c in self.categorical_features] if self.categorical_features is not None else []
+            )
         elif self.respect_categorical_features == "ignore" or self.respect_categorical_features == "order":
             self.categorical_features_ = []
         else:
@@ -40,8 +41,13 @@ class RangerValidationMixin:
 
     def _set_split_rule(self, y):
         """Set split rule to enum value."""
-        if self.split_rule == "extratrees" and self.respect_categorical_features == "partition" and self.save_memory:
-            raise ValueError("save memory is not possible with extratrees split rule and unordered predictors")
+        if hasattr(self, "save_memory"):
+            if (
+                self.split_rule == "extratrees"
+                and self.respect_categorical_features == "partition"
+                and self.save_memory
+            ):
+                raise ValueError("save memory is not possible with extratrees split rule and unordered predictors")
 
         if self.num_random_splits > 1 and self.split_rule != "extratrees":
             raise ValueError("random splits must be 1 when split rule is not extratrees")
@@ -52,6 +58,8 @@ class RangerValidationMixin:
             elif self.split_rule == "extratrees":
                 self.split_rule_ = 5  # ranger_.SplitRule.EXTRATREES
             elif self.split_rule == "hellinger":
+                if len(np.unique(y)) > 2:
+                    raise ValueError("hellinger split rule can only be used in binary classification")
                 self.split_rule_ = 7  # ranger_.SplitRule.HELLINGER
             else:
                 raise ValueError("split rule must be either gini, extratrees, or hellinger")
@@ -95,9 +103,10 @@ class RangerValidationMixin:
     def _check_set_regularization(self, num_features):
         """Check, set the regularization factor to either [] or length num_features."""
         if self.regularization_factor is None:
-            self.regularization_factor = []
+            self.regularization_factor_ = []
             self.use_regularization_factor_ = False
             return
+
         if len(self.regularization_factor) > 0:
             if max(self.regularization_factor) > 1:
                 raise ValueError("The regularization coefficients must be <= 1")
@@ -106,14 +115,16 @@ class RangerValidationMixin:
             if len(self.regularization_factor) != 1 and len(self.regularization_factor) != num_features:
                 raise ValueError("There must be either one 1 or (number of features) regularization coefficients")
             if len(self.regularization_factor) == 1:
-                self.regularization_factor = self.regularization_factor * num_features
+                self.regularization_factor_ = [self.regularization_factor] * num_features
+
         if all([r == 1 for r in self.regularization_factor]):
-            self.regularization_factor = []
+            self.regularization_factor_ = []
             self.use_regularization_factor_ = False
         else:
             if self.n_jobs_ != 1:
                 self.n_jobs_ = 1
                 warnings.warn("Parallelization cannot be used with regularization.")
+            self.regularization_factor_ = self.regularization_factor
             self.use_regularization_factor_ = True
 
     def _set_importance_mode(self):
@@ -135,10 +146,11 @@ class RangerValidationMixin:
         else:
             raise ValueError("unkown importance mode")
 
-    def _check_inbag(self):
+    def _check_inbag(self, sample_weights):
+        """Validate related input against ``inbag`` counts."""
         if self.inbag:
-            if self.case_weights:
-                raise ValueError("Cannot use inbag and case_weights.")
+            if sample_weights is not None:
+                raise ValueError("Cannot use inbag and sample_weights.")
             if len(self.sample_fraction_) > 1:
                 raise ValueError("Cannot use class sampling and inbag.")
             if len(self.inbag) != self.n_estimators:
