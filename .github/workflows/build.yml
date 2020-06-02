@@ -69,6 +69,11 @@ jobs:
       with:
         submodules: 'recursive'
 
+    # required for coverage
+    - name: Install sqlite
+      run: |
+        apt-get install -y sqlite-devel
+
     - name: Install asdf
       uses: asdf-vm/actions/setup@v1.0.0
 
