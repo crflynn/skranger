@@ -31,6 +31,10 @@ fmt:
 	poetry run isort -y
 	poetry run black .
 
+.PHONY: sdist
+sdist: copy
+	poetry build -f sdist
+
 .PHONY: setup
 setup:
 	git submodule init
