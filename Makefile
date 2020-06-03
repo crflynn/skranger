@@ -3,6 +3,11 @@ build:
 	poetry run python build.py clean
 	poetry run python build.py build_ext --inplace --force
 
+.PHONY: clean
+clean:
+	rm -rf build
+	rm -rf dist
+
 .PHONY: copy
 copy:
 	poetry run python buildpre.py
@@ -30,6 +35,14 @@ docs:
 fmt:
 	poetry run isort -y
 	poetry run black .
+
+.PHONY: publish
+publish: clean sdist
+	poetry publish
+
+.PHONY: release
+release: clean sdist
+	ghr -u crflynn -r skranger -c $(shell git rev-parse HEAD) -delete -b "release" -n $(shell poetry version | tail -c +10) $(shell poetry version | tail -c +10) dist/*.tar.gz
 
 .PHONY: sdist
 sdist: copy
