@@ -7,15 +7,16 @@ from Cython.Build import cythonize
 
 # skranger project directory
 top = os.path.dirname(os.path.abspath(__file__))
-# the cpp source code
-ranger_src = os.path.join("ranger", "src")
 
 # include skranger, ranger, and numpy headers
+# requires running buildpre.py to find src in this location
 include_dirs = [
     top,
-    os.path.join(top, "skranger"),
     os.path.join(top, "skranger", "ensemble"),
-    os.path.join(top, ranger_src),
+    os.path.join(top, "skranger", "ensemble", "ranger", "src"),
+    os.path.join(top, "skranger", "ensemble", "ranger", "src", "Forest"),
+    os.path.join(top, "skranger", "ensemble", "ranger", "src", "Tree"),
+    os.path.join(top, "skranger", "ensemble", "ranger", "src", "utility"),
     np.get_include(),
 ]
 
@@ -58,7 +59,7 @@ ext_modules = [create_extension(name) for name in find_pyx_files("skranger")]
 
 setup(
     ext_modules=cythonize(
-        ext_modules, gdb_debug=False, force=True, annotate=True, compiler_directives={"language_level": "3"}
+        ext_modules, gdb_debug=False, force=True, annotate=False, compiler_directives={"language_level": "3"}
     )
 )
 

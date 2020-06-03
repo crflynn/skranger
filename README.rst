@@ -126,3 +126,18 @@ License
 -------
 
 ``skranger`` is licensed under `GPLv3 <https://github.com/crflynn/skranger/blob/master/LICENSE.txt>`__.
+
+Development
+-----------
+
+To develop locally, it is recommended to have ``asdf``, ``make`` and a C++ compiler already installed. After cloning, run ``make setup``. This will setup the ranger submodule, install python and poetry from ``.tool-versions``, install dependencies using poetry, copy the ranger source code into skranger, and then build and install skranger in the local virtualenv.
+
+To format code, run ``make fmt``. This will run isort and black against the .py files.
+
+To run tests and inspect coverage, run ``make test``.
+
+To rebuild in place after making changes, run ``make build``.
+
+To create python package artifacts, run ``make dist``.
+
+To build and view documentation, run ``make docs``.

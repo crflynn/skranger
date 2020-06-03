@@ -1,0 +1,12 @@
+.git/
+.github/
+.idea/
+.pytest_cache/
+.venv/
+build/
+dist/
+cython_debug/
+htmlcov/
+*.egg-info/
+.coverage
+.DS_Store
