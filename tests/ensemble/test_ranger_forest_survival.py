@@ -104,7 +104,7 @@ class TestRangerForestSurvival:
             with pytest.raises(ValueError):
                 rfc.fit(lung_X, lung_y)
             return
-        elif not callable(mtry) and mtry > lung_X.shape[0]:
+        elif not callable(mtry) and (mtry < 0 or mtry > lung_X.shape[0]):
             with pytest.raises(ValueError):
                 rfc.fit(lung_X, lung_y)
             return

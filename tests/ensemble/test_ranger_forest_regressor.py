@@ -88,7 +88,7 @@ class TestRangerForestRegressor:
             with pytest.raises(ValueError):
                 rfc.fit(boston_X, boston_y)
             return
-        elif not callable(mtry) and mtry > boston_X.shape[0]:
+        elif not callable(mtry) and (mtry < 0 or mtry > boston_X.shape[0]):
             with pytest.raises(ValueError):
                 rfc.fit(boston_X, boston_y)
             return

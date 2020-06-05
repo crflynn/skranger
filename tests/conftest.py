@@ -79,7 +79,7 @@ def mtry_callable_invalid(num_features):
     return 999
 
 
-@pytest.fixture(params=[1, mtry_callable, mtry_callable_invalid, -0, 999])
+@pytest.fixture(params=[1, mtry_callable, mtry_callable_invalid, -1, 999])
 def mtry(request):
     return request.param
 
