@@ -49,6 +49,7 @@ jobs:
 
     - name: Build
       run: |
+        poetry run python buildpre.py
         poetry install
 
     - name: Format
@@ -117,6 +118,7 @@ jobs:
 
     - name: Build
       run: |
+        poetry run python buildpre.py
         poetry install
 
     - name: Test
@@ -178,6 +180,7 @@ jobs:
 
     - name: Build
       run: |
+        poetry run python buildpre.py
         poetry install
 
     - name: Test

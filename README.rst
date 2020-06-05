@@ -81,7 +81,7 @@ The ``RangerForestRegressor`` predictor uses ``ranger``'s ForestRegression class
 RangerForestSurvival
 ~~~~~~~~~~~~~~~~~~~~
 
-The ``RangerForestSurvival`` predictor uses ``ranger``'s ForestSurvival class, and has an interface similar to the RangerSurvivalForest found in the ``scikit-survival`` package.
+The ``RangerForestSurvival`` predictor uses ``ranger``'s ForestSurvival class, and has an interface similar to the RandomSurvivalForest found in the ``scikit-survival`` package.
 
 .. code-block:: python
 

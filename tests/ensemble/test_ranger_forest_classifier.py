@@ -102,7 +102,7 @@ class TestRangerForestClassifier:
             with pytest.raises(ValueError):
                 rfc.fit(iris_X, iris_y)
             return
-        elif not callable(mtry) and mtry > iris_X.shape[0]:
+        elif not callable(mtry) and (mtry < 0 or mtry > iris_X.shape[0]):
             with pytest.raises(ValueError):
                 rfc.fit(iris_X, iris_y)
             return
