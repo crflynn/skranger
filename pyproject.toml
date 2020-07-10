@@ -56,11 +56,11 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.6.1"
-cython = "3.0a5"
-numpy = "^1.18.3"
-scikit-learn = "^0.22.2"
+numpy = "*"
+scikit-learn = "*"
 
 [tool.poetry.dev-dependencies]
+cython = "^3.0a5"
 black = {version = "^19.10b0", allow-prereleases = true}
 isort = "^4.3.21"
 pytest = "^5.4.1"
@@ -72,6 +72,6 @@ pandas = "^1.0.3"
 pytest-cov = "^2.9.0"
 
 [build-system]
-requires = ["poetry>=0.12", "cython==3.0a5", "numpy>=1.18.3"]
+requires = ["poetry>=0.12", "cython", "numpy"]
 build-backend = "poetry.masonry.api"
 
