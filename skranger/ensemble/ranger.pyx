@@ -28,9 +28,9 @@ cdef class DataNumpy:
         np.ndarray[double, ndim=2, mode="fortran"] y not None,
         vector[string] variable_names,
     ):
-        cdef size_t num_rows = x.shape[0]
-        cdef size_t num_cols = x.shape[1]
-        cdef size_t num_cols_y = y.shape[1]
+        cdef size_t num_rows = np.PyArray_DIMS(x)[0]  # in lieu of x.shape
+        cdef size_t num_cols = np.PyArray_DIMS(x)[1]
+        cdef size_t num_cols_y = np.PyArray_DIMS(y)[1]
         self.c_data.reset(
             new ranger_.DataNumpy(
                 &x[0, 0],
