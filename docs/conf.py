@@ -15,6 +15,14 @@ import sys
 
 sys.path.insert(0, os.path.abspath(".."))
 
+# Need to build in rtfd
+if os.environ.get("READTHEDOCS"):
+    import subprocess
+
+    os.chdir("..")
+    subprocess.run("python buildpre.py".split(" "))
+    subprocess.run("python build.py clean".split(" "))
+    subprocess.run("python build.py build_ext --inplace --force".split(" "))
 
 # -- Project information -----------------------------------------------------
 
