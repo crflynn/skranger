@@ -1,6 +1,23 @@
 skranger
 ========
 
+|actions| |travis| |rtd| |pypi| |pyversions|
+
+.. |actions| image:: https://github.com/crflynn/skranger/workflows/build/badge.svg
+    :target: https://github.com/crflynn/skranger/actions
+
+.. |travis| image:: https://img.shields.io/travis/crflynn/skranger-wheels.svg?logo=travis&label=wheels
+    :target: https://travis-ci.org/crflynn/skranger-wheels
+
+.. |rtd| image:: https://img.shields.io/readthedocs/skranger.svg
+    :target: http://skranger.readthedocs.io/en/latest/
+
+.. |pypi| image:: https://img.shields.io/pypi/v/skranger.svg
+    :target: https://pypi.python.org/pypi/skranger
+
+.. |pyversions| image:: https://img.shields.io/pypi/pyversions/skranger.svg
+    :target: https://pypi.python.org/pypi/skranger
+
 ``skranger`` provides `scikit-learn <https://scikit-learn.org/stable/index.html>`__ compatible Python bindings to the C++ random forest implementation, `ranger <https://github.com/imbs-hl/ranger>`__, using `Cython <https://cython.readthedocs.io/en/latest/>`__.
 
 The latest release of ``skranger`` uses version `0.12.1 <https://github.com/imbs-hl/ranger/releases/tag/0.12.1>`__ of ``ranger``.
