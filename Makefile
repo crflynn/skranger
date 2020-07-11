@@ -26,7 +26,7 @@ linux: copy docker
 
 .PHONY: docs
 docs:
-	poetry export --dev -f requirements.txt > docs/requirements.txt && \
+	poetry export --without-hashes --dev -f requirements.txt > docs/requirements.txt && \
 	cd docs && \
 	poetry run sphinx-build -M html . _build -a && \
 	cd .. && \
