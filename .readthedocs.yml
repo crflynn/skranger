@@ -1,4 +1,10 @@
+version: 2
+
 formats: []
+
+submodules:
+  include: all
+
 python:
    version: 3.7
    install:
