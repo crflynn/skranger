@@ -6,7 +6,7 @@ skranger
 .. |actions| image:: https://github.com/crflynn/skranger/workflows/build/badge.svg
     :target: https://github.com/crflynn/skranger/actions
 
-.. |travis| image:: https://img.shields.io/travis/crflynn/skranger-wheels.svg?logo=travis&label=wheels
+.. |travis| image:: https://img.shields.io/travis/crflynn/skranger-wheels/master.svg?logo=travis&label=wheels
     :target: https://travis-ci.org/crflynn/skranger-wheels
 
 .. |rtd| image:: https://img.shields.io/readthedocs/skranger.svg
