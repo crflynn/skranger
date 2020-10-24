@@ -5,7 +5,10 @@ import tempfile
 import numpy as np
 import pytest
 from sklearn.base import clone
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.exceptions import NotFittedError
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import RangerForestClassifier
@@ -24,6 +27,7 @@ class TestRangerForestClassifier:
         assert hasattr(rfc, "classes_")
         assert hasattr(rfc, "n_classes_")
         assert hasattr(rfc, "ranger_forest_")
+        assert hasattr(rfc, "ranger_class_order_")
         assert hasattr(rfc, "n_features_")
 
     def test_predict(self, iris_X, iris_y):
@@ -232,3 +236,22 @@ class TestRangerForestClassifier:
         # feature 0 is in every tree split
         for tree in rfc.ranger_forest_["forest"]["split_var_ids"]:
             assert 0 in tree
+
+    def test_accuracy(self, iris_X, iris_y):
+        X_train, X_test, y_train, y_test = train_test_split(iris_X, iris_y, test_size=0.33, random_state=42)
+
+        # train and test a random forest classifier
+        rf = RandomForestClassifier()
+        rf.fit(X_train, y_train)
+        y_pred_rf = rf.predict(X_test)
+        rf_acc = accuracy_score(y_test, y_pred_rf)
+
+        # train and test a ranger classifier
+        ra = RangerForestClassifier()
+        ra.fit(X_train, y_train)
+        y_pred_ra = ra.predict(X_test)
+        ranger_acc = accuracy_score(y_test, y_pred_ra)
+
+        # the accuracy should be good
+        assert rf_acc > 0.9
+        assert ranger_acc > 0.9
