@@ -41,7 +41,12 @@ readme = "README.rst"
 homepage = "https://github.com/crflynn/skranger"
 repository = "https://github.com/crflynn/skranger"
 documentation = "https://github.com/crflynn/skranger"
-include = ["skranger/ensemble/ranger/**/*"]
+include = [
+    "skranger/ensemble/ranger/**/*",
+    "CHANGELOG.rst",
+    "LICENSE.txt",
+    "README.rst",
+]
 build = "build.py"
 keywords = ["random", "forest", "ranger", "machine", "learning"]
 classifiers = [
