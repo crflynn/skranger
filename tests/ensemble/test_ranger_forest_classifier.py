@@ -27,7 +27,7 @@ class TestRangerForestClassifier:
         assert hasattr(rfc, "classes_")
         assert hasattr(rfc, "n_classes_")
         assert hasattr(rfc, "ranger_forest_")
-        assert hasattr(rfc, "ranger_class_map_")
+        assert hasattr(rfc, "ranger_class_order_")
         assert hasattr(rfc, "n_features_")
 
     def test_predict(self, iris_X, iris_y):
