@@ -66,7 +66,7 @@ qtconsole==4.7.5
 qtpy==1.9.0
 regex==2020.6.8
 requests==2.24.0
-scikit-learn==0.23.1
+scikit-learn==0.22.0
 scikit-survival==0.12.0
 scipy==1.5.1
 send2trash==1.5.0
