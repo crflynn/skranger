@@ -80,7 +80,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         regularization factor input parameter.
     :ivar int importance_mode\_: The importance mode integer corresponding to ranger
         enum ``ImportanceMode``.
-    :ivar list ranger_class_map\_: The class reference ordering derived from ranger.
+    :ivar list ranger_class_order\_: The class reference ordering derived from ranger.
     """
 
     def __init__(
@@ -218,7 +218,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             False,  # use_regularization_factor
             self.regularization_usedepth,
         )
-        self.ranger_class_map_ = np.argsort(np.array(self.ranger_forest_["forest"]["class_values"]).astype(int))
+        self.ranger_class_order_ = np.argsort(np.array(self.ranger_forest_["forest"]["class_values"]).astype(int))
         return self
 
     def predict(self, X):
@@ -285,7 +285,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             self.regularization_usedepth,
         )
         predictions = np.atleast_2d(np.array(result["predictions"]))
-        return predictions[:, self.ranger_class_map_]
+        return predictions[:, self.ranger_class_order_]
 
     def predict_log_proba(self, X):
         """Predict log probabilities for classes from X.
