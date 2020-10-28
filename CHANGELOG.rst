@@ -1,6 +1,11 @@
 Release Changelog
 -----------------
 
+0.3.0 (2020-10-28)
+~~~~~~~~~~~~~~~~~~
+
+* Enable quantile regression on RangerForestRegressor.
+
 0.2.0 (2020-10-23)
 ~~~~~~~~~~~~~~~~~~
 
