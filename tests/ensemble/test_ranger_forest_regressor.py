@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 from sklearn.base import clone
 from sklearn.exceptions import NotFittedError
+from sklearn.model_selection import train_test_split
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import RangerForestRegressor
@@ -220,3 +221,20 @@ class TestRangerForestRegressor:
         # feature 0 is in every tree split
         for tree in rfc.ranger_forest_["forest"]["split_var_ids"]:
             assert 0 in tree
+
+    def test_quantile_regression(self, boston_X, boston_y):
+        X_train, X_test, y_train, y_test = train_test_split(boston_X, boston_y)
+        rfr = RangerForestRegressor(quantiles=False)
+        rfr.fit(X_train, y_train)
+        assert not hasattr(rfr, "random_node_values_")
+        with pytest.raises(ValueError):
+            rfr.predict_quantiles(X_test)
+        rfr = RangerForestRegressor(quantiles=True)
+        rfr.fit(X_train, y_train)
+        assert hasattr(rfr, "random_node_values_")
+        quantiles_lower = rfr.predict_quantiles(X_test, quantiles=[0.1])
+        quantiles_upper = rfr.predict_quantiles(X_test, quantiles=[0.9])
+        assert np.less(quantiles_lower, quantiles_upper).all()
+        assert quantiles_upper.ndim == 1
+        quantiles = rfr.predict_quantiles(X_test, quantiles=[0.1, 0.9])
+        assert quantiles.ndim == 2
