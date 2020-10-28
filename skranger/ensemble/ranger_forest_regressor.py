@@ -1,7 +1,4 @@
-"""Scikit-learn wrapper for ranger regression.
-
-TODO quantreg
-"""
+"""Scikit-learn wrapper for ranger regression."""
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import RegressorMixin
@@ -65,6 +62,8 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
     :param bool regularization_usedepth: Whether to consider depth in regularization.
     :param bool holdout: Hold-out all samples with case weight 0 and use these for
         feature importance and prediction error.
+    :param bool quantiles: Enable quantile regression after fitting. This must be
+        set to ``True`` in order to call ``predict_quantiles`` after fitting.
     :param bool oob_error: Whether to calculate out-of-bag prediction error.
     :param int n_jobs: The number of threads. Default is number of CPU cores.
     :param bool save_memory: Save memory at the cost of speed growing trees.
@@ -86,6 +85,8 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         regularization factor input parameter.
     :ivar int importance_mode\_: The importance mode integer corresponding to ranger
         enum ``ImportanceMode``.
+    :ivar 2darray random_node_values\_: Random training target values based on
+        trained forest terminal nodes for the purpose of quantile regression.
     """
 
     def __init__(
@@ -113,6 +114,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         regularization_factor=None,
         regularization_usedepth=False,
         holdout=False,
+        quantiles=False,
         oob_error=False,
         n_jobs=-1,
         save_memory=False,
@@ -141,6 +143,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         self.regularization_factor = regularization_factor
         self.regularization_usedepth = regularization_usedepth
         self.holdout = holdout
+        self.quantiles = quantiles
         self.oob_error = oob_error
         self.n_jobs = n_jobs
         self.save_memory = save_memory
@@ -220,7 +223,98 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
             False,  # use_regularization_factor
             self.regularization_usedepth,
         )
+
+        if self.quantiles:
+            forest = self._get_terminal_node_forest(X)
+            terminal_nodes = np.array(forest["predictions"]).astype(int)
+            self.random_node_values_ = np.empty((np.max(terminal_nodes) + 1, self.n_estimators))
+            self.random_node_values_[:] = np.nan
+            for tree in range(self.n_estimators):
+                idx = np.arange(X.shape[0])
+                np.random.shuffle(idx)
+                self.random_node_values_[terminal_nodes[idx, tree], tree] = y[idx]
+
         return self
+
+    def _get_terminal_node_forest(self, X):
+        """Get a terminal node forest for X.
+
+        :param array2d X: prediction input features
+        """
+        # many fields defaulted here which are unused
+        forest = ranger.ranger(
+            self.tree_type_,
+            np.asfortranarray(X.astype("float64")),
+            np.asfortranarray([[]]),
+            self.feature_names_,  # variable_names
+            0,  # m_try
+            self.n_estimators,  # num_trees
+            self.verbose,
+            self.seed,
+            self.n_jobs_,  # num_threads
+            False,  # write_forest
+            0,  # importance_mode
+            0,  # min_node_size
+            [],  # split_select_weights
+            False,  # use_split_select_weights
+            [],  # always_split_feature_names
+            False,  # use_always_split_feature_names
+            True,  # prediction_mode
+            self.ranger_forest_["forest"],  # loaded_forest
+            np.asfortranarray([[]]),  # snp_data
+            True,  # sample_with_replacement
+            False,  # probability
+            [],  # unordered_feature_names
+            False,  # use_unordered_features
+            False,  # save_memory
+            1,  # split_rule
+            [],  # case_weights
+            False,  # use_case_weights
+            [],  # class_weights
+            False,  # predict_all
+            self.keep_inbag,
+            self.sample_fraction_,
+            0,  # alpha
+            0,  # minprop
+            self.holdout,
+            2,  # prediction_type (terminal nodes)
+            1,  # num_random_splits
+            False,  # use_sparse_data
+            False,  # order_snps_
+            False,  # oob_error
+            0,  # max_depth
+            [],  # inbag
+            False,  # use_inbag
+            [],  # regularization_factor_
+            False,  # use_regularization_factor_
+            False,  # regularization_usedepth
+        )
+        return forest
+
+    def predict_quantiles(self, X, quantiles=None):
+        """Predict quantile regression target for X.
+
+        :param array2d X: prediction input features
+        :param list(float) quantiles: a list of quantiles on which to predict.
+          If the list contains a single quantile, the result will be a 1darray.
+          If there are multiple quantiles, the result will be a 2darray with
+          columns corresponding to respective quantiles. Default is ``[0.1, 0.5, 0.9]``.
+        """
+        if not hasattr(self, "random_node_values_"):
+            raise ValueError("Must set quantiles = True for quantile predictions.")
+        quantiles = quantiles or [0.1, 0.5, 0.9]
+        check_is_fitted(self)
+        X = check_array(X)
+
+        forest = self._get_terminal_node_forest(X)
+        terminal_nodes = np.array(forest["predictions"]).astype(int)
+        node_values = 0 * terminal_nodes
+        for tree in range(self.n_estimators):
+            node_values[:, tree] = self.random_node_values_[terminal_nodes[:, tree], tree]
+        quantile_predictions = np.nanquantile(node_values, quantiles, axis=1)
+        if len(quantiles) == 1:
+            return np.squeeze(quantile_predictions)
+        return quantile_predictions
 
     def predict(self, X):
         """Predict regression target for X.

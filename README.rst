@@ -50,7 +50,7 @@ The ``RangerForestClassifier`` predictor uses ``ranger``'s ForestProbability cla
     from sklearn.model_selection import train_test_split
     from skranger.ensemble import RangerForestClassifier
 
-    X, y = load_iris(True)
+    X, y = load_iris(return_X_y=True)
     X_train, X_test, y_train, y_test = train_test_split(X, y)
 
     rfc = RangerForestClassifier()
@@ -72,7 +72,7 @@ The ``RangerForestClassifier`` predictor uses ``ranger``'s ForestProbability cla
 RangerForestRegressor
 ~~~~~~~~~~~~~~~~~~~~~
 
-The ``RangerForestRegressor`` predictor uses ``ranger``'s ForestRegression class.
+The ``RangerForestRegressor`` predictor uses ``ranger``'s ForestRegression class. It also supports quantile regression using the ``predict_quantiles`` method.
 
 .. code-block:: python
 
@@ -80,7 +80,7 @@ The ``RangerForestRegressor`` predictor uses ``ranger``'s ForestRegression class
     from sklearn.model_selection import train_test_split
     from skranger.ensemble import RangerForestRegressor
 
-    X, y = load_boston(True)
+    X, y = load_boston(return_X_y=True)
     X_train, X_test, y_train, y_test = train_test_split(X, y)
 
     rfr = RangerForestRegressor()
@@ -88,11 +88,30 @@ The ``RangerForestRegressor`` predictor uses ``ranger``'s ForestRegression class
 
     predictions = rfr.predict(X_test)
     print(predictions)
-    # [20.01270808 24.65041667 11.97722067 20.10345    26.48676667 42.19045952
-    #  19.821      31.51163333  8.34169603 18.94511667 20.21901915 16.01440705
+    # [18.39205325 21.41698333 14.29509221 35.34981667 27.64378333 20.98569135
+    #  21.15996673 14.0288093   9.44657947 29.99185    19.3774     11.88189465
     #  ...
-    #  18.37752952 19.34765    20.13355    21.19648333 18.91611667 15.58964837
-    #  31.4223    ]
+    #  11.08502822 36.80993636 18.29633154 12.90448354 20.94311667 11.45154934
+    #  41.44466667]
+
+    # enable quantile regression on instantiation
+    rfr = RangerForestRegressor(quantiles=True)
+    rfr.fit(X_train, y_train)
+
+    quantile_lower = rfr.predict_quantiles(X_test, quantiles=[0.1])
+    print(quantile_lower)
+    # [12.9 17.   8.  28.  22.  10.9  7.   8.   5.  20.8 16.9  7.   8.  18.
+    #  22.  19.  29.  21.  19.  19.  22.  10.9 20.  16.  14.  20.   9.8 22.9
+    #  ...
+    #  16.  17.  12.  20.  13.  26.  19.  21.9  7.  14.9 13.   8.  17.9  7.9
+    #  29. ]
+    quantile_upper = rfr.predict_quantiles(X_test, quantiles=[0.9])
+    print(quantile_upper)
+    # [23.  27.  21.  44.  32.1 50.  50.  18.2 12.  43.  22.  17.  17.  24.
+    #  31.1 25.  37.  28.  23.  24.  28.  18.  28.  23.  23.  26.  17.1 43.
+    #  ...
+    #  22.  24.  20.  28.  18.  44.2 24.  33.4 15.1 50.  21.  17.  25.  13.
+    #  50. ]
 
 
 RangerForestSurvival
