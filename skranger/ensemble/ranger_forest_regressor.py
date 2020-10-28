@@ -298,7 +298,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         :param list(float) quantiles: a list of quantiles on which to predict.
           If the list contains a single quantile, the result will be a 1darray.
           If there are multiple quantiles, the result will be a 2darray with
-          columns corresponding to respective quantiles.
+          columns corresponding to respective quantiles. Default is ``[0.1, 0.5, 0.9]``.
         """
         if not hasattr(self, "random_node_values_"):
             raise ValueError("Must set quantiles = True for quantile predictions.")
