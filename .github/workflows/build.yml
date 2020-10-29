@@ -29,9 +29,9 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/.asdf
-        key: v4-${{ runner.os }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
+        key: v6-${{ runner.os }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
         restore-keys: |
-          v4-${{ runner.os }}-asdf-
+          v6-${{ runner.os }}-asdf-
 
     - name: Install tools
       if: steps.cache-deps.outputs.cache-hit != 'true'
@@ -44,7 +44,7 @@ jobs:
       run: |
         poetry config virtualenvs.create false
         poetry run pip install pip==20.0.2
-        poetry run pip install -U setuptools
+        poetry run pip install -U setuptools wheel
         poetry install --no-root
 
     - name: Build
@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6.10, 3.7.7, 3.8.3]
+        python-version: [3.6.12, 3.7.9, 3.8.6, 3.9.0]
 
     steps:
     - name: Checkout
@@ -89,9 +89,9 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/.asdf
-        key: v4-${{ runner.os }}-${{ matrix.python-version }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
+        key: v6-${{ runner.os }}-${{ matrix.python-version }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
         restore-keys: |
-          v4-${{ runner.os }}-${{ matrix.python-version }}-asdf-
+          v6-${{ runner.os }}-${{ matrix.python-version }}-asdf-
 
     - name: Install python
       if: steps.cache-deps.outputs.cache-hit != 'true'
@@ -113,7 +113,7 @@ jobs:
       run: |
         poetry config virtualenvs.create false
         poetry run pip install pip==20.0.2
-        poetry run pip install -U setuptools
+        poetry run pip install -U setuptools wheel
         poetry install --no-root
 
     - name: Build
@@ -130,7 +130,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        python-version: [3.6.10, 3.7.7, 3.8.3]
+        python-version: [3.6.12, 3.7.9, 3.8.6, 3.9.0]
 
     steps:
     - name: Checkout
@@ -151,9 +151,9 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/.asdf
-        key: v4-${{ runner.os }}-${{ matrix.python-version }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
+        key: v6-${{ runner.os }}-${{ matrix.python-version }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
         restore-keys: |
-          v4-${{ runner.os }}-${{ matrix.python-version }}-asdf-
+          v6-${{ runner.os }}-${{ matrix.python-version }}-asdf-
 
     - name: Install python
       if: steps.cache-deps.outputs.cache-hit != 'true'
@@ -175,7 +175,7 @@ jobs:
       run: |
         poetry config virtualenvs.create false
         poetry run pip install pip==20.0.2
-        poetry run pip install -U setuptools
+        poetry run pip install -U setuptools wheel
         poetry install --no-root
 
     - name: Build
