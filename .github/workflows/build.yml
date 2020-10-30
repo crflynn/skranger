@@ -34,17 +34,16 @@ jobs:
           v6-${{ runner.os }}-asdf-
 
     - name: Install tools
-      if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: |
-        asdf install
-
-    - name: Install deps
-      if: steps.cache-deps.outputs.cache-hit != 'true'
       # pip 20.1 fails on generation of multiple .egg-info dirs
       run: |
+        asdf install
         poetry config virtualenvs.create false
         poetry run pip install pip==20.0.2
         poetry run pip install -U setuptools wheel
+
+    - name: Install deps
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: |
         poetry install --no-root
 
     - name: Build
@@ -103,17 +102,16 @@ jobs:
         asdf local python ${{ matrix.python-version }}
 
     - name: Install tools
-      if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: |
-        asdf install
-
-    - name: Install deps
-      if: steps.cache-deps.outputs.cache-hit != 'true'
       # pip 20.1 fails on generation of multiple .egg-info dirs
       run: |
+        asdf install
         poetry config virtualenvs.create false
         poetry run pip install pip==20.0.2
         poetry run pip install -U setuptools wheel
+
+    - name: Install deps
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: |
         poetry install --no-root
 
     - name: Build
@@ -165,17 +163,16 @@ jobs:
         asdf local python ${{ matrix.python-version }}
 
     - name: Install tools
-      if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: |
-        asdf install
-
-    - name: Install deps
-      if: steps.cache-deps.outputs.cache-hit != 'true'
       # pip 20.1 fails on generation of multiple .egg-info dirs
       run: |
+        asdf install
         poetry config virtualenvs.create false
         poetry run pip install pip==20.0.2
         poetry run pip install -U setuptools wheel
+
+    - name: Install deps
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: |
         poetry install --no-root
 
     - name: Build
