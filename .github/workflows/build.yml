@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6.12, 3.7.9, 3.8.6, 3.9.0]
+        python-version: [3.6.12, 3.7.9, 3.8.6]
 
     steps:
     - name: Checkout
@@ -130,7 +130,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        python-version: [3.6.12, 3.7.9, 3.8.6, 3.9.0]
+        python-version: [3.6.12, 3.7.9, 3.8.6]
 
     steps:
     - name: Checkout
