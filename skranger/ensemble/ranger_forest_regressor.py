@@ -308,7 +308,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
 
         forest = self._get_terminal_node_forest(X)
         terminal_nodes = np.array(forest["predictions"]).astype(int)
-        node_values = 0 * terminal_nodes
+        node_values = 0.0 * terminal_nodes
         for tree in range(self.n_estimators):
             node_values[:, tree] = self.random_node_values_[terminal_nodes[:, tree], tree]
         quantile_predictions = np.nanquantile(node_values, quantiles, axis=1)
