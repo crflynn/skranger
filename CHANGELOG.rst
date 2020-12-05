@@ -1,6 +1,11 @@
 Release Changelog
 -----------------
 
+0.3.1 (2020-12-05)
+~~~~~~~~~~~~~~~~~~
+
+* Fixed a bug with incorrect output for quantile regression
+
 0.3.0 (2020-10-28)
 ~~~~~~~~~~~~~~~~~~
 
