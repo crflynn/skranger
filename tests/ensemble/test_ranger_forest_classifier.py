@@ -99,6 +99,26 @@ class TestRangerForestClassifier:
             else:
                 assert rfc.importance_mode_ == 3
 
+    def test_importance_pvalues(self, iris_X, iris_y, importance):
+        rfc = RangerForestClassifier(
+            importance=importance,
+            scale_permutation_importance=scale_permutation_importance,
+            local_importance=local_importance,
+        )
+
+        if importance not in ["none", "impurity", "impurity_corrected", "permutation"]:
+            with pytest.raises(ValueError):
+                rfc.fit(iris_X, iris_y)
+            return
+
+        if not importance == "impurity_corrected"
+            with pytest.raises(Exception):
+                rfc.fit(iris_X, iris_y)
+            return
+
+        rfc.fit(iris_X, iris_y)
+        assert len(rxf.get_importance_pvalues()) == iris_X.shape[1]
+
     def test_mtry(self, iris_X, iris_y, mtry):
         rfc = RangerForestClassifier(mtry=mtry)
 
