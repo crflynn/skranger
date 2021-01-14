@@ -135,6 +135,11 @@ class TestRangerForestSurvival:
         with pytest.raises(ValueError):
             rfc.fit(lung_X, lung_y)
 
+    def test_sample_fraction(self, iris_X, iris_y):
+        rfs = RangerForestSurvival(sample_fraction=0.69)
+        rfs.fit(iris_X, iris_y)
+        assert rfs.sample_fraction_ == [0.69]
+
     def test_sample_fraction_replace(self, lung_X, lung_y, replace):
         rfc = RangerForestSurvival(replace=replace)
         rfc.fit(lung_X, lung_y)

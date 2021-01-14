@@ -137,6 +137,14 @@ class TestRangerForestClassifier:
         with pytest.raises(ValueError):
             rfc.fit(iris_X, iris_y)
 
+    def test_sample_fraction(self, iris_X, iris_y):
+        rfc = RangerForestClassifier(sample_fraction=[0.69])
+        rfc.fit(iris_X, iris_y)
+        assert rfc.sample_fraction_ == [0.69]
+        rfc = RangerForestClassifier(sample_fraction=0.69)
+        rfc.fit(iris_X, iris_y)
+        assert rfc.sample_fraction_ == [0.69]
+
     def test_sample_fraction_replace(self, iris_X, iris_y, replace):
         rfc = RangerForestClassifier(replace=replace)
         rfc.fit(iris_X, iris_y)

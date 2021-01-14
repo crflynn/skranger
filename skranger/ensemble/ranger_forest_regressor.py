@@ -18,7 +18,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
     argument names to the constructor are similar to the C++ library and accompanied R
     package for familiarity.
 
-    :param int n_estimators: The number of tree classifiers to train
+    :param int n_estimators: The number of tree regressors to train
     :param bool verbose: Enable ranger's verbose logging
     :param int/callable mtry: The number of features to split on each node. When a
         callable is passed, the function must accept a single parameter which is the
@@ -29,9 +29,8 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
     :param int min_node_size: The minimal node size.
     :param int max_depth: The maximal tree depth; 0 means unlimited.
     :param bool replace: Sample with replacement.
-    :param sample_fraction: The fraction of observations to sample. The default is 1
-        when sampling with replacement, and 0.632 otherwise. This can be a vector of
-        class specific values.
+    :param float sample_fraction: The fraction of observations to sample. The default is 1
+        when sampling with replacement, and 0.632 otherwise.
     :param bool keep_inbag: If true, save how often observations are in-bag in each
         tree. These will be stored in the ``ranger_forest_`` attribute under the key
         ``"inbag_counts"``.
@@ -74,7 +73,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
     :ivar dict ranger_forest\_: The returned result object from calling C++ ranger.
     :ivar int mtry\_: The mtry value as determined if ``mtry`` is callable, otherwise
         it is the same as ``mtry``.
-    :ivar list sample_fraction\_: The sample fraction determined by input validation
+    :ivar float sample_fraction\_: The sample fraction determined by input validation
     :ivar list regularization_factor\_: The regularization factors determined by input
         validation.
     :ivar list unordered_features\_: The unordered feature names determined by

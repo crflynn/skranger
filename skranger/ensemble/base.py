@@ -1,4 +1,5 @@
 import warnings
+from collections.abc import Iterable
 
 import numpy as np
 
@@ -11,6 +12,8 @@ class RangerValidationMixin:
         self._evaluate_mtry(X.shape[1])
         self._set_importance_mode()
         self.sample_fraction_ = self.sample_fraction or [1.0 if self.replace else 0.632]
+        if not isinstance(self.sample_fraction_, Iterable):
+            self.sample_fraction_ = [self.sample_fraction_]
         self._check_inbag(sample_weights)
         self._check_set_regularization(X.shape[1])
         self._set_split_rule(y)
