@@ -120,6 +120,11 @@ class TestRangerForestRegressor:
         with pytest.raises(ValueError):
             rfr.fit(boston_X, boston_y)
 
+    def test_sample_fraction(self, iris_X, iris_y):
+        rfr = RangerForestRegressor(sample_fraction=0.69)
+        rfr.fit(iris_X, iris_y)
+        assert rfr.sample_fraction_ == [0.69]
+
     def test_sample_fraction_replace(self, boston_X, boston_y, replace):
         rfr = RangerForestRegressor(replace=replace)
         rfr.fit(boston_X, boston_y)

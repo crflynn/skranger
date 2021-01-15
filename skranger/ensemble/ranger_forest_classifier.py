@@ -69,7 +69,8 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
     :ivar dict ranger_forest\_: The returned result object from calling C++ ranger.
     :ivar int mtry\_: The mtry value as determined if ``mtry`` is callable, otherwise
         it is the same as ``mtry``.
-    :ivar list sample_fraction\_: The sample fraction determined by input validation
+    :ivar float/list sample_fraction\_: The sample fraction determined by input
+        validation
     :ivar list regularization_factor\_: The regularization factors determined by input
         validation.
     :ivar list unordered_variable_names\_: The unordered variable names determined by
