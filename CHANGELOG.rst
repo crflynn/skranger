@@ -1,6 +1,12 @@
 Release Changelog
 -----------------
 
+0.3.2 (2021-01-18)
+~~~~~~~~~~~~~~~~~~
+
+* Fixed a bug related to incorrect ``sample_fraction`` input type
+* Fixed a bug in which ``sample_fraction`` was being passed on predict, raising a ranger error
+
 0.3.1 (2020-12-05)
 ~~~~~~~~~~~~~~~~~~
 
