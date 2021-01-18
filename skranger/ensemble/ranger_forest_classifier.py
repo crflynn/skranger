@@ -269,7 +269,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             self.class_weights or [],
             False,  # predict_all
             self.keep_inbag,
-            self.sample_fraction_,
+            [1],  # sample_fraction
             0.5,  # alpha
             0.1,  # minprop
             self.holdout,

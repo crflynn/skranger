@@ -31,6 +31,11 @@ class TestRangerForestRegressor:
         pred = rfr.predict(boston_X)
         assert len(pred) == boston_X.shape[0]
 
+        # test with single record
+        boston_X_record = boston_X[0:1, :]
+        pred = rfr.predict(boston_X_record)
+        assert len(pred) == 1
+
     def test_serialize(self, boston_X, boston_y):
         tf = tempfile.TemporaryFile()
         rfr = RangerForestRegressor()
@@ -124,6 +129,11 @@ class TestRangerForestRegressor:
         rfr = RangerForestRegressor(sample_fraction=0.69)
         rfr.fit(iris_X, iris_y)
         assert rfr.sample_fraction_ == [0.69]
+
+        # test with single record
+        iris_X_record = iris_X[0:1, :]
+        pred = rfr.predict(iris_X_record)
+        assert len(pred) == 1
 
     def test_sample_fraction_replace(self, boston_X, boston_y, replace):
         rfr = RangerForestRegressor(replace=replace)
