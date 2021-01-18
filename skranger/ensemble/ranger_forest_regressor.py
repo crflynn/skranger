@@ -272,7 +272,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
             [],  # class_weights
             False,  # predict_all
             self.keep_inbag,
-            self.sample_fraction_,
+            [1],  # sample_fraction
             0,  # alpha
             0,  # minprop
             self.holdout,
@@ -354,7 +354,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
             [],  # class_weights
             False,  # predict_all
             self.keep_inbag,
-            self.sample_fraction_,
+            [1],  # sample_fraction
             self.alpha,
             self.minprop,
             self.holdout,

@@ -36,17 +36,32 @@ class TestRangerForestClassifier:
         pred = rfc.predict(iris_X)
         assert len(pred) == iris_X.shape[0]
 
+        # test with single record
+        iris_X_record = iris_X[0:1, :]
+        pred = rfc.predict(iris_X_record)
+        assert len(pred) == 1
+
     def test_predict_proba(self, iris_X, iris_y):
         rfc = RangerForestClassifier()
         rfc.fit(iris_X, iris_y)
         pred = rfc.predict_proba(iris_X)
         assert len(pred) == iris_X.shape[0]
 
+        # test with single record
+        iris_X_record = iris_X[0:1, :]
+        pred = rfc.predict_proba(iris_X_record)
+        assert len(pred) == 1
+
     def test_predict_log_proba(self, iris_X, iris_y):
         rfc = RangerForestClassifier()
         rfc.fit(iris_X, iris_y)
         pred = rfc.predict_log_proba(iris_X)
         assert len(pred) == iris_X.shape[0]
+
+        # test with single record
+        iris_X_record = iris_X[0:1, :]
+        pred = rfc.predict_log_proba(iris_X_record)
+        assert len(pred) == 1
 
     def test_serialize(self, iris_X, iris_y):
         tf = tempfile.TemporaryFile()
@@ -144,6 +159,15 @@ class TestRangerForestClassifier:
         rfc = RangerForestClassifier(sample_fraction=0.69)
         rfc.fit(iris_X, iris_y)
         assert rfc.sample_fraction_ == [0.69]
+
+        # test with single record
+        iris_X_record = iris_X[0:1, :]
+        pred = rfc.predict(iris_X_record)
+        assert len(pred) == 1
+        pred = rfc.predict_proba(iris_X_record)
+        assert len(pred) == 1
+        pred = rfc.predict_log_proba(iris_X_record)
+        assert len(pred) == 1
 
     def test_sample_fraction_replace(self, iris_X, iris_y, replace):
         rfc = RangerForestClassifier(replace=replace)

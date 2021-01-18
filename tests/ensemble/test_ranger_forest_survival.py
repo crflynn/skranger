@@ -34,6 +34,11 @@ class TestRangerForestSurvival:
         pred = rfs.predict(lung_X)
         assert len(pred) == lung_X.shape[0]
 
+        # test with single record
+        lung_X_record = lung_X.values[0:1, :]
+        pred = rfs.predict(lung_X_record)
+        assert len(pred) == 1
+
     def test_predict_cumulative_hazard_function(self, lung_X, lung_y):
         rfs = RangerForestSurvival(n_estimators=N_ESTIMATORS)
         rfs.fit(lung_X, lung_y)
@@ -139,6 +144,11 @@ class TestRangerForestSurvival:
         rfs = RangerForestSurvival(sample_fraction=0.69)
         rfs.fit(lung_X, lung_y)
         assert rfs.sample_fraction_ == [0.69]
+
+        # test with single record
+        lung_X_record = lung_X.values[0:1, :]
+        pred = rfs.predict(lung_X_record)
+        assert len(pred) == 1
 
     def test_sample_fraction_replace(self, lung_X, lung_y, replace):
         rfs = RangerForestSurvival(replace=replace)
