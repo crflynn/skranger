@@ -1,6 +1,7 @@
 """Scikit-learn wrapper for ranger classification."""
-import numpy as np
 import bisect
+
+import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
 from sklearn.utils import check_X_y
@@ -303,20 +304,20 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         if self.importance != "impurity_corrected":
             raise Exception("P-values can only be calculated for impurity corrected importance values")
 
-        vimp = np.array(self.ranger_forest_['variable_importance'])
+        vimp = np.array(self.ranger_forest_["variable_importance"])
         m1 = vimp[vimp < 0]
         m2 = vimp[vimp == 0]
 
         if len(m1) < 1:
             raise Exception("No negative importance values found, cannot calculate p-values.")
         if len(m2) < 1:
-            vimp_dist = np.concatenate(m1, -m2)
+            vimp_dist = np.concatenate((m1, -m2))
         else:
-            vimp_dist = np.concatenate(m1, -m1, m2)
+            vimp_dist = np.concatenate((m1, -m1, m2))
 
         vimp_dist.sort()
         result = []
         for i in range(len(vimp)):
             result.append(bisect.bisect_left(vimp_dist, vimp[i]))
-        pval = 1 - np.array(result)/len(vimp_dist)
+        pval = 1 - np.array(result) / len(vimp_dist)
         return pval
