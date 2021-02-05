@@ -310,9 +310,9 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         if len(m1) < 1:
             raise Exception("No negative importance values found, cannot calculate p-values.")
         if len(m2) < 1:
-            vimp_dist = np.append(m1, -m2)
+            vimp_dist = np.concatenate(m1, -m2)
         else:
-            vimp_dist = np.append(m1, -m1, m2)
+            vimp_dist = np.concatenate(m1, -m1, m2)
 
         vimp_dist.sort()
         result = []
