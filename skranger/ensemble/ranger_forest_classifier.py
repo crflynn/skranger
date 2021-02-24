@@ -302,17 +302,18 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         """Return p-values for variable importance using the fast method from Janitza et al. (2016)
         """
 
+        check_is_fitted(self)
         if self.importance != "impurity_corrected":
-            raise Exception("P-values can only be calculated for impurity corrected importance values")
+            raise ValueError("p-values can only be calculated with importance parameter set to 'impurity_corrected'")
 
         vimp = np.array(self.ranger_forest_["variable_importance"])
         m1 = vimp[vimp < 0]
         m2 = vimp[vimp == 0]
 
-        if len(m1) < 1:
-            raise Exception("No negative importance values found, cannot calculate p-values.")
+        if len(m1) == 0:
+            raise ValueError("No negative importance values found, cannot calculate p-values.")
         if len(m2) < 1:
-            vimp_dist = np.concatenate((m1, -m2))
+            vimp_dist = np.concatenate((m1, -m1))
         else:
             vimp_dist = np.concatenate((m1, -m1, m2))
 

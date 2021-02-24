@@ -123,8 +123,8 @@ class TestRangerForestClassifier:
             return
 
         if not importance == "impurity_corrected":
-            with pytest.raises(Exception):
-                rfc.fit(digits_X, digits_y)
+            rfc.fit(digits_X, digits_y)
+            with pytest.raises(ValueError):
                 rfc.get_importance_pvalues()
             return
 
