@@ -5,8 +5,8 @@ from sklearn.datasets import load_boston
 from sklearn.datasets import load_iris
 from sksurv.datasets import load_veterans_lung_cancer
 
-_boston_X, _boston_y = load_boston(True)
-_iris_X, _iris_y = load_iris(True)
+_boston_X, _boston_y = load_boston(return_X_y=True)
+_iris_X, _iris_y = load_iris(return_X_y=True)
 _lung_X, _lung_y = load_veterans_lung_cancer()
 
 

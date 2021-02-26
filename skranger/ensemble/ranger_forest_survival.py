@@ -217,7 +217,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             self.regularization_usedepth,
         )
         self.event_times_ = np.array(self.ranger_forest_["forest"]["unique_death_times"])
-        self.cumulative_hazard_function_ = np.array(self.ranger_forest_["forest"]["cumulative_hazard_function"])
+        # dtype to suppress warning about ragged nested sequences
+        self.cumulative_hazard_function_ = np.array(self.ranger_forest_["forest"]["cumulative_hazard_function"], dtype=object)
         return self
 
     def _predict(self, X):
