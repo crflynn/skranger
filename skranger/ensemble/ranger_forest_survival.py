@@ -6,10 +6,10 @@ from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import ranger
-from skranger.ensemble.base import RangerValidationMixin
+from skranger.ensemble.base import RangerBase
 
 
-class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
+class RangerForestSurvival(RangerBase, BaseEstimator):
     r"""Ranger Random Forest Survival implementation for sci-kit survival.
 
     Provides a sksurv interface to the Ranger C++ library using Cython. The
@@ -79,6 +79,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         regularization factor input parameter.
     :ivar int importance_mode\_: The importance mode integer corresponding to ranger
         enum ``ImportanceMode``.
+    :ivar ndarray feature_importances\_: The variable importances from ranger.
     """
 
     def __init__(

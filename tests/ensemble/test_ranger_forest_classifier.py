@@ -287,3 +287,18 @@ class TestRangerForestClassifier:
         # the accuracy should be good
         assert rf_acc > 0.9
         assert ranger_acc > 0.9
+
+    def test_feature_importances_(self, iris_X, iris_y, importance, local_importance):
+        rfc = RangerForestClassifier(importance=importance, local_importance=local_importance)
+        with pytest.raises(AttributeError):
+            _ = rfc.feature_importances_
+
+        if importance == "INVALID":
+            with pytest.raises(ValueError):
+                rfc.fit(iris_X, iris_y)
+            return
+
+        rfc.fit(iris_X, iris_y)
+        if importance == "none":
+            with pytest.raises(ValueError):
+                _ = rfc.feature_importances_
