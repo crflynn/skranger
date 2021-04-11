@@ -28,12 +28,16 @@ ADD ./poetry.lock .
 # Install packages
 # Disable virtualenv creation so we just use the already-installed python
 RUN poetry config virtualenvs.create false && \
-    poetry run pip install -U pip && \
+    poetry run pip install pip==20.0.2 && \
     poetry install && \
     rm -r ~/.cache/pip
 
 # Add everything
 ADD . .
+
+# Build skranger
+RUN poetry run python buildpre.py
+RUN poetry install
 
 # Set the entrypoint to poetry
 ENTRYPOINT ["poetry"]

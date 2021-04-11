@@ -35,7 +35,7 @@ scikit-learn = "*"
 cython = "^3.0a5"
 black = {version = "^19.10b0", allow-prereleases = true}
 isort = "^4.3.21"
-pytest = "^5.4.1"
+pytest = "^6.2.2"
 jupyter = "^1.0.0"
 sphinx = "^3.0.3"
 sphinx-rtd-theme = "^0.4.3"
@@ -80,3 +80,8 @@ force_grid_wrap = 0
 use_parentheses = true
 line_length = 120
 known_standard_library = ["setuptools"]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore:divide by zero encountered in log:RuntimeWarning",
+]
