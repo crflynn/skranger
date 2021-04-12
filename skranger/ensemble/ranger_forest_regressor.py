@@ -68,7 +68,8 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
     :param bool save_memory: Save memory at the cost of speed growing trees.
     :param int seed: Random seed value.
 
-    :ivar int n_features\_: The number of features (columns) from the fit input ``X``.
+    :ivar int n_features_in\_: The number of features (columns) from the fit input
+        ``X``.
     :ivar list feature_names\_: Names for the features of the fit input ``X``.
     :ivar dict ranger_forest\_: The returned result object from calling C++ ranger.
     :ivar int mtry\_: The mtry value as determined if ``mtry`` is callable, otherwise
@@ -82,6 +83,8 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         ``SplitRule``.
     :ivar bool use_regularization_factor\_: Input validation determined bool for using
         regularization factor input parameter.
+    :ivar str respect_categorical_features\_: Input validation determined string
+        respecting categorical features.
     :ivar int importance_mode\_: The importance mode integer corresponding to ranger
         enum ``ImportanceMode``.
     :ivar 2darray random_node_values\_: Random training target values based on
@@ -158,7 +161,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         self.tree_type_ = 3  # tree_type, TREE_REGRESSION
 
         # Check input
-        X, y = check_X_y(X, y)
+        X, y = self._validate_data(X, y)
 
         # Check the init parameters
         self._validate_parameters(X, y, sample_weight)
@@ -177,7 +180,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
 
         # Set X info
         self.feature_names_ = [str(c).encode() for c in range(X.shape[1])]
-        self.n_features_ = X.shape[1]
+        self._check_n_features(X, reset=True)
 
         if self.always_split_features is not None:
             always_split_features = [str(c).encode() for c in self.always_split_features]
@@ -314,6 +317,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         quantiles = quantiles or [0.1, 0.5, 0.9]
         check_is_fitted(self)
         X = check_array(X)
+        self._check_n_features(X, reset=False)
 
         forest = self._get_terminal_node_forest(X)
         terminal_nodes = np.array(forest["predictions"]).astype(int)
@@ -332,7 +336,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         """
         check_is_fitted(self)
         X = check_array(X)
-        self._check_n_features(X)
+        self._check_n_features(X, reset=False)
 
         result = ranger.ranger(
             self.tree_type_,

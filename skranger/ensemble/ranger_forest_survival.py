@@ -63,7 +63,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
     :param int n_jobs: The number of threads. Default is number of CPU cores.
     :param int seed: Random seed value.
 
-    :ivar int n_features\_: The number of features (columns) from the fit input ``X``.
+    :ivar int n_features_in\_: The number of features (columns) from the fit input ``X``.
     :ivar list feature_names\_: Names for the features of the fit input ``X``.
     :ivar dict ranger_forest\_: The returned result object from calling C++ ranger.
     :ivar int mtry\_: The mtry value as determined if ``mtry`` is callable, otherwise
@@ -77,6 +77,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         ``SplitRule``.
     :ivar bool use_regularization_factor\_: Input validation determined bool for using
         regularization factor input parameter.
+    :ivar str respect_categorical_features\_: Input validation determined string
+        respecting categorical features.
     :ivar int importance_mode\_: The importance mode integer corresponding to ranger
         enum ``ImportanceMode``.
     """
@@ -172,7 +174,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
 
         # Set X info
         self.feature_names_ = [str(c).encode() for c in range(X.shape[1])]
-        self.n_features_ = X.shape[1]
+        self._check_n_features(X, reset=True)
 
         if self.always_split_features is not None:
             always_split_features = [str(c).encode() for c in self.always_split_features]
@@ -237,7 +239,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
     def _predict(self, X):
         check_is_fitted(self)
         X = check_array(X)
-        self._check_n_features(X)
+        self._check_n_features(X, reset=False)
 
         result = ranger.ranger(
             self.tree_type_,
@@ -311,3 +313,6 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         """
         chf = self.predict_cumulative_hazard_function(X)
         return chf.sum(1)
+
+    def _more_tags(self):
+        return {"requires_y": True}

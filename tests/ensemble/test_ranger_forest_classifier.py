@@ -29,7 +29,7 @@ class TestRangerForestClassifier:
         assert hasattr(rfc, "n_classes_")
         assert hasattr(rfc, "ranger_forest_")
         assert hasattr(rfc, "ranger_class_order_")
-        assert hasattr(rfc, "n_features_")
+        assert hasattr(rfc, "n_features_in_")
 
     def test_predict(self, iris_X, iris_y):
         rfc = RangerForestClassifier()
@@ -290,4 +290,4 @@ class TestRangerForestClassifier:
         assert ranger_acc > 0.9
 
     def test_check_estimator(self):
-        check_estimator(RangerForestClassifier)
+        check_estimator(RangerForestClassifier())

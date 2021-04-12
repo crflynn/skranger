@@ -160,13 +160,3 @@ class RangerValidationMixin:
                 raise ValueError("Cannot use class sampling and inbag.")
             if len(self.inbag) != self.n_estimators:
                 raise ValueError("Size of inbag must be equal to n_estimators.")
-
-    def _check_n_features(self, X):
-        """Ensure predict feature quantity matches fit feature quantity."""
-        n_features = X.shape[1]
-
-        if n_features != self.n_features_:
-            raise ValueError(
-                f"X has {n_features} features, but {self.__class__.__name__} "
-                f"is expecting {self.n_features_} features as input."
-            )

@@ -24,7 +24,7 @@ class TestRangerForestRegressor:
         rfr.fit(boston_X, boston_y)
         check_is_fitted(rfr)
         assert hasattr(rfr, "ranger_forest_")
-        assert hasattr(rfr, "n_features_")
+        assert hasattr(rfr, "n_features_in_")
 
     def test_predict(self, boston_X, boston_y):
         rfr = RangerForestRegressor()
@@ -256,4 +256,4 @@ class TestRangerForestRegressor:
         assert quantiles.ndim == 2
 
     def test_check_estimator(self):
-        check_estimator(RangerForestRegressor)
+        check_estimator(RangerForestRegressor())

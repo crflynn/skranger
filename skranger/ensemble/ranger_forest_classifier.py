@@ -65,7 +65,8 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
 
     :ivar list classes\_: The class labels determined from the fit input ``y``.
     :ivar int n_classes\_: The number of unique class labels from the fit input ``y``.
-    :ivar int n_features\_: The number of features (columns) from the fit input ``X``.
+    :ivar int n_features_in\_: The number of features (columns) from the fit input
+        ``X``.
     :ivar list feature_names\_: Names for the features of the fit input ``X``.
     :ivar dict ranger_forest\_: The returned result object from calling C++ ranger.
     :ivar int mtry\_: The mtry value as determined if ``mtry`` is callable, otherwise
@@ -80,6 +81,8 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         ``SplitRule``.
     :ivar bool use_regularization_factor\_: Input validation determined bool for using
         regularization factor input parameter.
+    :ivar str respect_categorical_features\_: Input validation determined string
+        respecting categorical features.
     :ivar int importance_mode\_: The importance mode integer corresponding to ranger
         enum ``ImportanceMode``.
     :ivar list ranger_class_order\_: The class reference ordering derived from ranger.
@@ -151,7 +154,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         self.tree_type_ = 9  # tree_type, TREE_PROBABILITY enables predict_proba
 
         # Check input
-        X, y = check_X_y(X, y)
+        X, y = self._validate_data(X, y)
         check_classification_targets(y)
 
         # Check the init parameters
@@ -176,7 +179,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
 
         # Set X info
         self.feature_names_ = [str(c).encode() for c in range(X.shape[1])]
-        self.n_features_ = X.shape[1]
+        self._check_n_features(X, reset=True)
 
         if self.always_split_features is not None:
             always_split_features = [str(c).encode() for c in self.always_split_features]
@@ -249,7 +252,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         """
         check_is_fitted(self)
         X = check_array(X)
-        self._check_n_features(X)
+        self._check_n_features(X, reset=False)
 
         result = ranger.ranger(
             self.tree_type_,

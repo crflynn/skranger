@@ -27,7 +27,7 @@ class TestRangerForestSurvival:
         assert hasattr(rfs, "event_times_")
         assert hasattr(rfs, "cumulative_hazard_function_")
         assert hasattr(rfs, "ranger_forest_")
-        assert hasattr(rfs, "n_features_")
+        assert hasattr(rfs, "n_features_in_")
 
     def test_predict(self, lung_X, lung_y):
         rfs = RangerForestSurvival(n_estimators=N_ESTIMATORS)
@@ -254,7 +254,12 @@ class TestRangerForestSurvival:
 
         np.testing.assert_array_equal(pred.reshape(-1, 1), pred_w.reshape(-1, 1))
 
+    def test_get_tags(self):
+        rfs = RangerForestSurvival()
+        tags = rfs._get_tags()
+        assert tags["requires_y"]
+
     # We can't check this because we conform to scikit-survival api,
     # rather than scikit-learn's
     # def test_check_estimator(self):
-    #     check_estimator(RangerForestSurvival)
+    #     check_estimator(RangerForestSurvival())
