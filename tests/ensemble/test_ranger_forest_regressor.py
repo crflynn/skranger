@@ -7,6 +7,7 @@ import pytest
 from sklearn.base import clone
 from sklearn.exceptions import NotFittedError
 from sklearn.model_selection import train_test_split
+from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import RangerForestRegressor
@@ -253,3 +254,6 @@ class TestRangerForestRegressor:
         assert quantiles_upper.ndim == 1
         quantiles = rfr.predict_quantiles(X_test, quantiles=[0.1, 0.9])
         assert quantiles.ndim == 2
+
+    def test_check_estimator(self):
+        check_estimator(RangerForestRegressor)

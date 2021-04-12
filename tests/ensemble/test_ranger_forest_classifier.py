@@ -9,6 +9,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.exceptions import NotFittedError
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
+from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import RangerForestClassifier
@@ -287,3 +288,6 @@ class TestRangerForestClassifier:
         # the accuracy should be good
         assert rf_acc > 0.9
         assert ranger_acc > 0.9
+
+    def test_check_estimator(self):
+        check_estimator(RangerForestClassifier)

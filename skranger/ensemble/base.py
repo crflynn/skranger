@@ -17,16 +17,16 @@ class RangerValidationMixin:
         self._check_inbag(sample_weights)
         self._check_set_regularization(X.shape[1])
         self._set_split_rule(y)
-        self.order_snps_ = self.respect_categorical_features == "order"
+        self.order_snps_ = self.respect_categorical_features_ == "order"
         self._set_categorical_features()
 
     def _set_categorical_features(self):
         """Determine categorical feature names."""
-        if self.respect_categorical_features == "partition":
+        if self.respect_categorical_features_ == "partition":
             self.categorical_features_ = (
                 [str(c).encode() for c in self.categorical_features] if self.categorical_features is not None else []
             )
-        elif self.respect_categorical_features == "ignore" or self.respect_categorical_features == "order":
+        elif self.respect_categorical_features_ == "ignore" or self.respect_categorical_features_ == "order":
             self.categorical_features_ = []
         else:
             raise ValueError("respect ordered factors must be one of `partition`, `ignore` or `order`")
@@ -47,7 +47,7 @@ class RangerValidationMixin:
         if hasattr(self, "save_memory"):
             if (
                 self.split_rule == "extratrees"
-                and self.respect_categorical_features == "partition"
+                and self.respect_categorical_features_ == "partition"
                 and self.save_memory
             ):
                 raise ValueError("save memory is not possible with extratrees split rule and unordered predictors")
@@ -99,9 +99,11 @@ class RangerValidationMixin:
         """Set ``respect_categorical_features`` based on ``split_rule``."""
         if self.respect_categorical_features is None:
             if self.split_rule == "extratrees":
-                self.respect_categorical_features = "partition"
+                self.respect_categorical_features_ = "partition"
             else:
-                self.respect_categorical_features = "ignore"
+                self.respect_categorical_features_ = "ignore"
+        else:
+            self.respect_categorical_features_ = self.respect_categorical_features
 
     def _check_set_regularization(self, num_features):
         """Check, set the regularization factor to either [] or length num_features."""
@@ -158,3 +160,13 @@ class RangerValidationMixin:
                 raise ValueError("Cannot use class sampling and inbag.")
             if len(self.inbag) != self.n_estimators:
                 raise ValueError("Size of inbag must be equal to n_estimators.")
+
+    def _check_n_features(self, X):
+        """Ensure predict feature quantity matches fit feature quantity."""
+        n_features = X.shape[1]
+
+        if n_features != self.n_features_:
+            raise ValueError(
+                f"X has {n_features} features, but {self.__class__.__name__} "
+                f"is expecting {self.n_features_} features as input."
+            )

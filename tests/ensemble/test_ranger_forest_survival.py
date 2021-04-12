@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 from sklearn.base import clone
 from sklearn.exceptions import NotFittedError
+from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import RangerForestSurvival
@@ -241,3 +242,19 @@ class TestRangerForestSurvival:
         # feature 0 is in every tree split
         for tree in rfs.ranger_forest_["forest"]["split_var_ids"]:
             assert 0 in tree
+
+    def test_sample_weight(self, lung_X, lung_y):
+        rfs_w = RangerForestSurvival()
+        rfs_w.fit(lung_X, lung_y, sample_weight=[1] * len(lung_y))
+        rfs = RangerForestSurvival()
+        rfs.fit(lung_X, lung_y)
+
+        pred_w = rfs_w.predict(lung_X)
+        pred = rfs.predict(lung_X)
+
+        np.testing.assert_array_equal(pred.reshape(-1, 1), pred_w.reshape(-1, 1))
+
+    # We can't check this because we conform to scikit-survival api,
+    # rather than scikit-learn's
+    # def test_check_estimator(self):
+    #     check_estimator(RangerForestSurvival)

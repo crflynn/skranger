@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
 from sklearn.utils import check_X_y
+from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import _check_sample_weight
 from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
@@ -151,11 +152,22 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
 
         # Check input
         X, y = check_X_y(X, y)
-        if sample_weight is not None:
-            sample_weight = _check_sample_weight(sample_weight, X)
+        check_classification_targets(y)
 
         # Check the init parameters
         self._validate_parameters(X, y, sample_weight)
+
+        if sample_weight is not None:
+            sample_weight = _check_sample_weight(sample_weight, X)
+            use_sample_weight = True
+            # ranger does additional rng on samples if weights are passed.
+            # if the weights are ones, then we dont want that extra rng.
+            if np.array_equal(np.unique(sample_weight), np.array([1.0])):
+                sample_weight = []
+                use_sample_weight = False
+        else:
+            sample_weight = []
+            use_sample_weight = False
 
         # Map classes to indices
         y = np.copy(y)
@@ -198,8 +210,8 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             bool(self.categorical_features_),  # use_unordered_variable_names
             self.save_memory,
             self.split_rule_,
-            sample_weight or [],  # case_weights
-            bool(sample_weight),  # use_case_weights
+            sample_weight,  # case_weights
+            use_sample_weight,  # use_case_weights
             self.class_weights or [],
             False,  # predict_all
             self.keep_inbag,
@@ -237,6 +249,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         """
         check_is_fitted(self)
         X = check_array(X)
+        self._check_n_features(X)
 
         result = ranger.ranger(
             self.tree_type_,
