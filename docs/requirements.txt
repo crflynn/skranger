@@ -73,7 +73,7 @@ qtconsole==4.7.5
 qtpy==1.9.0
 regex==2020.6.8; python_version >= "3.6"
 requests==2.24.0; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
-scikit-learn==0.23.1; python_version >= "3.6"
+scikit-learn==0.22.2; python_version >= "3.6"
 scikit-survival==0.12.0; python_version >= "3.5"
 scipy==1.5.1; python_version >= "3.6"
 send2trash==1.5.0; python_version >= "3.5"
