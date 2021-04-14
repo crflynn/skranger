@@ -311,3 +311,10 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         """
         proba = self.predict_proba(X)
         return np.log(proba)
+
+    def _more_tags(self):
+        return {
+            "_xfail_checks": {
+                "check_sample_weights_invariance": "zero sample_weight is not equivalent to removing samples",
+            }
+        }

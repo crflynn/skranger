@@ -83,4 +83,5 @@ known_standard_library = ["setuptools"]
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore:divide by zero encountered in log:RuntimeWarning",
+    "ignore:Skipping check_sample_weights_invariance:sklearn.exceptions.SkipTestWarning",
 ]
