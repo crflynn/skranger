@@ -7,6 +7,7 @@ import pytest
 from sklearn.base import clone
 from sklearn.exceptions import NotFittedError
 from sklearn.model_selection import train_test_split
+from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import RangerForestRegressor
@@ -23,7 +24,7 @@ class TestRangerForestRegressor:
         rfr.fit(boston_X, boston_y)
         check_is_fitted(rfr)
         assert hasattr(rfr, "ranger_forest_")
-        assert hasattr(rfr, "n_features_")
+        assert hasattr(rfr, "n_features_in_")
 
     def test_predict(self, boston_X, boston_y):
         rfr = RangerForestRegressor()
@@ -253,3 +254,6 @@ class TestRangerForestRegressor:
         assert quantiles_upper.ndim == 1
         quantiles = rfr.predict_quantiles(X_test, quantiles=[0.1, 0.9])
         assert quantiles.ndim == 2
+
+    def test_check_estimator(self):
+        check_estimator(RangerForestRegressor())
