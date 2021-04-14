@@ -28,8 +28,9 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
     :param int min_node_size: The minimal node size.
     :param int max_depth: The maximal tree depth; 0 means unlimited.
     :param bool replace: Sample with replacement.
-    :param float sample_fraction: The fraction of observations to sample. The default is 1
-        when sampling with replacement, and 0.632 otherwise.
+    :param float/list sample_fraction: The fraction of observations to sample. The
+        default is 1 when sampling with replacement, and 0.632 otherwise. This can be a
+        list of class specific values.
     :param bool keep_inbag: If true, save how often observations are in-bag in each
         tree. These will be stored in the ``ranger_forest_`` attribute under the key
         ``"inbag_counts"``.
@@ -88,6 +89,7 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         enum ``ImportanceMode``.
     :ivar 2darray random_node_values\_: Random training target values based on
         trained forest terminal nodes for the purpose of quantile regression.
+    :ivar ndarray feature_importances\_: The variable importances from ranger.
     """
 
     def __init__(

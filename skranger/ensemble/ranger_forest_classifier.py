@@ -27,9 +27,9 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
     :param int min_node_size: The minimal node size.
     :param int max_depth: The maximal tree depth; 0 means unlimited.
     :param bool replace: Sample with replacement.
-    :param float/list sample_fraction: The fraction of observations to sample. The default is 1
-        when sampling with replacement, and 0.632 otherwise. This can be a list of
-        class specific values.
+    :param float/list sample_fraction: The fraction of observations to sample. The
+        default is 1 when sampling with replacement, and 0.632 otherwise. This can be a
+        list of class specific values.
     :param list class_weights: Weights for the outcome classes.
     :param bool keep_inbag: If true, save how often observations are in-bag in each
         tree. These will be stored in the ``ranger_forest_`` attribute under the key
@@ -62,7 +62,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
     :param bool save_memory: Save memory at the cost of speed growing trees.
     :param int seed: Random seed value.
 
-    :ivar list classes\_: The class labels determined from the fit input ``y``.
+    :ivar ndarray classes\_: The class labels determined from the fit input ``y``.
     :ivar int n_classes\_: The number of unique class labels from the fit input ``y``.
     :ivar int n_features_in\_: The number of features (columns) from the fit input
         ``X``.
@@ -85,6 +85,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
     :ivar int importance_mode\_: The importance mode integer corresponding to ranger
         enum ``ImportanceMode``.
     :ivar list ranger_class_order\_: The class reference ordering derived from ranger.
+    :ivar ndarray feature_importances\_: The variable importances from ranger.
     """
 
     def __init__(

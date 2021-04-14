@@ -243,6 +243,23 @@ class TestRangerForestSurvival:
         for tree in rfs.ranger_forest_["forest"]["split_var_ids"]:
             assert 0 in tree
 
+    def test_feature_importances_(self, lung_X, lung_y, importance, local_importance):
+        rfs = RangerForestSurvival(importance=importance, local_importance=local_importance)
+        with pytest.raises(AttributeError):
+            _ = rfs.feature_importances_
+
+        if importance == "INVALID":
+            with pytest.raises(ValueError):
+                rfs.fit(lung_X, lung_y)
+            return
+
+        rfs.fit(lung_X, lung_y)
+        if importance == "none":
+            with pytest.raises(ValueError):
+                _ = rfs.feature_importances_
+        else:
+            assert len(rfs.feature_importances_) == lung_X.shape[1]
+
     def test_sample_weight(self, lung_X, lung_y):
         rfs_w = RangerForestSurvival()
         rfs_w.fit(lung_X, lung_y, sample_weight=[1] * len(lung_y))

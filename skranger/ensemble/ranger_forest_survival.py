@@ -81,6 +81,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         respecting categorical features.
     :ivar int importance_mode\_: The importance mode integer corresponding to ranger
         enum ``ImportanceMode``.
+    :ivar ndarray feature_importances\_: The variable importances from ranger.
     """
 
     def __init__(

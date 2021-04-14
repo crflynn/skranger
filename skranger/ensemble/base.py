@@ -2,9 +2,24 @@ import warnings
 from collections.abc import Iterable
 
 import numpy as np
+from sklearn.exceptions import NotFittedError
+from sklearn.utils.validation import check_is_fitted
 
 
 class RangerValidationMixin:
+    @property
+    def feature_importances_(self):
+        try:
+            check_is_fitted(self)
+        except NotFittedError:
+            raise AttributeError(
+                f"'{self.__class__.__name__}' object has no attribute 'feature_importances_'"
+            ) from None
+        try:
+            return self.ranger_forest_["variable_importance"]
+        except KeyError:
+            raise ValueError("importance must be set to something other than 'none'") from None
+
     def _validate_parameters(self, X, y, sample_weights):
         """Validate ranger parameters and set defaults."""
         self.n_jobs_ = max([self.n_jobs, 0])  # sklearn convention is -1 for all, ranger is 0
