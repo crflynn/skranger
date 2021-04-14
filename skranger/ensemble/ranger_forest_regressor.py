@@ -387,3 +387,10 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
             self.regularization_usedepth,
         )
         return np.array(result["predictions"])
+
+    def _more_tags(self):
+        return {
+            "_xfail_checks": {
+                "check_sample_weights_invariance": "zero sample_weight is not equivalent to removing samples",
+            }
+        }

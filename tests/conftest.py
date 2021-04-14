@@ -1,9 +1,23 @@
 import math
+import pathlib
 
+import pandas as pd
 import pytest
+from scipy.io.arff import loadarff
 from sklearn.datasets import load_boston
 from sklearn.datasets import load_iris
-from sksurv.datasets import load_veterans_lung_cancer
+
+
+def load_veterans_lung_cancer():
+    this_file = pathlib.Path(__file__)
+    data_file = this_file.parent / "fixtures" / "veteran.arff"
+    data = loadarff(data_file)
+    df = pd.DataFrame(data=data[0], columns=list(data[1].names()))
+    df["y"] = list(zip(df["Status"] == b"dead", df["Survival_in_days"]))
+    y = df["y"]
+    X = df.drop(["y", "Status", "Survival_in_days"], axis=1)
+    return X, y
+
 
 _boston_X, _boston_y = load_boston(return_X_y=True)
 _iris_X, _iris_y = load_iris(return_X_y=True)

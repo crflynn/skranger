@@ -316,4 +316,9 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         return chf.sum(1)
 
     def _more_tags(self):
-        return {"requires_y": True}
+        return {
+            "requires_y": True,
+            "_xfail_checks": {
+                "check_sample_weights_invariance": "zero sample_weight is not equivalent to removing samples",
+            },
+        }
