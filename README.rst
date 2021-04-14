@@ -6,7 +6,7 @@ skranger
 .. |actions| image:: https://github.com/crflynn/skranger/workflows/build/badge.svg
     :target: https://github.com/crflynn/skranger/actions
 
-.. |wheels| image:: https://github.com/crflynn/skranger-wheels/workflows/wheels/badge.svg?event=release
+.. |wheels| image:: https://github.com/crflynn/skranger-wheels/workflows/wheels/badge.svg
     :target: https://github.com/crflynn/skranger-wheels/actions
 
 .. |rtd| image:: https://img.shields.io/readthedocs/skranger.svg
