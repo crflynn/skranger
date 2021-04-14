@@ -63,7 +63,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
     :param int n_jobs: The number of threads. Default is number of CPU cores.
     :param int seed: Random seed value.
 
-    :ivar int n_features\_: The number of features (columns) from the fit input ``X``.
+    :ivar int n_features_in\_: The number of features (columns) from the fit input ``X``.
     :ivar list feature_names\_: Names for the features of the fit input ``X``.
     :ivar dict ranger_forest\_: The returned result object from calling C++ ranger.
     :ivar int mtry\_: The mtry value as determined if ``mtry`` is callable, otherwise
@@ -77,6 +77,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         ``SplitRule``.
     :ivar bool use_regularization_factor\_: Input validation determined bool for using
         regularization factor input parameter.
+    :ivar str respect_categorical_features\_: Input validation determined string
+        respecting categorical features.
     :ivar int importance_mode\_: The importance mode integer corresponding to ranger
         enum ``ImportanceMode``.
     :ivar ndarray feature_importances\_: The variable importances from ranger.
@@ -147,22 +149,33 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         :param array1d sample_weight: optional weights for input samples
         """
         self.tree_type_ = 5  # tree_type, TREE_SURVIVAL
+
         # Check input
         X = check_array(X)
+
         # convert 1d array of 2tuples to 2d array
         # ranger expects the time first, and status second
         # since we follow the scikit-survival convention, we fliplr
         y = np.fliplr(np.array(y.tolist()))
 
-        if sample_weight is not None:
-            sample_weight = _check_sample_weight(sample_weight, X)
-
         # Check the init parameters
         self._validate_parameters(X, y, sample_weight)
 
+        if sample_weight is not None:
+            sample_weight = _check_sample_weight(sample_weight, X)
+            use_sample_weight = True
+            # ranger does additional rng on samples if weights are passed.
+            # if the weights are ones, then we dont want that extra rng.
+            if np.array_equal(np.unique(sample_weight), np.array([1.0])):
+                sample_weight = []
+                use_sample_weight = False
+        else:
+            sample_weight = []
+            use_sample_weight = False
+
         # Set X info
         self.feature_names_ = [str(c).encode() for c in range(X.shape[1])]
-        self.n_features_ = X.shape[1]
+        self._check_n_features(X, reset=True)
 
         if self.always_split_features is not None:
             always_split_features = [str(c).encode() for c in self.always_split_features]
@@ -196,8 +209,8 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             bool(self.categorical_features_),  # use_unordered_features
             False,  # save_memory
             self.split_rule_,
-            sample_weight or [],  # case_weights
-            bool(sample_weight),  # use_case_weights
+            sample_weight,  # case_weights
+            use_sample_weight,  # use_case_weights
             [],  # class_weights
             False,  # predict_all
             self.keep_inbag,
@@ -227,6 +240,7 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
     def _predict(self, X):
         check_is_fitted(self)
         X = check_array(X)
+        self._check_n_features(X, reset=False)
 
         result = ranger.ranger(
             self.tree_type_,
@@ -300,3 +314,6 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         """
         chf = self.predict_cumulative_hazard_function(X)
         return chf.sum(1)
+
+    def _more_tags(self):
+        return {"requires_y": True}

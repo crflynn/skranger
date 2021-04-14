@@ -9,6 +9,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.exceptions import NotFittedError
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
+from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import RangerForestClassifier
@@ -28,7 +29,7 @@ class TestRangerForestClassifier:
         assert hasattr(rfc, "n_classes_")
         assert hasattr(rfc, "ranger_forest_")
         assert hasattr(rfc, "ranger_class_order_")
-        assert hasattr(rfc, "n_features_")
+        assert hasattr(rfc, "n_features_in_")
 
     def test_predict(self, iris_X, iris_y):
         rfc = RangerForestClassifier()
@@ -302,3 +303,6 @@ class TestRangerForestClassifier:
         if importance == "none":
             with pytest.raises(ValueError):
                 _ = rfc.feature_importances_
+
+    def test_check_estimator(self):
+        check_estimator(RangerForestClassifier())
