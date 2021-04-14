@@ -1,5 +1,4 @@
 import warnings
-from abc import ABC
 from collections.abc import Iterable
 
 import numpy as np
@@ -7,7 +6,7 @@ from sklearn.exceptions import NotFittedError
 from sklearn.utils.validation import check_is_fitted
 
 
-class RangerBase(ABC):
+class RangerValidationMixin:
     @property
     def feature_importances_(self):
         try:
