@@ -257,6 +257,8 @@ class TestRangerForestSurvival:
         if importance == "none":
             with pytest.raises(ValueError):
                 _ = rfs.feature_importances_
+        else:
+            assert len(rfs.feature_importances_) == lung_X.shape[1]
 
     def test_sample_weight(self, lung_X, lung_y):
         rfs_w = RangerForestSurvival()

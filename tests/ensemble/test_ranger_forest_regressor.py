@@ -269,6 +269,8 @@ class TestRangerForestRegressor:
         if importance == "none":
             with pytest.raises(ValueError):
                 _ = rfr.feature_importances_
+        else:
+            assert len(rfr.feature_importances_) == boston_X.shape[1]
 
     def test_check_estimator(self):
         check_estimator(RangerForestRegressor())

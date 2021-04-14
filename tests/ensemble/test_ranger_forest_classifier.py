@@ -303,6 +303,8 @@ class TestRangerForestClassifier:
         if importance == "none":
             with pytest.raises(ValueError):
                 _ = rfc.feature_importances_
+        else:
+            assert len(rfc.feature_importances_) == iris_X.shape[1]
 
     def test_check_estimator(self):
         check_estimator(RangerForestClassifier())
