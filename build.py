@@ -59,7 +59,11 @@ ext_modules = [create_extension(name) for name in find_pyx_files("skranger")]
 
 setup(
     ext_modules=cythonize(
-        ext_modules, gdb_debug=False, force=True, annotate=False, compiler_directives={"language_level": "3"}
+        ext_modules,
+        gdb_debug=False,
+        force=True,
+        annotate=False,
+        compiler_directives={"language_level": "3"},
     )
 )
 

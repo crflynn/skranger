@@ -184,7 +184,9 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         self._check_n_features(X, reset=True)
 
         if self.always_split_features is not None:
-            always_split_features = [str(c).encode() for c in self.always_split_features]
+            always_split_features = [
+                str(c).encode() for c in self.always_split_features
+            ]
         else:
             always_split_features = []
 
@@ -240,7 +242,9 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         if self.quantiles:
             forest = self._get_terminal_node_forest(X)
             terminal_nodes = np.array(forest["predictions"]).astype(int)
-            self.random_node_values_ = np.empty((np.max(terminal_nodes) + 1, self.n_estimators))
+            self.random_node_values_ = np.empty(
+                (np.max(terminal_nodes) + 1, self.n_estimators)
+            )
             self.random_node_values_[:] = np.nan
             for tree in range(self.n_estimators):
                 idx = np.arange(X.shape[0])
@@ -324,7 +328,9 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         terminal_nodes = np.array(forest["predictions"]).astype(int)
         node_values = 0.0 * terminal_nodes
         for tree in range(self.n_estimators):
-            node_values[:, tree] = self.random_node_values_[terminal_nodes[:, tree], tree]
+            node_values[:, tree] = self.random_node_values_[
+                terminal_nodes[:, tree], tree
+            ]
         quantile_predictions = np.nanquantile(node_values, quantiles, axis=1)
         if len(quantiles) == 1:
             return np.squeeze(quantile_predictions)

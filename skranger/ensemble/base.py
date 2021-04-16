@@ -18,11 +18,15 @@ class RangerValidationMixin:
         try:
             return self.ranger_forest_["variable_importance"]
         except KeyError:
-            raise ValueError("importance must be set to something other than 'none'") from None
+            raise ValueError(
+                "importance must be set to something other than 'none'"
+            ) from None
 
     def _validate_parameters(self, X, y, sample_weights):
         """Validate ranger parameters and set defaults."""
-        self.n_jobs_ = max([self.n_jobs, 0])  # sklearn convention is -1 for all, ranger is 0
+        self.n_jobs_ = max(
+            [self.n_jobs, 0]
+        )  # sklearn convention is -1 for all, ranger is 0
         self._set_respect_categorical_features()
         self._evaluate_mtry(X.shape[1])
         self._set_importance_mode()
@@ -39,19 +43,28 @@ class RangerValidationMixin:
         """Determine categorical feature names."""
         if self.respect_categorical_features_ == "partition":
             self.categorical_features_ = (
-                [str(c).encode() for c in self.categorical_features] if self.categorical_features is not None else []
+                [str(c).encode() for c in self.categorical_features]
+                if self.categorical_features is not None
+                else []
             )
-        elif self.respect_categorical_features_ == "ignore" or self.respect_categorical_features_ == "order":
+        elif (
+            self.respect_categorical_features_ == "ignore"
+            or self.respect_categorical_features_ == "order"
+        ):
             self.categorical_features_ = []
         else:
-            raise ValueError("respect ordered factors must be one of `partition`, `ignore` or `order`")
+            raise ValueError(
+                "respect ordered factors must be one of `partition`, `ignore` or `order`"
+            )
 
     def _evaluate_mtry(self, num_features):
         """Evaluate mtry if callable."""
         if callable(self.mtry):
             self.mtry_ = self.mtry(num_features)
             if self.mtry_ < 1 or self.mtry_ > num_features:
-                raise ValueError("mtry function must evaluate to between 1 and number of features")
+                raise ValueError(
+                    "mtry function must evaluate to between 1 and number of features"
+                )
         else:
             self.mtry_ = self.mtry
             if self.mtry_ < 0 or self.mtry_ > num_features:
@@ -65,10 +78,14 @@ class RangerValidationMixin:
                 and self.respect_categorical_features_ == "partition"
                 and self.save_memory
             ):
-                raise ValueError("save memory is not possible with extratrees split rule and unordered predictors")
+                raise ValueError(
+                    "save memory is not possible with extratrees split rule and unordered predictors"
+                )
 
         if self.num_random_splits > 1 and self.split_rule != "extratrees":
-            raise ValueError("random splits must be 1 when split rule is not extratrees")
+            raise ValueError(
+                "random splits must be 1 when split rule is not extratrees"
+            )
 
         if self.tree_type_ in (1, 9):  # classification/probability
             if self.split_rule == "gini":
@@ -77,10 +94,14 @@ class RangerValidationMixin:
                 self.split_rule_ = 5  # ranger_.SplitRule.EXTRATREES
             elif self.split_rule == "hellinger":
                 if len(np.unique(y)) > 2:
-                    raise ValueError("hellinger split rule can only be used in binary classification")
+                    raise ValueError(
+                        "hellinger split rule can only be used in binary classification"
+                    )
                 self.split_rule_ = 7  # ranger_.SplitRule.HELLINGER
             else:
-                raise ValueError("split rule must be either gini, extratrees, or hellinger")
+                raise ValueError(
+                    "split rule must be either gini, extratrees, or hellinger"
+                )
 
         elif self.tree_type_ == 3:  # regression
             if self.split_rule == "variance":
@@ -92,9 +113,13 @@ class RangerValidationMixin:
             elif self.split_rule == "beta":
                 self.split_rule_ = 6  # ranger_.SplitRule.BETA
                 if np.max(y) > 1 or np.max(y) < 0:
-                    raise ValueError("Targets must be between 0 and 1 for beta splitrule")
+                    raise ValueError(
+                        "Targets must be between 0 and 1 for beta splitrule"
+                    )
             else:
-                raise ValueError("split rule must be either variance, extratrees, maxstat or beta")
+                raise ValueError(
+                    "split rule must be either variance, extratrees, maxstat or beta"
+                )
 
         elif self.tree_type_ == 5:  # survival
             if self.split_rule == "logrank":
@@ -108,7 +133,9 @@ class RangerValidationMixin:
             elif self.split_rule == "maxstat":
                 self.split_rule_ = 4  # ranger_.SplitRule.MAXSTAT
             else:
-                raise ValueError("split rule must be either logrank, extratrees, C or maxstat")
+                raise ValueError(
+                    "split rule must be either logrank, extratrees, C or maxstat"
+                )
 
     def _set_respect_categorical_features(self):
         """Set ``respect_categorical_features`` based on ``split_rule``."""
@@ -132,10 +159,17 @@ class RangerValidationMixin:
                 raise ValueError("The regularization coefficients must be <= 1")
             if max(self.regularization_factor) <= 0:
                 raise ValueError("The regularization coefficients must be > 0")
-            if len(self.regularization_factor) != 1 and len(self.regularization_factor) != num_features:
-                raise ValueError("There must be either one 1 or (number of features) regularization coefficients")
+            if (
+                len(self.regularization_factor) != 1
+                and len(self.regularization_factor) != num_features
+            ):
+                raise ValueError(
+                    "There must be either one 1 or (number of features) regularization coefficients"
+                )
             if len(self.regularization_factor) == 1:
-                self.regularization_factor_ = [self.regularization_factor] * num_features
+                self.regularization_factor_ = [
+                    self.regularization_factor
+                ] * num_features
 
         if all([r == 1 for r in self.regularization_factor]):
             self.regularization_factor_ = []
@@ -154,7 +188,10 @@ class RangerValidationMixin:
             self.importance_mode_ = 0  # ranger_.ImportanceMode.IMP_NONE
         elif self.importance == "impurity":
             self.importance_mode_ = 1  # ranger_.ImportanceMode.IMP_GINI
-        elif self.importance == "impurity_corrected" or self.importance == "impurity_unbiased":
+        elif (
+            self.importance == "impurity_corrected"
+            or self.importance == "impurity_unbiased"
+        ):
             self.importance_mode_ = 5  # ranger_.ImportanceMode.IMP_GINI_CORRECTED
         elif self.importance == "permutation":
             if self.local_importance:

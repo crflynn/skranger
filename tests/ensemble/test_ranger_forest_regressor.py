@@ -61,7 +61,14 @@ class TestRangerForestRegressor:
         else:
             assert len(captured.out) == 0
 
-    def test_importance(self, boston_X, boston_y, importance, scale_permutation_importance, local_importance):
+    def test_importance(
+        self,
+        boston_X,
+        boston_y,
+        importance,
+        scale_permutation_importance,
+        local_importance,
+    ):
         rfr = RangerForestRegressor(
             importance=importance,
             scale_permutation_importance=scale_permutation_importance,
@@ -145,14 +152,19 @@ class TestRangerForestRegressor:
         else:
             assert rfr.sample_fraction_ == [0.632]
 
-    def test_categorical_features(self, boston_X, boston_y, respect_categorical_features):
+    def test_categorical_features(
+        self, boston_X, boston_y, respect_categorical_features
+    ):
         # add a categorical feature
-        categorical_col = np.atleast_2d(np.array([random.choice([0, 1]) for _ in range(boston_X.shape[0])]))
+        categorical_col = np.atleast_2d(
+            np.array([random.choice([0, 1]) for _ in range(boston_X.shape[0])])
+        )
         boston_X_c = np.hstack((boston_X, categorical_col.transpose()))
         categorical_features = [boston_X.shape[1]]
 
         rfr = RangerForestRegressor(
-            respect_categorical_features=respect_categorical_features, categorical_features=categorical_features
+            respect_categorical_features=respect_categorical_features,
+            categorical_features=categorical_features,
         )
 
         if respect_categorical_features not in ["partition", "ignore", "order"]:
@@ -165,7 +177,9 @@ class TestRangerForestRegressor:
         if respect_categorical_features in ("ignore", "order"):
             assert rfr.categorical_features_ == []
         else:
-            assert rfr.categorical_features_ == [str(c).encode() for c in categorical_features]
+            assert rfr.categorical_features_ == [
+                str(c).encode() for c in categorical_features
+            ]
 
     def test_split_rule(self, boston_X, boston_y, split_rule):
         rfr = RangerForestRegressor(split_rule=split_rule)
@@ -194,7 +208,9 @@ class TestRangerForestRegressor:
 
         if split_rule == "extratrees":
             rfr = RangerForestRegressor(
-                split_rule=split_rule, respect_categorical_features="partition", save_memory=True
+                split_rule=split_rule,
+                respect_categorical_features="partition",
+                save_memory=True,
             )
             with pytest.raises(ValueError):
                 rfr.fit(boston_X, boston_y)
@@ -255,8 +271,12 @@ class TestRangerForestRegressor:
         quantiles = rfr.predict_quantiles(X_test, quantiles=[0.1, 0.9])
         assert quantiles.ndim == 2
 
-    def test_feature_importances_(self, boston_X, boston_y, importance, local_importance):
-        rfr = RangerForestRegressor(importance=importance, local_importance=local_importance)
+    def test_feature_importances_(
+        self, boston_X, boston_y, importance, local_importance
+    ):
+        rfr = RangerForestRegressor(
+            importance=importance, local_importance=local_importance
+        )
         with pytest.raises(AttributeError):
             _ = rfr.feature_importances_
 

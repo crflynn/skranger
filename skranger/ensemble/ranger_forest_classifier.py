@@ -182,7 +182,9 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         self._check_n_features(X, reset=True)
 
         if self.always_split_features is not None:
-            always_split_features = [str(c).encode() for c in self.always_split_features]
+            always_split_features = [
+                str(c).encode() for c in self.always_split_features
+            ]
         else:
             always_split_features = []
 
@@ -234,7 +236,9 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             False,  # use_regularization_factor
             self.regularization_usedepth,
         )
-        self.ranger_class_order_ = np.argsort(np.array(self.ranger_forest_["forest"]["class_values"]).astype(int))
+        self.ranger_class_order_ = np.argsort(
+            np.array(self.ranger_forest_["forest"]["class_values"]).astype(int)
+        )
         return self
 
     def predict(self, X):

@@ -60,7 +60,9 @@ def verbose(request):
     return request.param
 
 
-@pytest.fixture(params=["none", "impurity", "impurity_corrected", "permutation", "INVALID"])
+@pytest.fixture(
+    params=["none", "impurity", "impurity_corrected", "permutation", "INVALID"]
+)
 def importance(request):
     return request.param
 
@@ -99,7 +101,17 @@ def mtry(request):
 
 
 @pytest.fixture(
-    params=["extratrees", "gini", "hellinger", "variance", "maxstat", "beta", "C", "C_ignore_ties", "INVALID"]
+    params=[
+        "extratrees",
+        "gini",
+        "hellinger",
+        "variance",
+        "maxstat",
+        "beta",
+        "C",
+        "C_ignore_ties",
+        "INVALID",
+    ]
 )
 def split_rule(request):
     return request.param
