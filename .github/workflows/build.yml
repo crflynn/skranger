@@ -7,61 +7,189 @@ on:
   pull_request:
 
 jobs:
-  fmt:
-    runs-on: ubuntu-latest
+#  fmt:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#    - name: Checkout
+#      uses: actions/checkout@v1
+#      with:
+#        submodules: 'recursive'
+#
+#    - name: Install asdf
+#      uses: asdf-vm/actions/setup@v1.0.1
+#
+#    - name: Install asdf plugins
+#      run: |
+#        asdf plugin add python
+#        asdf plugin add poetry
+#
+#    - name: Cache dependencies
+#      id: cache-deps
+#      uses: actions/cache@v1
+#      with:
+#        path: ~/.asdf
+#        key: v6-${{ runner.os }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
+#        restore-keys: |
+#          v6-${{ runner.os }}-asdf-
+#
+#    - name: Install tools
+#      # pip 20.1 fails on generation of multiple .egg-info dirs
+#      run: |
+#        asdf install
+#        poetry config virtualenvs.create false
+#        poetry run pip install pip==20.0.2
+#        poetry run pip install -U setuptools wheel
+#
+#    - name: Install deps
+#      if: steps.cache-deps.outputs.cache-hit != 'true'
+#      run: |
+#        poetry install --no-root
+#
+#    - name: Build
+#      run: |
+#        poetry run python buildpre.py
+#        poetry install
+#
+#    - name: Format
+#      run: |
+#        poetry run isort -y -c
+#        poetry run black --check .
+#
+#  linux:
+#
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        python-version: [3.6.12, 3.7.9, 3.8.6, 3.9.1]
+#
+#    steps:
+#    - name: Checkout
+#      uses: actions/checkout@v1
+#      with:
+#        submodules: 'recursive'
+#
+#    # required for coverage
+#    - name: Install sqlite
+#      run: |
+#        sudo apt-get update
+#        sudo apt-get install -y libsqlite3-dev
+#
+#    - name: Install asdf
+#      uses: asdf-vm/actions/setup@v1.0.1
+#
+#    - name: Install asdf plugins
+#      run: |
+#        asdf plugin add python
+#        asdf plugin add poetry
+#
+#    - name: Cache dependencies
+#      id: cache-deps
+#      uses: actions/cache@v1
+#      with:
+#        path: ~/.asdf
+#        key: v6-${{ runner.os }}-${{ matrix.python-version }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
+#        restore-keys: |
+#          v6-${{ runner.os }}-${{ matrix.python-version }}-asdf-
+#
+#    - name: Install python
+#      if: steps.cache-deps.outputs.cache-hit != 'true'
+#      run: |
+#        asdf install python ${{ matrix.python-version }}
+#
+#    - name: Set python
+#      run: |
+#        asdf local python ${{ matrix.python-version }}
+#
+#    - name: Install tools
+#      # pip 20.1 fails on generation of multiple .egg-info dirs
+#      run: |
+#        asdf install
+#        poetry config virtualenvs.create false
+#        poetry run pip install pip==20.0.2
+#        poetry run pip install -U setuptools wheel
+#
+#    - name: Install deps
+#      if: steps.cache-deps.outputs.cache-hit != 'true'
+#      run: |
+#        poetry install --no-root
+#
+#    - name: Build
+#      run: |
+#        poetry run python buildpre.py
+#        poetry install
+#
+#    - name: Test
+#      run: |
+#        poetry run pytest tests/
+#
+#  macos:
+#
+#    runs-on: macos-latest
+#    strategy:
+#      matrix:
+#        python-version: [3.6.12, 3.7.9, 3.8.6, 3.9.1]
+#
+#    steps:
+#    - name: Checkout
+#      uses: actions/checkout@v1
+#      with:
+#        submodules: 'recursive'
+#
+#    - name: Install asdf
+#      uses: asdf-vm/actions/setup@v1.0.1
+#
+#    - name: Install asdf plugins
+#      run: |
+#        asdf plugin add python
+#        asdf plugin add poetry
+#
+#    - name: Cache dependencies
+#      id: cache-deps
+#      uses: actions/cache@v1
+#      with:
+#        path: ~/.asdf
+#        key: v6-${{ runner.os }}-${{ matrix.python-version }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
+#        restore-keys: |
+#          v6-${{ runner.os }}-${{ matrix.python-version }}-asdf-
+#
+#    - name: Install python
+#      if: steps.cache-deps.outputs.cache-hit != 'true'
+#      run: |
+#        asdf install python ${{ matrix.python-version }}
+#
+#    - name: Set python
+#      run: |
+#        asdf local python ${{ matrix.python-version }}
+#
+#    - name: Install tools
+#      # pip 20.1 fails on generation of multiple .egg-info dirs
+#      run: |
+#        asdf install
+#        poetry config virtualenvs.create false
+#        poetry run pip install pip==20.0.2
+#        poetry run pip install -U setuptools wheel
+#
+#    - name: Install deps
+#      if: steps.cache-deps.outputs.cache-hit != 'true'
+#      run: |
+#        poetry install --no-root
+#
+#    - name: Build
+#      run: |
+#        poetry run python buildpre.py
+#        poetry install
+#
+#    - name: Test
+#      run: |
+#        poetry run pytest tests/
+  win:
 
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-      with:
-        submodules: 'recursive'
-
-    - name: Install asdf
-      uses: asdf-vm/actions/setup@v1.0.1
-
-    - name: Install asdf plugins
-      run: |
-        asdf plugin add python
-        asdf plugin add poetry
-
-    - name: Cache dependencies
-      id: cache-deps
-      uses: actions/cache@v1
-      with:
-        path: ~/.asdf
-        key: v6-${{ runner.os }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
-        restore-keys: |
-          v6-${{ runner.os }}-asdf-
-
-    - name: Install tools
-      # pip 20.1 fails on generation of multiple .egg-info dirs
-      run: |
-        asdf install
-        poetry config virtualenvs.create false
-        poetry run pip install pip==20.0.2
-        poetry run pip install -U setuptools wheel
-
-    - name: Install deps
-      if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: |
-        poetry install --no-root
-
-    - name: Build
-      run: |
-        poetry run python buildpre.py
-        poetry install
-
-    - name: Format
-      run: |
-        poetry run isort -y -c
-        poetry run black --check .
-
-  linux:
-
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [3.6.12, 3.7.9, 3.8.6, 3.9.1]
+        python-version: [3.7.9, 3.8.6, 3.9.1]
 
     steps:
     - name: Checkout
@@ -69,16 +197,17 @@ jobs:
       with:
         submodules: 'recursive'
 
-    # required for coverage
-    - name: Install sqlite
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libsqlite3-dev
-
     - name: Install asdf
       uses: asdf-vm/actions/setup@v1.0.1
 
+    - name: Echo path
+      shell: bash
+      run: |
+        echo $PATH
+        printenv
+
     - name: Install asdf plugins
+      shell: bash
       run: |
         asdf plugin add python
         asdf plugin add poetry
@@ -92,94 +221,112 @@ jobs:
         restore-keys: |
           v6-${{ runner.os }}-${{ matrix.python-version }}-asdf-
 
-    - name: Install python
-      if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: |
-        asdf install python ${{ matrix.python-version }}
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
 
-    - name: Set python
-      run: |
-        asdf local python ${{ matrix.python-version }}
+#    - name: Install python
+#      if: steps.cache-deps.outputs.cache-hit != 'true'
+#      shell: bash
+#      run: |
+#        asdf install python ${{ matrix.python-version }}
+
+#    - name: Set python
+#      run: |
+#        asdf local python ${{ matrix.python-version }}
 
     - name: Install tools
+      shell: bash
       # pip 20.1 fails on generation of multiple .egg-info dirs
       run: |
-        asdf install
+        which python
+        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python - --version 1.1.4
+        export PATH="$HOME/.poetry/bin:$PATH"
         poetry config virtualenvs.create false
-        poetry run pip install pip==20.0.2
-        poetry run pip install -U setuptools wheel
+        poetry run pip install --user pip==20.0.2
+        poetry run pip install --user -U setuptools wheel
+        poetry run which python
+
+        ls /c/hostedtoolcache/windows/Python/3.7.9
+
+        cat > /c/hostedtoolcache/windows/Python/3.7.9/x64/Lib/distutils/distutils.cfg << EOL
+        [build]
+        compiler = msvc
+
+        [build_ext]
+        compiler = msvc
+        EOL
+
+        cat > /c/hostedtoolcache/windows/Python/3.7.9/x86/Lib/distutils/distutils.cfg << EOL
+        [build]
+        compiler = msvc
+
+        [build_ext]
+        compiler = msvc
+        EOL
+
+        cat > /c/hostedtoolcache/windows/Python/3.7.9/x86/Lib/distutils/patch.diff << EOL
+        --- cygwinccompiler.py
+        +++ cygwinccompiler.py
+        @@ -82,7 +82,18 @@ def get_msvcr():
+                 elif msc_ver == '1600':
+                     # VS2010 / MSVC 10.0
+                     return ['msvcr100']
+        +        elif msc_ver == '1700':
+        +            # Visual Studio 2012 / Visual C++ 11.0
+        +            return ['msvcr110']
+        +        elif msc_ver == '1800':
+        +            # Visual Studio 2013 / Visual C++ 12.0
+        +            return ['msvcr120']
+        +        elif msc_ver == '1900':
+        +            # Visual Studio 2015 / Visual C++ 14.0
+        +            # "msvcr140.dll no longer exists" http://blogs.msdn.com/b/vcblog/archive/2014/06/03/visual-studio-14-ctp.aspx
+        +            return ['vcruntime140']
+                 else:
+        +            # to do: can we make this futureproof?
+                     raise ValueError("Unknown MS Compiler version %s " % msc_ver)
+        EOL
+
+        patch -u /c/hostedtoolcache/windows/Python/3.7.9/x86/Lib/distutils/cygwinccompiler.py -i /c/hostedtoolcache/windows/Python/3.7.9/x86/Lib/distutils/patch.diff
+        patch -u /c/hostedtoolcache/windows/Python/3.7.9/x64/Lib/distutils/cygwinccompiler.py -i /c/hostedtoolcache/windows/Python/3.7.9/x86/Lib/distutils/patch.diff
+
+        cat /c/hostedtoolcache/windows/Python/3.7.9/x64/Lib/distutils/distutils.cfg
+        cat /c/hostedtoolcache/windows/Python/3.7.9/x86/Lib/distutils/cygwinccompiler.py
+
+        ls /c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio
+
+        /c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio/2019/Enterprise/VC/vcvarsall.bat amd64
+
+#        ls /c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio/2019/Enterprise/VC/Auxiliary/Build
+
+#        curl https://aka.ms/vs/15/release/vc_redist.x64.exe --output vc_redist.x64.exe
+#        ./vc_redist.x64.exe
+
+#    - name: Install msvc
+#      uses: ilammy/msvc-dev-cmd@v1
+#      with:
+#        toolset: 14.0
 
     - name: Install deps
       if: steps.cache-deps.outputs.cache-hit != 'true'
+      shell: bash
       run: |
+        export PATH="$HOME/.poetry/bin:$PATH"
         poetry install --no-root
 
     - name: Build
+      shell: bash
+      env:
+        CIBW_BUILD: ${{ matrix.python-version }}
       run: |
+        export PATH="$HOME/.poetry/bin:$PATH"
+        poetry run which python
         poetry run python buildpre.py
         poetry install
 
     - name: Test
+      shell: bash
       run: |
-        poetry run pytest tests/
-
-  macos:
-
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        python-version: [3.6.12, 3.7.9, 3.8.6, 3.9.1]
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-      with:
-        submodules: 'recursive'
-
-    - name: Install asdf
-      uses: asdf-vm/actions/setup@v1.0.1
-
-    - name: Install asdf plugins
-      run: |
-        asdf plugin add python
-        asdf plugin add poetry
-
-    - name: Cache dependencies
-      id: cache-deps
-      uses: actions/cache@v1
-      with:
-        path: ~/.asdf
-        key: v6-${{ runner.os }}-${{ matrix.python-version }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
-        restore-keys: |
-          v6-${{ runner.os }}-${{ matrix.python-version }}-asdf-
-
-    - name: Install python
-      if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: |
-        asdf install python ${{ matrix.python-version }}
-
-    - name: Set python
-      run: |
-        asdf local python ${{ matrix.python-version }}
-
-    - name: Install tools
-      # pip 20.1 fails on generation of multiple .egg-info dirs
-      run: |
-        asdf install
-        poetry config virtualenvs.create false
-        poetry run pip install pip==20.0.2
-        poetry run pip install -U setuptools wheel
-
-    - name: Install deps
-      if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: |
-        poetry install --no-root
-
-    - name: Build
-      run: |
-        poetry run python buildpre.py
-        poetry install
-
-    - name: Test
-      run: |
+        export PATH="$HOME/.poetry/bin:$PATH"
         poetry run pytest tests/

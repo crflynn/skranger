@@ -1,4 +1,5 @@
 import os
+import platform
 from setuptools import Extension
 from setuptools import setup
 
@@ -38,20 +39,38 @@ def find_pyx_files(directory, files=None):
     return files
 
 
+win_link_args = [
+    "-static-libgcc",
+    "-static-libstdc++",
+    "-Wl,-Bstatic,--whole-archive",
+    "-lwinpthread",
+    "-Wl,--no-whole-archive",
+]
+
+win_compiler_args = ["-DMS_WIN64"]
+
+
 def create_extension(module_name):
     """Create a setuptools build extension for a Cython extension file.
 
     :param str module_name: The name of the module
     """
     path = module_name.replace(".", os.path.sep) + ".pyx"
+    compile_args = ["-std=c++11", "-Wall"]
+    link_args = ["-std=c++11", "-g"]
+    macros = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
+    if platform.system() == "Windows":
+        compile_args = compile_args + win_compiler_args
+        if int(platform.python_version_tuple()[0]) == 3 and int(platform.python_version_tuple()[1]) >= 8:
+            link_args = link_args + win_link_args
     return Extension(
         module_name,
         sources=[path],
         include_dirs=include_dirs,
         language="c++",
-        extra_compile_args=["-std=c++11", "-Wall"],
-        extra_link_args=["-std=c++11", "-g"],
-        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+        extra_compile_args=compile_args,
+        extra_link_args=link_args,
+        define_macros=macros,
     )
 
 

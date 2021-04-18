@@ -1,0 +1,47 @@
+#name: cibw
+#
+#on: [pull_request]
+#
+#jobs:
+#  build_wheels:
+#    name: Build py${{ matrix.py }} wheels on ${{ matrix.os }}
+#    runs-on: ${{ matrix.os }}
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        py: [36, 37, 38, 39]
+#        os: [ubuntu-20.04, windows-2019, macos-10.15]
+#
+#    steps:
+#      - uses: actions/checkout@v2
+#        with:
+#          submodules: 'recursive'
+#
+##      - name: Install Visual C++
+##        if: ${{ matrix.os == 'windows-2019' }}
+##        run: choco install vcpython${{ matrix.py }} -f -y
+#
+#      - name: Build wheels
+#        if: ${{ matrix.os == 'windows-2019' }}
+#        uses: joerick/cibuildwheel@v1.10.0
+#        env:
+#          CIBW_BEFORE_BUILD: python -m pip install -U pip && python buildpre.py
+#          CIBW_BUILD: cp${{ matrix.py }}-win_amd64 cp${{ matrix.py }}-win32
+#
+#      - name: Build wheels
+#        if: ${{ matrix.os == 'ubuntu-20.04' }}
+#        uses: joerick/cibuildwheel@v1.10.0
+#        env:
+#          CIBW_BEFORE_BUILD: apt-get install build-essential libssl-dev libffi-dev cargo && python -m pip install -U pip && python buildpre.py
+#          CIBW_BUILD: cp${{ matrix.py }}-manylinux_x86_64 cp${{ matrix.py }}-manylinux_i686
+#
+#      - name: Build wheels
+#        if: ${{ matrix.os == 'macos-10.15' }}
+#        uses: joerick/cibuildwheel@v1.10.0
+#        env:
+#          CIBW_BEFORE_BUILD: pip install pip==20.0.2 && python buildpre.py
+#          CIBW_BUILD: cp${{ matrix.py }}-macosx_x86_64
+#
+##      - uses: actions/upload-artifact@v2
+##        with:
+##          path: ./wheelhouse/*.whl

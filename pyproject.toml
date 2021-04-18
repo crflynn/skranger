@@ -44,7 +44,13 @@ pytest-cov = "^2.9.0"
 matplotlib = "^3.3.2"
 
 [build-system]
-requires = ["poetry>=0.12", "cython", "numpy"]
+requires = [
+    "poetry>=1.0",
+    "cython",
+    "numpy",
+    "setuptools",
+    "wheel",
+]
 build-backend = "poetry.masonry.api"
 
 [tool.black]
