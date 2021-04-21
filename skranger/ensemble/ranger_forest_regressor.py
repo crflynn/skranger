@@ -1,4 +1,5 @@
 """Scikit-learn wrapper for ranger regression."""
+import bisect
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import RegressorMixin
@@ -371,3 +372,29 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
             self.regularization_usedepth,
         )
         return np.array(result["predictions"])
+
+    def get_importance_pvalues(self):
+        """Return p-values for variable importance using the fast method from Janitza et al. (2016)
+        """
+
+        check_is_fitted(self)
+        if self.importance != "impurity_corrected":
+            raise ValueError("p-values can only be calculated with importance parameter set to 'impurity_corrected'")
+
+        vimp = np.array(self.ranger_forest_["variable_importance"])
+        m1 = vimp[vimp < 0]
+        m2 = vimp[vimp == 0]
+
+        if len(m1) == 0:
+            raise ValueError("No negative importance values found, cannot calculate p-values.")
+        if len(m2) < 1:
+            vimp_dist = np.concatenate((m1, -m1))
+        else:
+            vimp_dist = np.concatenate((m1, -m1, m2))
+
+        vimp_dist.sort()
+        result = []
+        for i in range(len(vimp)):
+            result.append(bisect.bisect_left(vimp_dist, vimp[i]))
+        pval = 1 - np.array(result) / len(vimp_dist)
+        return pval

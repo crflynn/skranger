@@ -43,6 +43,17 @@ def iris_X_mod(mod):
         return np.concatenate((_iris_X, np.random.uniform(size=(_iris_X.shape[0],3)), np.zeros(shape=(_iris_X.shape[0],3))),1)
         
 
+@pytest.fixture
+def boston_X_mod(mod):
+    if mod == 'std':
+        return _boston_X
+    elif mod == 'rand':
+        np.random.seed(42)
+        return np.concatenate((_boston_X, np.random.uniform(size=(_boston_X.shape[0],3))),1)
+    elif mod == 'rand_const':
+        np.random.seed(42)
+        return np.concatenate((_boston_X, np.random.uniform(size=(_boston_X.shape[0],3)), np.zeros(shape=(_boston_X.shape[0],3))),1)
+
 
 @pytest.fixture
 def iris_y():

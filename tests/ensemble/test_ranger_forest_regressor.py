@@ -87,6 +87,32 @@ class TestRangerForestRegressor:
             else:
                 assert rfr.importance_mode_ == 3
 
+    def test_importance_pvalues(self, boston_X_mod, boston_y, importance, mod):
+        rfc = RangerForestRegressor(importance=importance)
+        np.random.seed(42)
+
+        if importance not in ["none", "impurity", "impurity_corrected", "permutation"]:
+            with pytest.raises(ValueError):
+                rfc.fit(boston_X_mod, boston_y)
+            return
+
+        if not importance == "impurity_corrected":
+            rfc.fit(boston_X_mod, boston_y)
+            with pytest.raises(ValueError):
+                rfc.get_importance_pvalues()
+            return
+
+        # Test error for no non-negative importance values
+
+        if mod == 'std':
+            with pytest.raises(ValueError):
+                rfc.fit(boston_X_mod, boston_y)
+                rfc.get_importance_pvalues()
+            return
+
+        rfc.fit(boston_X_mod, boston_y)
+        assert len(rfc.get_importance_pvalues()) == boston_X_mod.shape[1]
+
     def test_mtry(self, boston_X, boston_y, mtry):
         rfr = RangerForestRegressor(mtry=mtry)
 
