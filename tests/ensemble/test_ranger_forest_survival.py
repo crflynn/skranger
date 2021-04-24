@@ -76,7 +76,9 @@ class TestRangerForestSurvival:
         else:
             assert len(captured.out) == 0
 
-    def test_importance(self, lung_X, lung_y, importance, scale_permutation_importance, local_importance):
+    def test_importance(
+        self, lung_X, lung_y, importance, scale_permutation_importance, local_importance
+    ):
         rfs = RangerForestSurvival(
             importance=importance,
             scale_permutation_importance=scale_permutation_importance,
@@ -162,12 +164,15 @@ class TestRangerForestSurvival:
 
     def test_categorical_features(self, lung_X, lung_y, respect_categorical_features):
         # add a categorical feature
-        categorical_col = np.atleast_2d(np.array([random.choice([0, 1]) for _ in range(lung_X.shape[0])]))
+        categorical_col = np.atleast_2d(
+            np.array([random.choice([0, 1]) for _ in range(lung_X.shape[0])])
+        )
         lung_X_c = np.hstack((lung_X, categorical_col.transpose()))
         categorical_features = [lung_X.shape[1]]
 
         rfs = RangerForestSurvival(
-            respect_categorical_features=respect_categorical_features, categorical_features=categorical_features
+            respect_categorical_features=respect_categorical_features,
+            categorical_features=categorical_features,
         )
 
         if respect_categorical_features not in ["partition", "ignore", "order"]:
@@ -180,7 +185,9 @@ class TestRangerForestSurvival:
         if respect_categorical_features in ("ignore", "order"):
             assert rfs.categorical_features_ == []
         else:
-            assert rfs.categorical_features_ == [str(c).encode() for c in categorical_features]
+            assert rfs.categorical_features_ == [
+                str(c).encode() for c in categorical_features
+            ]
 
     def test_split_rule(self, lung_X, lung_y, split_rule):
         rfs = RangerForestSurvival(split_rule=split_rule)
@@ -244,7 +251,9 @@ class TestRangerForestSurvival:
             assert 0 in tree
 
     def test_feature_importances_(self, lung_X, lung_y, importance, local_importance):
-        rfs = RangerForestSurvival(importance=importance, local_importance=local_importance)
+        rfs = RangerForestSurvival(
+            importance=importance, local_importance=local_importance
+        )
         with pytest.raises(AttributeError):
             _ = rfs.feature_importances_
 

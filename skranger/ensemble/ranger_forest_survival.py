@@ -178,7 +178,9 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
         self._check_n_features(X, reset=True)
 
         if self.always_split_features is not None:
-            always_split_features = [str(c).encode() for c in self.always_split_features]
+            always_split_features = [
+                str(c).encode() for c in self.always_split_features
+            ]
         else:
             always_split_features = []
 
@@ -230,7 +232,9 @@ class RangerForestSurvival(RangerValidationMixin, BaseEstimator):
             False,  # use_regularization_factor
             self.regularization_usedepth,
         )
-        self.event_times_ = np.array(self.ranger_forest_["forest"]["unique_death_times"])
+        self.event_times_ = np.array(
+            self.ranger_forest_["forest"]["unique_death_times"]
+        )
         # dtype to suppress warning about ragged nested sequences
         self.cumulative_hazard_function_ = np.array(
             self.ranger_forest_["forest"]["cumulative_hazard_function"], dtype=object

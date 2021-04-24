@@ -184,7 +184,9 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         self._check_n_features(X, reset=True)
 
         if self.always_split_features is not None:
-            always_split_features = [str(c).encode() for c in self.always_split_features]
+            always_split_features = [
+                str(c).encode() for c in self.always_split_features
+            ]
         else:
             always_split_features = []
 
@@ -236,7 +238,9 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             False,  # use_regularization_factor
             self.regularization_usedepth,
         )
-        self.ranger_class_order_ = np.argsort(np.array(self.ranger_forest_["forest"]["class_values"]).astype(int))
+        self.ranger_class_order_ = np.argsort(
+            np.array(self.ranger_forest_["forest"]["class_values"]).astype(int)
+        )
         return self
 
     def predict(self, X):
@@ -315,19 +319,25 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         return np.log(proba)
 
     def get_importance_pvalues(self):
-        """Return p-values for variable importance using the fast method from Janitza et al. (2016)
+        """Calculate p-values for variable importance.
+
+        Uses the fast method from Janitza et al. (2016).
         """
 
         check_is_fitted(self)
         if self.importance != "impurity_corrected":
-            raise ValueError("p-values can only be calculated with importance parameter set to 'impurity_corrected'")
+            raise ValueError(
+                "p-values can only be calculated with importance parameter set to 'impurity_corrected'"
+            )
 
         vimp = np.array(self.ranger_forest_["variable_importance"])
         m1 = vimp[vimp < 0]
         m2 = vimp[vimp == 0]
 
         if len(m1) == 0:
-            raise ValueError("No negative importance values found, cannot calculate p-values.")
+            raise ValueError(
+                "No negative importance values found, cannot calculate p-values."
+            )
         if len(m2) < 1:
             vimp_dist = np.concatenate((m1, -m1))
         else:

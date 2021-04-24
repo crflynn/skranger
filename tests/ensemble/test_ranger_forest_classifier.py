@@ -88,7 +88,9 @@ class TestRangerForestClassifier:
         else:
             assert len(captured.out) == 0
 
-    def test_importance(self, iris_X, iris_y, importance, scale_permutation_importance, local_importance):
+    def test_importance(
+        self, iris_X, iris_y, importance, scale_permutation_importance, local_importance
+    ):
         rfc = RangerForestClassifier(
             importance=importance,
             scale_permutation_importance=scale_permutation_importance,
@@ -206,12 +208,15 @@ class TestRangerForestClassifier:
 
     def test_categorical_features(self, iris_X, iris_y, respect_categorical_features):
         # add a categorical feature
-        categorical_col = np.atleast_2d(np.array([random.choice([0, 1]) for _ in range(iris_X.shape[0])]))
+        categorical_col = np.atleast_2d(
+            np.array([random.choice([0, 1]) for _ in range(iris_X.shape[0])])
+        )
         iris_X_c = np.hstack((iris_X, categorical_col.transpose()))
         categorical_features = [iris_X.shape[1]]
 
         rfc = RangerForestClassifier(
-            respect_categorical_features=respect_categorical_features, categorical_features=categorical_features
+            respect_categorical_features=respect_categorical_features,
+            categorical_features=categorical_features,
         )
 
         if respect_categorical_features not in ["partition", "ignore", "order"]:
@@ -224,7 +229,9 @@ class TestRangerForestClassifier:
         if respect_categorical_features in ("ignore", "order"):
             assert rfc.categorical_features_ == []
         else:
-            assert rfc.categorical_features_ == [str(c).encode() for c in categorical_features]
+            assert rfc.categorical_features_ == [
+                str(c).encode() for c in categorical_features
+            ]
 
     def test_split_rule(self, iris_X, iris_y, split_rule):
         rfc = RangerForestClassifier(split_rule=split_rule)
@@ -251,7 +258,9 @@ class TestRangerForestClassifier:
 
         if split_rule == "extratrees":
             rfc = RangerForestClassifier(
-                split_rule=split_rule, respect_categorical_features="partition", save_memory=True
+                split_rule=split_rule,
+                respect_categorical_features="partition",
+                save_memory=True,
             )
             with pytest.raises(ValueError):
                 rfc.fit(iris_X, iris_y)
@@ -296,7 +305,9 @@ class TestRangerForestClassifier:
             assert 0 in tree
 
     def test_accuracy(self, iris_X, iris_y):
-        X_train, X_test, y_train, y_test = train_test_split(iris_X, iris_y, test_size=0.33, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(
+            iris_X, iris_y, test_size=0.33, random_state=42
+        )
 
         # train and test a random forest classifier
         rf = RandomForestClassifier()
@@ -315,7 +326,9 @@ class TestRangerForestClassifier:
         assert ranger_acc > 0.9
 
     def test_feature_importances_(self, iris_X, iris_y, importance, local_importance):
-        rfc = RangerForestClassifier(importance=importance, local_importance=local_importance)
+        rfc = RangerForestClassifier(
+            importance=importance, local_importance=local_importance
+        )
         with pytest.raises(AttributeError):
             _ = rfc.feature_importances_
 

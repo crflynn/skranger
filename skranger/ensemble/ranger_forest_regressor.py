@@ -186,7 +186,9 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         self._check_n_features(X, reset=True)
 
         if self.always_split_features is not None:
-            always_split_features = [str(c).encode() for c in self.always_split_features]
+            always_split_features = [
+                str(c).encode() for c in self.always_split_features
+            ]
         else:
             always_split_features = []
 
@@ -242,7 +244,9 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         if self.quantiles:
             forest = self._get_terminal_node_forest(X)
             terminal_nodes = np.array(forest["predictions"]).astype(int)
-            self.random_node_values_ = np.empty((np.max(terminal_nodes) + 1, self.n_estimators))
+            self.random_node_values_ = np.empty(
+                (np.max(terminal_nodes) + 1, self.n_estimators)
+            )
             self.random_node_values_[:] = np.nan
             for tree in range(self.n_estimators):
                 idx = np.arange(X.shape[0])
@@ -326,7 +330,9 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         terminal_nodes = np.array(forest["predictions"]).astype(int)
         node_values = 0.0 * terminal_nodes
         for tree in range(self.n_estimators):
-            node_values[:, tree] = self.random_node_values_[terminal_nodes[:, tree], tree]
+            node_values[:, tree] = self.random_node_values_[
+                terminal_nodes[:, tree], tree
+            ]
         quantile_predictions = np.nanquantile(node_values, quantiles, axis=1)
         if len(quantiles) == 1:
             return np.squeeze(quantile_predictions)
@@ -391,19 +397,25 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
         return np.array(result["predictions"])
 
     def get_importance_pvalues(self):
-        """Return p-values for variable importance using the fast method from Janitza et al. (2016)
+        """Calculate p-values for variable importance.
+
+        Uses the fast method from Janitza et al. (2016).
         """
 
         check_is_fitted(self)
         if self.importance != "impurity_corrected":
-            raise ValueError("p-values can only be calculated with importance parameter set to 'impurity_corrected'")
+            raise ValueError(
+                "p-values can only be calculated with importance parameter set to 'impurity_corrected'"
+            )
 
         vimp = np.array(self.ranger_forest_["variable_importance"])
         m1 = vimp[vimp < 0]
         m2 = vimp[vimp == 0]
 
         if len(m1) == 0:
-            raise ValueError("No negative importance values found, cannot calculate p-values.")
+            raise ValueError(
+                "No negative importance values found, cannot calculate p-values."
+            )
         if len(m2) < 1:
             vimp_dist = np.concatenate((m1, -m1))
         else:
