@@ -1,6 +1,4 @@
 """Scikit-learn wrapper for ranger regression."""
-import bisect
-
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import RegressorMixin
@@ -9,10 +7,10 @@ from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import ranger
-from skranger.ensemble.base import RangerValidationMixin
+from skranger.ensemble.base import RangerBase
 
 
-class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator):
+class RangerForestRegressor(RangerBase, RegressorMixin, BaseEstimator):
     r"""Ranger Random Forest Regression implementation for sci-kit learn.
 
     Provides a sklearn regressor interface to the Ranger C++ library using Cython. The
@@ -395,38 +393,6 @@ class RangerForestRegressor(RangerValidationMixin, RegressorMixin, BaseEstimator
             self.regularization_usedepth,
         )
         return np.array(result["predictions"])
-
-    def get_importance_pvalues(self):
-        """Calculate p-values for variable importance.
-
-        Uses the fast method from Janitza et al. (2016).
-        """
-
-        check_is_fitted(self)
-        if self.importance != "impurity_corrected":
-            raise ValueError(
-                "p-values can only be calculated with importance parameter set to 'impurity_corrected'"
-            )
-
-        vimp = np.array(self.ranger_forest_["variable_importance"])
-        m1 = vimp[vimp < 0]
-        m2 = vimp[vimp == 0]
-
-        if len(m1) == 0:
-            raise ValueError(
-                "No negative importance values found, cannot calculate p-values."
-            )
-        if len(m2) < 1:
-            vimp_dist = np.concatenate((m1, -m1))
-        else:
-            vimp_dist = np.concatenate((m1, -m1, m2))
-
-        vimp_dist.sort()
-        result = []
-        for i in range(len(vimp)):
-            result.append(bisect.bisect_left(vimp_dist, vimp[i]))
-        pval = 1 - np.array(result) / len(vimp_dist)
-        return pval
 
     def _more_tags(self):
         return {

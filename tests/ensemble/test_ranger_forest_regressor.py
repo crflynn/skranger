@@ -113,8 +113,8 @@ class TestRangerForestRegressor:
         # Test error for no non-negative importance values
 
         if mod == "none":
+            rfc.fit(boston_X_mod, boston_y)
             with pytest.raises(ValueError):
-                rfc.fit(boston_X_mod, boston_y)
                 rfc.get_importance_pvalues()
             return
 

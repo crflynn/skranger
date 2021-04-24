@@ -84,6 +84,25 @@ def boston_X_mod(mod):
 
 
 @pytest.fixture
+def lung_X_mod(lung_X, mod):
+    if mod == "none":
+        return _lung_X[["Age_in_years", "Karnofsky_score"]]
+    elif mod == "random":
+        np.random.seed(42)
+        return np.concatenate((lung_X, np.random.uniform(size=(lung_X.shape))), 1)
+    elif mod == "const":
+        np.random.seed(42)
+        return np.concatenate(
+            (
+                lung_X,
+                np.random.uniform(size=(lung_X.shape)),
+                np.zeros(shape=(lung_X.shape)),
+            ),
+            1,
+        )
+
+
+@pytest.fixture
 def iris_y():
     return _iris_y
 
