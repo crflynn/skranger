@@ -134,8 +134,8 @@ class TestRangerForestClassifier:
 
         # Test error for no non-negative importance values
         if mod == "none":
+            rfc.fit(iris_X_mod, iris_y)
             with pytest.raises(ValueError):
-                rfc.fit(iris_X_mod, iris_y)
                 rfc.get_importance_pvalues()
             return
 

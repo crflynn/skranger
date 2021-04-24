@@ -105,6 +105,31 @@ class TestRangerForestSurvival:
             else:
                 assert rfs.importance_mode_ == 3
 
+    def test_importance_pvalues(self, lung_X_mod, lung_y, importance, mod):
+        rfs = RangerForestSurvival(importance=importance)
+        np.random.seed(42)
+
+        if importance not in ["none", "impurity", "impurity_corrected", "permutation"]:
+            with pytest.raises(ValueError):
+                rfs.fit(lung_X_mod, lung_y)
+            return
+
+        if not importance == "impurity_corrected":
+            rfs.fit(lung_X_mod, lung_y)
+            with pytest.raises(ValueError):
+                rfs.get_importance_pvalues()
+            return
+
+        # Test error for no non-negative importance values
+        if mod == "none":
+            rfs.fit(lung_X_mod, lung_y)
+            with pytest.raises(ValueError):
+                rfs.get_importance_pvalues()
+            return
+
+        rfs.fit(lung_X_mod, lung_y)
+        assert len(rfs.get_importance_pvalues()) == lung_X_mod.shape[1]
+
     def test_mtry(self, lung_X, lung_y, mtry):
         rfs = RangerForestSurvival(mtry=mtry)
 

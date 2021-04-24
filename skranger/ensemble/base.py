@@ -1,3 +1,4 @@
+import bisect
 import warnings
 from collections.abc import Iterable
 
@@ -6,7 +7,7 @@ from sklearn.exceptions import NotFittedError
 from sklearn.utils.validation import check_is_fitted
 
 
-class RangerValidationMixin:
+class RangerMixin:
     @property
     def feature_importances_(self):
         try:
@@ -22,6 +23,38 @@ class RangerValidationMixin:
                 "importance must be set to something other than 'none'"
             ) from None
 
+    def get_importance_pvalues(self):
+        """Calculate p-values for variable importances.
+
+        Uses the fast method from Janitza et al. (2016).
+        """
+        check_is_fitted(self)
+        if self.importance != "impurity_corrected":
+            raise ValueError(
+                "p-values can only be calculated with importance parameter set to 'impurity_corrected'"
+            )
+
+        vimp = np.array(self.ranger_forest_["variable_importance"])
+        m1 = vimp[vimp < 0]
+        m2 = vimp[vimp == 0]
+
+        if len(m1) == 0:
+            raise ValueError(
+                "No negative importance values found, cannot calculate p-values."
+            )
+        if len(m2) < 1:
+            vimp_dist = np.concatenate((m1, -m1))
+        else:
+            vimp_dist = np.concatenate((m1, -m1, m2))
+
+        vimp_dist.sort()
+        result = []
+        for i in range(len(vimp)):
+            result.append(bisect.bisect_left(vimp_dist, vimp[i]))
+        pval = 1 - np.array(result) / len(vimp_dist)
+        return pval
+
+    # region validation
     def _validate_parameters(self, X, y, sample_weights):
         """Validate ranger parameters and set defaults."""
         self.n_jobs_ = max(
@@ -212,3 +245,5 @@ class RangerValidationMixin:
                 raise ValueError("Cannot use class sampling and inbag.")
             if len(self.inbag) != self.n_estimators:
                 raise ValueError("Size of inbag must be equal to n_estimators.")
+
+    # endregion
