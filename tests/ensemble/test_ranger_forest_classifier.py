@@ -115,6 +115,31 @@ class TestRangerForestClassifier:
             else:
                 assert rfc.importance_mode_ == 3
 
+    def test_importance_pvalues(self, iris_X_mod, iris_y, importance, mod):
+        rfc = RangerForestClassifier(importance=importance)
+        np.random.seed(42)
+
+        if importance not in ["none", "impurity", "impurity_corrected", "permutation"]:
+            with pytest.raises(ValueError):
+                rfc.fit(iris_X_mod, iris_y)
+            return
+
+        if not importance == "impurity_corrected":
+            rfc.fit(iris_X_mod, iris_y)
+            with pytest.raises(ValueError):
+                rfc.get_importance_pvalues()
+            return
+
+        # Test error for no non-negative importance values
+        if mod == "none":
+            with pytest.raises(ValueError):
+                rfc.fit(iris_X_mod, iris_y)
+                rfc.get_importance_pvalues()
+            return
+
+        rfc.fit(iris_X_mod, iris_y)
+        assert len(rfc.get_importance_pvalues()) == iris_X_mod.shape[1]
+
     def test_mtry(self, iris_X, iris_y, mtry):
         rfc = RangerForestClassifier(mtry=mtry)
 

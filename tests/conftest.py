@@ -1,6 +1,7 @@
 import math
 import pathlib
 
+import numpy as np
 import pandas as pd
 import pytest
 from scipy.io.arff import loadarff
@@ -37,6 +38,37 @@ def boston_y():
 @pytest.fixture
 def iris_X():
     return _iris_X
+
+
+@pytest.fixture(params=["none", "random", "const"])
+def mod(request):
+    return request.param
+
+
+@pytest.fixture
+def iris_X_mod(mod):
+    if mod == "none":
+        return _iris_X
+    elif mod == "random":
+        np.random.seed(42)
+        return np.concatenate((_iris_X, np.random.uniform(size=(_iris_X.shape))), 1)
+    elif mod == "const":
+        np.random.seed(42)
+        return np.concatenate((_iris_X, np.random.uniform(size=(_iris_X.shape)), np.zeros(shape=(_iris_X.shape))), 1)
+
+
+@pytest.fixture
+def boston_X_mod(mod):
+    if mod == "none":
+        return _boston_X
+    elif mod == "random":
+        np.random.seed(42)
+        return np.concatenate((_boston_X, np.random.uniform(size=(_boston_X.shape))), 1)
+    elif mod == "const":
+        np.random.seed(42)
+        return np.concatenate(
+            (_boston_X, np.random.uniform(size=(_boston_X.shape)), np.zeros(shape=(_boston_X.shape))), 1
+        )
 
 
 @pytest.fixture
