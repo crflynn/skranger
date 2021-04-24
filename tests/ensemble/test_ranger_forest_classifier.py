@@ -9,6 +9,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.exceptions import NotFittedError
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
+from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import RangerForestClassifier
@@ -28,7 +29,7 @@ class TestRangerForestClassifier:
         assert hasattr(rfc, "n_classes_")
         assert hasattr(rfc, "ranger_forest_")
         assert hasattr(rfc, "ranger_class_order_")
-        assert hasattr(rfc, "n_features_")
+        assert hasattr(rfc, "n_features_in_")
 
     def test_predict(self, iris_X, iris_y):
         rfc = RangerForestClassifier()
@@ -130,8 +131,7 @@ class TestRangerForestClassifier:
             return
 
         # Test error for no non-negative importance values
-
-        if mod == 'std':
+        if mod == "none":
             with pytest.raises(ValueError):
                 rfc.fit(iris_X_mod, iris_y)
                 rfc.get_importance_pvalues()
@@ -313,3 +313,23 @@ class TestRangerForestClassifier:
         # the accuracy should be good
         assert rf_acc > 0.9
         assert ranger_acc > 0.9
+
+    def test_feature_importances_(self, iris_X, iris_y, importance, local_importance):
+        rfc = RangerForestClassifier(importance=importance, local_importance=local_importance)
+        with pytest.raises(AttributeError):
+            _ = rfc.feature_importances_
+
+        if importance == "INVALID":
+            with pytest.raises(ValueError):
+                rfc.fit(iris_X, iris_y)
+            return
+
+        rfc.fit(iris_X, iris_y)
+        if importance == "none":
+            with pytest.raises(ValueError):
+                _ = rfc.feature_importances_
+        else:
+            assert len(rfc.feature_importances_) == iris_X.shape[1]
+
+    def test_check_estimator(self):
+        check_estimator(RangerForestClassifier())

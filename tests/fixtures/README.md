@@ -1,0 +1,1 @@
+This dataset is from [scikit-survival](https://github.com/sebp/scikit-survival/blob/master/sksurv/datasets/data/veteran.arff). We copy it here with license rather than adding scikit-survival as a dependency to keep development dependencies light and with less chance of conflict or build issues.

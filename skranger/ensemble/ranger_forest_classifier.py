@@ -4,7 +4,7 @@ import bisect
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import ClassifierMixin
-from sklearn.utils import check_X_y
+from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import _check_sample_weight
 from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
@@ -29,9 +29,9 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
     :param int min_node_size: The minimal node size.
     :param int max_depth: The maximal tree depth; 0 means unlimited.
     :param bool replace: Sample with replacement.
-    :param float/list sample_fraction: The fraction of observations to sample. The default is 1
-        when sampling with replacement, and 0.632 otherwise. This can be a list of
-        class specific values.
+    :param float/list sample_fraction: The fraction of observations to sample. The
+        default is 1 when sampling with replacement, and 0.632 otherwise. This can be a
+        list of class specific values.
     :param list class_weights: Weights for the outcome classes.
     :param bool keep_inbag: If true, save how often observations are in-bag in each
         tree. These will be stored in the ``ranger_forest_`` attribute under the key
@@ -64,9 +64,10 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
     :param bool save_memory: Save memory at the cost of speed growing trees.
     :param int seed: Random seed value.
 
-    :ivar list classes\_: The class labels determined from the fit input ``y``.
+    :ivar ndarray classes\_: The class labels determined from the fit input ``y``.
     :ivar int n_classes\_: The number of unique class labels from the fit input ``y``.
-    :ivar int n_features\_: The number of features (columns) from the fit input ``X``.
+    :ivar int n_features_in\_: The number of features (columns) from the fit input
+        ``X``.
     :ivar list feature_names\_: Names for the features of the fit input ``X``.
     :ivar dict ranger_forest\_: The returned result object from calling C++ ranger.
     :ivar int mtry\_: The mtry value as determined if ``mtry`` is callable, otherwise
@@ -81,9 +82,12 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         ``SplitRule``.
     :ivar bool use_regularization_factor\_: Input validation determined bool for using
         regularization factor input parameter.
+    :ivar str respect_categorical_features\_: Input validation determined string
+        respecting categorical features.
     :ivar int importance_mode\_: The importance mode integer corresponding to ranger
         enum ``ImportanceMode``.
     :ivar list ranger_class_order\_: The class reference ordering derived from ranger.
+    :ivar ndarray feature_importances\_: The variable importances from ranger.
     """
 
     def __init__(
@@ -152,12 +156,23 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         self.tree_type_ = 9  # tree_type, TREE_PROBABILITY enables predict_proba
 
         # Check input
-        X, y = check_X_y(X, y)
-        if sample_weight is not None:
-            sample_weight = _check_sample_weight(sample_weight, X)
+        X, y = self._validate_data(X, y)
+        check_classification_targets(y)
 
         # Check the init parameters
         self._validate_parameters(X, y, sample_weight)
+
+        if sample_weight is not None:
+            sample_weight = _check_sample_weight(sample_weight, X)
+            use_sample_weight = True
+            # ranger does additional rng on samples if weights are passed.
+            # if the weights are ones, then we dont want that extra rng.
+            if np.array_equal(np.unique(sample_weight), np.array([1.0])):
+                sample_weight = []
+                use_sample_weight = False
+        else:
+            sample_weight = []
+            use_sample_weight = False
 
         # Map classes to indices
         y = np.copy(y)
@@ -166,7 +181,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
 
         # Set X info
         self.feature_names_ = [str(c).encode() for c in range(X.shape[1])]
-        self.n_features_ = X.shape[1]
+        self._check_n_features(X, reset=True)
 
         if self.always_split_features is not None:
             always_split_features = [str(c).encode() for c in self.always_split_features]
@@ -200,8 +215,8 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             bool(self.categorical_features_),  # use_unordered_variable_names
             self.save_memory,
             self.split_rule_,
-            sample_weight or [],  # case_weights
-            bool(sample_weight),  # use_case_weights
+            sample_weight,  # case_weights
+            use_sample_weight,  # use_case_weights
             self.class_weights or [],
             False,  # predict_all
             self.keep_inbag,
@@ -239,6 +254,7 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
         """
         check_is_fitted(self)
         X = check_array(X)
+        self._check_n_features(X, reset=False)
 
         result = ranger.ranger(
             self.tree_type_,
@@ -323,3 +339,10 @@ class RangerForestClassifier(RangerValidationMixin, ClassifierMixin, BaseEstimat
             result.append(bisect.bisect_left(vimp_dist, vimp[i]))
         pval = 1 - np.array(result) / len(vimp_dist)
         return pval
+
+    def _more_tags(self):
+        return {
+            "_xfail_checks": {
+                "check_sample_weights_invariance": "zero sample_weight is not equivalent to removing samples",
+            }
+        }

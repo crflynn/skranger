@@ -7,6 +7,7 @@ import pytest
 from sklearn.base import clone
 from sklearn.exceptions import NotFittedError
 from sklearn.model_selection import train_test_split
+from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import RangerForestRegressor
@@ -23,7 +24,7 @@ class TestRangerForestRegressor:
         rfr.fit(boston_X, boston_y)
         check_is_fitted(rfr)
         assert hasattr(rfr, "ranger_forest_")
-        assert hasattr(rfr, "n_features_")
+        assert hasattr(rfr, "n_features_in_")
 
     def test_predict(self, boston_X, boston_y):
         rfr = RangerForestRegressor()
@@ -104,7 +105,7 @@ class TestRangerForestRegressor:
 
         # Test error for no non-negative importance values
 
-        if mod == 'std':
+        if mod == "none":
             with pytest.raises(ValueError):
                 rfc.fit(boston_X_mod, boston_y)
                 rfc.get_importance_pvalues()
@@ -151,14 +152,14 @@ class TestRangerForestRegressor:
         with pytest.raises(ValueError):
             rfr.fit(boston_X, boston_y)
 
-    def test_sample_fraction(self, iris_X, iris_y):
+    def test_sample_fraction(self, boston_X, boston_y):
         rfr = RangerForestRegressor(sample_fraction=0.69)
-        rfr.fit(iris_X, iris_y)
+        rfr.fit(boston_X, boston_y)
         assert rfr.sample_fraction_ == [0.69]
 
         # test with single record
-        iris_X_record = iris_X[0:1, :]
-        pred = rfr.predict(iris_X_record)
+        boston_X_record = boston_X[0:1, :]
+        pred = rfr.predict(boston_X_record)
         assert len(pred) == 1
 
     def test_sample_fraction_replace(self, boston_X, boston_y, replace):
@@ -279,3 +280,23 @@ class TestRangerForestRegressor:
         assert quantiles_upper.ndim == 1
         quantiles = rfr.predict_quantiles(X_test, quantiles=[0.1, 0.9])
         assert quantiles.ndim == 2
+
+    def test_feature_importances_(self, boston_X, boston_y, importance, local_importance):
+        rfr = RangerForestRegressor(importance=importance, local_importance=local_importance)
+        with pytest.raises(AttributeError):
+            _ = rfr.feature_importances_
+
+        if importance == "INVALID":
+            with pytest.raises(ValueError):
+                rfr.fit(boston_X, boston_y)
+            return
+
+        rfr.fit(boston_X, boston_y)
+        if importance == "none":
+            with pytest.raises(ValueError):
+                _ = rfr.feature_importances_
+        else:
+            assert len(rfr.feature_importances_) == boston_X.shape[1]
+
+    def test_check_estimator(self):
+        check_estimator(RangerForestRegressor())

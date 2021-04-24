@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 from sklearn.base import clone
 from sklearn.exceptions import NotFittedError
+from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import RangerForestSurvival
@@ -26,7 +27,7 @@ class TestRangerForestSurvival:
         assert hasattr(rfs, "event_times_")
         assert hasattr(rfs, "cumulative_hazard_function_")
         assert hasattr(rfs, "ranger_forest_")
-        assert hasattr(rfs, "n_features_")
+        assert hasattr(rfs, "n_features_in_")
 
     def test_predict(self, lung_X, lung_y):
         rfs = RangerForestSurvival(n_estimators=N_ESTIMATORS)
@@ -241,3 +242,41 @@ class TestRangerForestSurvival:
         # feature 0 is in every tree split
         for tree in rfs.ranger_forest_["forest"]["split_var_ids"]:
             assert 0 in tree
+
+    def test_feature_importances_(self, lung_X, lung_y, importance, local_importance):
+        rfs = RangerForestSurvival(importance=importance, local_importance=local_importance)
+        with pytest.raises(AttributeError):
+            _ = rfs.feature_importances_
+
+        if importance == "INVALID":
+            with pytest.raises(ValueError):
+                rfs.fit(lung_X, lung_y)
+            return
+
+        rfs.fit(lung_X, lung_y)
+        if importance == "none":
+            with pytest.raises(ValueError):
+                _ = rfs.feature_importances_
+        else:
+            assert len(rfs.feature_importances_) == lung_X.shape[1]
+
+    def test_sample_weight(self, lung_X, lung_y):
+        rfs_w = RangerForestSurvival()
+        rfs_w.fit(lung_X, lung_y, sample_weight=[1] * len(lung_y))
+        rfs = RangerForestSurvival()
+        rfs.fit(lung_X, lung_y)
+
+        pred_w = rfs_w.predict(lung_X)
+        pred = rfs.predict(lung_X)
+
+        np.testing.assert_array_equal(pred.reshape(-1, 1), pred_w.reshape(-1, 1))
+
+    def test_get_tags(self):
+        rfs = RangerForestSurvival()
+        tags = rfs._get_tags()
+        assert tags["requires_y"]
+
+    # We can't check this because we conform to scikit-survival api,
+    # rather than scikit-learn's
+    # def test_check_estimator(self):
+    #     check_estimator(RangerForestSurvival())

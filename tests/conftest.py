@@ -1,13 +1,27 @@
 import math
+import pathlib
 
-import pytest
 import numpy as np
+import pandas as pd
+import pytest
+from scipy.io.arff import loadarff
 from sklearn.datasets import load_boston
 from sklearn.datasets import load_iris
-from sksurv.datasets import load_veterans_lung_cancer
 
-_boston_X, _boston_y = load_boston(True)
-_iris_X, _iris_y = load_iris(True)
+
+def load_veterans_lung_cancer():
+    this_file = pathlib.Path(__file__)
+    data_file = this_file.parent / "fixtures" / "veteran.arff"
+    data = loadarff(data_file)
+    df = pd.DataFrame(data=data[0], columns=list(data[1].names()))
+    df["y"] = list(zip(df["Status"] == b"dead", df["Survival_in_days"]))
+    y = df["y"]
+    X = df.drop(["y", "Status", "Survival_in_days"], axis=1)
+    return X, y
+
+
+_boston_X, _boston_y = load_boston(return_X_y=True)
+_iris_X, _iris_y = load_iris(return_X_y=True)
 _lung_X, _lung_y = load_veterans_lung_cancer()
 
 
@@ -26,33 +40,35 @@ def iris_X():
     return _iris_X
 
 
-@pytest.fixture(params=['std','rand','rand_const'])
+@pytest.fixture(params=["none", "random", "const"])
 def mod(request):
     return request.param
 
 
 @pytest.fixture
 def iris_X_mod(mod):
-    if mod == 'std':
+    if mod == "none":
         return _iris_X
-    elif mod == 'rand':
+    elif mod == "random":
         np.random.seed(42)
-        return np.concatenate((_iris_X, np.random.uniform(size=(_iris_X.shape[0],1))),1)
-    elif mod == 'rand_const':
+        return np.concatenate((_iris_X, np.random.uniform(size=(_iris_X.shape))), 1)
+    elif mod == "const":
         np.random.seed(42)
-        return np.concatenate((_iris_X, np.random.uniform(size=(_iris_X.shape[0],3)), np.zeros(shape=(_iris_X.shape[0],3))),1)
-        
+        return np.concatenate((_iris_X, np.random.uniform(size=(_iris_X.shape)), np.zeros(shape=(_iris_X.shape))), 1)
+
 
 @pytest.fixture
 def boston_X_mod(mod):
-    if mod == 'std':
+    if mod == "none":
         return _boston_X
-    elif mod == 'rand':
+    elif mod == "random":
         np.random.seed(42)
-        return np.concatenate((_boston_X, np.random.uniform(size=(_boston_X.shape[0],3))),1)
-    elif mod == 'rand_const':
+        return np.concatenate((_boston_X, np.random.uniform(size=(_boston_X.shape))), 1)
+    elif mod == "const":
         np.random.seed(42)
-        return np.concatenate((_boston_X, np.random.uniform(size=(_boston_X.shape[0],3)), np.zeros(shape=(_boston_X.shape[0],3))),1)
+        return np.concatenate(
+            (_boston_X, np.random.uniform(size=(_boston_X.shape)), np.zeros(shape=(_boston_X.shape))), 1
+        )
 
 
 @pytest.fixture
