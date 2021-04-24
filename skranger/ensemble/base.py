@@ -24,11 +24,10 @@ class RangerBase:
             ) from None
 
     def get_importance_pvalues(self):
-        """Calculate p-values for variable importance.
+        """Calculate p-values for variable importances.
 
         Uses the fast method from Janitza et al. (2016).
         """
-
         check_is_fitted(self)
         if self.importance != "impurity_corrected":
             raise ValueError(
