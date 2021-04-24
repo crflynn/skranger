@@ -7,7 +7,7 @@ from sklearn.exceptions import NotFittedError
 from sklearn.utils.validation import check_is_fitted
 
 
-class RangerBase:
+class RangerMixin:
     @property
     def feature_importances_(self):
         try:

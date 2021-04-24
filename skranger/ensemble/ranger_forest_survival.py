@@ -6,10 +6,10 @@ from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import ranger
-from skranger.ensemble.base import RangerBase
+from skranger.ensemble.base import RangerMixin
 
 
-class RangerForestSurvival(RangerBase, BaseEstimator):
+class RangerForestSurvival(RangerMixin, BaseEstimator):
     r"""Ranger Random Forest Survival implementation for sci-kit survival.
 
     Provides a sksurv interface to the Ranger C++ library using Cython. The

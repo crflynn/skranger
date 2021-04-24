@@ -8,10 +8,10 @@ from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import ranger
-from skranger.ensemble.base import RangerBase
+from skranger.ensemble.base import RangerMixin
 
 
-class RangerForestClassifier(RangerBase, ClassifierMixin, BaseEstimator):
+class RangerForestClassifier(RangerMixin, ClassifierMixin, BaseEstimator):
     r"""Ranger Random Forest Probability/Classification implementation for sci-kit learn.
 
     Provides a sklearn classifier interface to the Ranger C++ library using Cython.
