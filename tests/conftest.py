@@ -54,7 +54,14 @@ def iris_X_mod(mod):
         return np.concatenate((_iris_X, np.random.uniform(size=(_iris_X.shape))), 1)
     elif mod == "const":
         np.random.seed(42)
-        return np.concatenate((_iris_X, np.random.uniform(size=(_iris_X.shape)), np.zeros(shape=(_iris_X.shape))), 1)
+        return np.concatenate(
+            (
+                _iris_X,
+                np.random.uniform(size=(_iris_X.shape)),
+                np.zeros(shape=(_iris_X.shape)),
+            ),
+            1,
+        )
 
 
 @pytest.fixture
@@ -67,7 +74,12 @@ def boston_X_mod(mod):
     elif mod == "const":
         np.random.seed(42)
         return np.concatenate(
-            (_boston_X, np.random.uniform(size=(_boston_X.shape)), np.zeros(shape=(_boston_X.shape))), 1
+            (
+                _boston_X,
+                np.random.uniform(size=(_boston_X.shape)),
+                np.zeros(shape=(_boston_X.shape)),
+            ),
+            1,
         )
 
 
