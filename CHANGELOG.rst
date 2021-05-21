@@ -1,6 +1,19 @@
 Release Changelog
 -----------------
 
+0.4.0 (2021-04-23)
+~~~~~~~~~~~~~~~~~~
+
+* Add ``get_importance_pvalues`` method to estimators (thanks `kmacdon <https://github.com/kmacdon>`__)
+* Add ``feature_importances_`` attribute, similar to sklearn forests
+* Ensure ``self.respect_categorical_features`` is unchanged when fitting by introducing ``self.respect_categorical_features_``
+* Change ``self.n_features_`` to ``self.n_features_in_``
+* Add validation to classification targets, ensuring regression targets can't be passed to classifier
+* Add sample weight validation to ensure that passing weights of ones results in identical output when passing None. We do this because ranger does additional RNG on weighted sampling when non-null weights are passed.
+* Use ``self._validate_data`` in lieu of ``check_X_y`` when possible
+* Use ``self._check_n_features`` in lieu of manually setting n features
+* Add tags to estimators
+
 0.3.2 (2021-01-18)
 ~~~~~~~~~~~~~~~~~~
 
