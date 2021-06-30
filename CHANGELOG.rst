@@ -1,6 +1,11 @@
 Release Changelog
 -----------------
 
+0.4.1 (2021-06-29)
+~~~~~~~~~~~~~~~~~~
+
+* Set an explicit lower bound on sklearn version.
+
 0.4.0 (2021-04-23)
 ~~~~~~~~~~~~~~~~~~
 
