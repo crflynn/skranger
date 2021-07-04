@@ -20,68 +20,68 @@ class TestRangerForestClassifier:
         _ = RangerForestClassifier()
 
     def test_fit(self, iris_X, iris_y):
-        rfc = RangerForestClassifier()
+        forest = RangerForestClassifier()
         with pytest.raises(NotFittedError):
-            check_is_fitted(rfc)
-        rfc.fit(iris_X, iris_y)
-        check_is_fitted(rfc)
-        assert hasattr(rfc, "classes_")
-        assert hasattr(rfc, "n_classes_")
-        assert hasattr(rfc, "ranger_forest_")
-        assert hasattr(rfc, "ranger_class_order_")
-        assert hasattr(rfc, "n_features_in_")
+            check_is_fitted(forest)
+        forest.fit(iris_X, iris_y)
+        check_is_fitted(forest)
+        assert hasattr(forest, "classes_")
+        assert hasattr(forest, "n_classes_")
+        assert hasattr(forest, "ranger_forest_")
+        assert hasattr(forest, "ranger_class_order_")
+        assert hasattr(forest, "n_features_in_")
 
     def test_predict(self, iris_X, iris_y):
-        rfc = RangerForestClassifier()
-        rfc.fit(iris_X, iris_y)
-        pred = rfc.predict(iris_X)
+        forest = RangerForestClassifier()
+        forest.fit(iris_X, iris_y)
+        pred = forest.predict(iris_X)
         assert len(pred) == iris_X.shape[0]
 
         # test with single record
         iris_X_record = iris_X[0:1, :]
-        pred = rfc.predict(iris_X_record)
+        pred = forest.predict(iris_X_record)
         assert len(pred) == 1
 
     def test_predict_proba(self, iris_X, iris_y):
-        rfc = RangerForestClassifier()
-        rfc.fit(iris_X, iris_y)
-        pred = rfc.predict_proba(iris_X)
+        forest = RangerForestClassifier()
+        forest.fit(iris_X, iris_y)
+        pred = forest.predict_proba(iris_X)
         assert len(pred) == iris_X.shape[0]
 
         # test with single record
         iris_X_record = iris_X[0:1, :]
-        pred = rfc.predict_proba(iris_X_record)
+        pred = forest.predict_proba(iris_X_record)
         assert len(pred) == 1
 
     def test_predict_log_proba(self, iris_X, iris_y):
-        rfc = RangerForestClassifier()
-        rfc.fit(iris_X, iris_y)
-        pred = rfc.predict_log_proba(iris_X)
+        forest = RangerForestClassifier()
+        forest.fit(iris_X, iris_y)
+        pred = forest.predict_log_proba(iris_X)
         assert len(pred) == iris_X.shape[0]
 
         # test with single record
         iris_X_record = iris_X[0:1, :]
-        pred = rfc.predict_log_proba(iris_X_record)
+        pred = forest.predict_log_proba(iris_X_record)
         assert len(pred) == 1
 
     def test_serialize(self, iris_X, iris_y):
         tf = tempfile.TemporaryFile()
-        rfc = RangerForestClassifier()
-        rfc.fit(iris_X, iris_y)
-        pickle.dump(rfc, tf)
+        forest = RangerForestClassifier()
+        forest.fit(iris_X, iris_y)
+        pickle.dump(forest, tf)
         tf.seek(0)
-        new_rfc = pickle.load(tf)
-        pred = new_rfc.predict(iris_X)
+        new_forest = pickle.load(tf)
+        pred = new_forest.predict(iris_X)
         assert len(pred) == iris_X.shape[0]
 
     def test_clone(self, iris_X, iris_y):
-        rfc = RangerForestClassifier()
-        rfc.fit(iris_X, iris_y)
-        clone(rfc)
+        forest = RangerForestClassifier()
+        forest.fit(iris_X, iris_y)
+        clone(forest)
 
     def test_verbose(self, iris_X, iris_y, verbose, capfd):
-        rfc = RangerForestClassifier(verbose=verbose)
-        rfc.fit(iris_X, iris_y)
+        forest = RangerForestClassifier(verbose=verbose)
+        forest.fit(iris_X, iris_y)
         captured = capfd.readouterr()
         if verbose:
             assert len(captured.out) > 0
@@ -91,7 +91,7 @@ class TestRangerForestClassifier:
     def test_importance(
         self, iris_X, iris_y, importance, scale_permutation_importance, local_importance
     ):
-        rfc = RangerForestClassifier(
+        forest = RangerForestClassifier(
             importance=importance,
             scale_permutation_importance=scale_permutation_importance,
             local_importance=local_importance,
@@ -99,112 +99,112 @@ class TestRangerForestClassifier:
 
         if importance not in ["none", "impurity", "impurity_corrected", "permutation"]:
             with pytest.raises(ValueError):
-                rfc.fit(iris_X, iris_y)
+                forest.fit(iris_X, iris_y)
             return
 
-        rfc.fit(iris_X, iris_y)
+        forest.fit(iris_X, iris_y)
         if importance == "none":
-            assert rfc.importance_mode_ == 0
+            assert forest.importance_mode_ == 0
         elif importance == "impurity":
-            assert rfc.importance_mode_ == 1
+            assert forest.importance_mode_ == 1
         elif importance == "impurity_corrected":
-            assert rfc.importance_mode_ == 5
+            assert forest.importance_mode_ == 5
         elif importance == "permutation":
             if local_importance:
-                assert rfc.importance_mode_ == 6
+                assert forest.importance_mode_ == 6
             elif scale_permutation_importance:
-                assert rfc.importance_mode_ == 2
+                assert forest.importance_mode_ == 2
             else:
-                assert rfc.importance_mode_ == 3
+                assert forest.importance_mode_ == 3
 
     def test_importance_pvalues(self, iris_X_mod, iris_y, importance, mod):
-        rfc = RangerForestClassifier(importance=importance)
+        forest = RangerForestClassifier(importance=importance)
         np.random.seed(42)
 
         if importance not in ["none", "impurity", "impurity_corrected", "permutation"]:
             with pytest.raises(ValueError):
-                rfc.fit(iris_X_mod, iris_y)
+                forest.fit(iris_X_mod, iris_y)
             return
 
         if not importance == "impurity_corrected":
-            rfc.fit(iris_X_mod, iris_y)
+            forest.fit(iris_X_mod, iris_y)
             with pytest.raises(ValueError):
-                rfc.get_importance_pvalues()
+                forest.get_importance_pvalues()
             return
 
         # Test error for no non-negative importance values
         if mod == "none":
-            rfc.fit(iris_X_mod, iris_y)
+            forest.fit(iris_X_mod, iris_y)
             with pytest.raises(ValueError):
-                rfc.get_importance_pvalues()
+                forest.get_importance_pvalues()
             return
 
-        rfc.fit(iris_X_mod, iris_y)
-        assert len(rfc.get_importance_pvalues()) == iris_X_mod.shape[1]
+        forest.fit(iris_X_mod, iris_y)
+        assert len(forest.get_importance_pvalues()) == iris_X_mod.shape[1]
 
     def test_mtry(self, iris_X, iris_y, mtry):
-        rfc = RangerForestClassifier(mtry=mtry)
+        forest = RangerForestClassifier(mtry=mtry)
 
         if callable(mtry) and mtry(5) > 5:
             with pytest.raises(ValueError):
-                rfc.fit(iris_X, iris_y)
+                forest.fit(iris_X, iris_y)
             return
         elif not callable(mtry) and (mtry < 0 or mtry > iris_X.shape[0]):
             with pytest.raises(ValueError):
-                rfc.fit(iris_X, iris_y)
+                forest.fit(iris_X, iris_y)
             return
 
-        rfc.fit(iris_X, iris_y)
+        forest.fit(iris_X, iris_y)
         if callable(mtry):
-            assert rfc.mtry_ == mtry(iris_X.shape[1])
+            assert forest.mtry_ == mtry(iris_X.shape[1])
         else:
-            assert rfc.mtry_ == mtry
+            assert forest.mtry_ == mtry
 
     def test_inbag(self, iris_X, iris_y):
         inbag = [[1, 2, 3], [2, 3, 4]]
-        rfc = RangerForestClassifier(n_estimators=2, inbag=inbag)
-        rfc.fit(iris_X, iris_y)
+        forest = RangerForestClassifier(n_estimators=2, inbag=inbag)
+        forest.fit(iris_X, iris_y)
 
         # inbag list different length from n_estimators
-        rfc = RangerForestClassifier(n_estimators=1, inbag=inbag)
+        forest = RangerForestClassifier(n_estimators=1, inbag=inbag)
         with pytest.raises(ValueError):
-            rfc.fit(iris_X, iris_y)
+            forest.fit(iris_X, iris_y)
 
         # can't use inbag with sample weight
-        rfc = RangerForestClassifier(inbag=inbag)
+        forest = RangerForestClassifier(inbag=inbag)
         with pytest.raises(ValueError):
-            rfc.fit(iris_X, iris_y, sample_weight=[1] * len(iris_y))
+            forest.fit(iris_X, iris_y, sample_weight=[1] * len(iris_y))
 
         # can't use class sampling and inbag
-        rfc = RangerForestClassifier(inbag=inbag, sample_fraction=[1, 1])
+        forest = RangerForestClassifier(inbag=inbag, sample_fraction=[1, 1])
         with pytest.raises(ValueError):
-            rfc.fit(iris_X, iris_y)
+            forest.fit(iris_X, iris_y)
 
     def test_sample_fraction(self, iris_X, iris_y):
-        rfc = RangerForestClassifier(sample_fraction=[0.69])
-        rfc.fit(iris_X, iris_y)
-        assert rfc.sample_fraction_ == [0.69]
-        rfc = RangerForestClassifier(sample_fraction=0.69)
-        rfc.fit(iris_X, iris_y)
-        assert rfc.sample_fraction_ == [0.69]
+        forest = RangerForestClassifier(sample_fraction=[0.69])
+        forest.fit(iris_X, iris_y)
+        assert forest.sample_fraction_ == [0.69]
+        forest = RangerForestClassifier(sample_fraction=0.69)
+        forest.fit(iris_X, iris_y)
+        assert forest.sample_fraction_ == [0.69]
 
         # test with single record
         iris_X_record = iris_X[0:1, :]
-        pred = rfc.predict(iris_X_record)
+        pred = forest.predict(iris_X_record)
         assert len(pred) == 1
-        pred = rfc.predict_proba(iris_X_record)
+        pred = forest.predict_proba(iris_X_record)
         assert len(pred) == 1
-        pred = rfc.predict_log_proba(iris_X_record)
+        pred = forest.predict_log_proba(iris_X_record)
         assert len(pred) == 1
 
     def test_sample_fraction_replace(self, iris_X, iris_y, replace):
-        rfc = RangerForestClassifier(replace=replace)
-        rfc.fit(iris_X, iris_y)
+        forest = RangerForestClassifier(replace=replace)
+        forest.fit(iris_X, iris_y)
 
         if replace:
-            assert rfc.sample_fraction_ == [1.0]
+            assert forest.sample_fraction_ == [1.0]
         else:
-            assert rfc.sample_fraction_ == [0.632]
+            assert forest.sample_fraction_ == [0.632]
 
     def test_categorical_features(self, iris_X, iris_y, respect_categorical_features):
         # add a categorical feature
@@ -214,107 +214,107 @@ class TestRangerForestClassifier:
         iris_X_c = np.hstack((iris_X, categorical_col.transpose()))
         categorical_features = [iris_X.shape[1]]
 
-        rfc = RangerForestClassifier(
+        forest = RangerForestClassifier(
             respect_categorical_features=respect_categorical_features,
         )
 
         if respect_categorical_features not in ["partition", "ignore", "order"]:
             with pytest.raises(ValueError):
-                rfc.fit(iris_X_c, iris_y, categorical_features=categorical_features)
+                forest.fit(iris_X_c, iris_y, categorical_features=categorical_features)
             return
 
-        rfc.fit(iris_X_c, iris_y, categorical_features=categorical_features)
+        forest.fit(iris_X_c, iris_y, categorical_features=categorical_features)
 
     def test_split_rule(self, iris_X, iris_y, split_rule):
-        rfc = RangerForestClassifier(split_rule=split_rule)
+        forest = RangerForestClassifier(split_rule=split_rule)
 
         if split_rule not in ["gini", "extratrees", "hellinger"]:
             with pytest.raises(ValueError):
-                rfc.fit(iris_X, iris_y)
+                forest.fit(iris_X, iris_y)
             return
 
         # hellinger can only be used in binary classification
         if split_rule == "hellinger":
             with pytest.raises(ValueError):
-                rfc.fit(iris_X, iris_y)
+                forest.fit(iris_X, iris_y)
 
         iris_2 = [0 if v == 2 else v for v in iris_y]
-        rfc.fit(iris_X, iris_2)
+        forest.fit(iris_X, iris_2)
 
         if split_rule == "gini":
-            assert rfc.split_rule_ == 1
+            assert forest.split_rule_ == 1
         elif split_rule == "extratrees":
-            assert rfc.split_rule_ == 5
+            assert forest.split_rule_ == 5
         if split_rule == "hellinger":
-            assert rfc.split_rule_ == 7
+            assert forest.split_rule_ == 7
 
         if split_rule == "extratrees":
-            rfc = RangerForestClassifier(
+            forest = RangerForestClassifier(
                 split_rule=split_rule,
                 respect_categorical_features="partition",
                 save_memory=True,
             )
             with pytest.raises(ValueError):
-                rfc.fit(iris_X, iris_y)
+                forest.fit(iris_X, iris_y)
         else:
-            rfc = RangerForestClassifier(split_rule=split_rule, num_random_splits=2)
+            forest = RangerForestClassifier(split_rule=split_rule, num_random_splits=2)
             with pytest.raises(ValueError):
-                rfc.fit(iris_X, iris_y)
+                forest.fit(iris_X, iris_y)
 
     def test_split_select_weights(self, iris_X, iris_y):
         n_trees = 10
         weights = [0.1] * iris_X.shape[1]
-        rfc = RangerForestClassifier(n_estimators=n_trees)
-        rfc.fit(iris_X, iris_y, split_select_weights=weights)
+        forest = RangerForestClassifier(n_estimators=n_trees)
+        forest.fit(iris_X, iris_y, split_select_weights=weights)
 
         weights = [0.1] * (iris_X.shape[1] - 1)
-        rfc = RangerForestClassifier(n_estimators=n_trees)
+        forest = RangerForestClassifier(n_estimators=n_trees)
 
         with pytest.raises(RuntimeError):
-            rfc.fit(iris_X, iris_y, split_select_weights=weights)
+            forest.fit(iris_X, iris_y, split_select_weights=weights)
 
         weights = [[0.1] * (iris_X.shape[1])] * n_trees
-        rfc = RangerForestClassifier(n_estimators=n_trees)
-        rfc.fit(iris_X, iris_y, split_select_weights=weights)
+        forest = RangerForestClassifier(n_estimators=n_trees)
+        forest.fit(iris_X, iris_y, split_select_weights=weights)
 
         weights = [[0.1] * (iris_X.shape[1])] * (n_trees + 1)
-        rfc = RangerForestClassifier(n_estimators=n_trees)
+        forest = RangerForestClassifier(n_estimators=n_trees)
         with pytest.raises(RuntimeError):
-            rfc.fit(iris_X, iris_y, split_select_weights=weights)
+            forest.fit(iris_X, iris_y, split_select_weights=weights)
 
     def test_regularization(self, iris_X, iris_y):
-        rfc = RangerForestClassifier()
-        rfc.fit(iris_X, iris_y)
-        assert rfc.regularization_factor_ == []
-        assert not rfc.use_regularization_factor_
+        forest = RangerForestClassifier()
+        forest.fit(iris_X, iris_y)
+        assert forest.regularization_factor_ == []
+        assert not forest.use_regularization_factor_
 
         # vector must be between 0 and 1 and length matching feature num
         for r in [[1.1], [-0.1], [1, 1]]:
-            rfc = RangerForestClassifier(regularization_factor=r)
+            forest = RangerForestClassifier(regularization_factor=r)
             with pytest.raises(ValueError):
-                rfc.fit(iris_X, iris_y)
+                forest.fit(iris_X, iris_y)
 
         # vector of ones isn't applied
-        rfc = RangerForestClassifier(regularization_factor=[1] * iris_X.shape[1])
-        rfc.fit(iris_X, iris_y)
-        assert rfc.regularization_factor_ == []
-        assert not rfc.use_regularization_factor_
+        forest = RangerForestClassifier(regularization_factor=[1] * iris_X.shape[1])
+        forest.fit(iris_X, iris_y)
+        assert forest.regularization_factor_ == []
+        assert not forest.use_regularization_factor_
 
         # regularization vector is used
         reg = [0.5]
-        rfc = RangerForestClassifier(regularization_factor=reg, n_jobs=2)
+        forest = RangerForestClassifier(regularization_factor=reg, n_jobs=2)
         # warns if n_jobs is not one since parallelization can't be used
         with pytest.warns(Warning):
-            rfc.fit(iris_X, iris_y)
-        assert rfc.n_jobs_ == 1
-        assert rfc.regularization_factor_ == reg
-        assert rfc.use_regularization_factor_
+            forest.fit(iris_X, iris_y)
+        assert forest.n_jobs_ == 1
+        assert forest.regularization_factor_ == reg
+        assert forest.use_regularization_factor_
 
     def test_always_split_features(self, iris_X, iris_y):
-        rfc = RangerForestClassifier()
-        rfc.fit(iris_X, iris_y, always_split_features=[0])
+        forest = RangerForestClassifier()
+        forest.fit(iris_X, iris_y, always_split_features=[0])
         # feature 0 is in every tree split
-        for tree in rfc.ranger_forest_["forest"]["split_var_ids"]:
+        for tree in forest.ranger_forest_["forest"]["split_var_ids"]:
             assert 0 in tree
 
     def test_accuracy(self, iris_X, iris_y):
@@ -339,23 +339,23 @@ class TestRangerForestClassifier:
         assert ranger_acc > 0.9
 
     def test_feature_importances_(self, iris_X, iris_y, importance, local_importance):
-        rfc = RangerForestClassifier(
+        forest = RangerForestClassifier(
             importance=importance, local_importance=local_importance
         )
         with pytest.raises(AttributeError):
-            _ = rfc.feature_importances_
+            _ = forest.feature_importances_
 
         if importance == "INVALID":
             with pytest.raises(ValueError):
-                rfc.fit(iris_X, iris_y)
+                forest.fit(iris_X, iris_y)
             return
 
-        rfc.fit(iris_X, iris_y)
+        forest.fit(iris_X, iris_y)
         if importance == "none":
             with pytest.raises(ValueError):
-                _ = rfc.feature_importances_
+                _ = forest.feature_importances_
         else:
-            assert len(rfc.feature_importances_) == iris_X.shape[1]
+            assert len(forest.feature_importances_) == iris_X.shape[1]
 
     def test_check_estimator(self):
         check_estimator(RangerForestClassifier())
