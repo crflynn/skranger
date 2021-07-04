@@ -199,6 +199,7 @@ class TestRangerForestRegressor:
             return
 
         forest.fit(boston_X_c, boston_y)
+        forest.predict(boston_X_c)
 
     def test_split_rule(self, boston_X, boston_y, split_rule):
         forest = RangerForestRegressor(split_rule=split_rule)

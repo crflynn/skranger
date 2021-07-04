@@ -205,6 +205,7 @@ class TestRangerForestSurvival:
             return
 
         forest.fit(lung_X_c, lung_y, categorical_features=categorical_features)
+        forest.predict(lung_X_c)
 
     def test_split_rule(self, lung_X, lung_y, split_rule):
         forest = RangerForestSurvival(split_rule=split_rule)

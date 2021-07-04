@@ -224,6 +224,7 @@ class TestRangerForestClassifier:
             return
 
         forest.fit(iris_X_c, iris_y, categorical_features=categorical_features)
+        forest.predict(iris_X_c)
 
     def test_split_rule(self, iris_X, iris_y, split_rule):
         forest = RangerForestClassifier(split_rule=split_rule)
