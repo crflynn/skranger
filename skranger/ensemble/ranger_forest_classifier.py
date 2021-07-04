@@ -39,13 +39,6 @@ class RangerForestClassifier(RangerMixin, ClassifierMixin, BaseEstimator):
     :param str split_rule: One of ``gini``, ``extratrees``, ``hellinger``;
         default ``gini``.
     :param int num_random_splits: The number of trees for the ``extratrees`` splitrule.
-    :param list split_select_weights: Vector of weights between 0 and 1 of probabilities
-        to select features for splitting. Can be a single vector or a vector of vectors
-        with one vector per tree.
-    :param list always_split_features:  Features which should always be selected for
-        splitting. A list of column index values.
-    :param list categorical_features: A list of column index values which should be
-        considered categorical, or unordered.
     :param str respect_categorical_features: One of ``ignore``, ``order``, ``partition``.
         The default is ``partition`` for the ``extratrees`` splitrule, otherwise the
         default is ``ignore``.
