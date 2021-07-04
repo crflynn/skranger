@@ -1,6 +1,12 @@
 Release Changelog
 -----------------
 
+0.4.1 (2021-07-04)
+~~~~~~~~~~~~~~~~~~
+
+* Set an explicit lower bound on sklearn version.
+* Fix a bug with ``split_select_weights``
+
 0.4.0 (2021-04-23)
 ~~~~~~~~~~~~~~~~~~
 
