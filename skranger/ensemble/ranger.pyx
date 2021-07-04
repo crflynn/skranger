@@ -97,8 +97,6 @@ cpdef dict ranger(
     bool holdout,
     ranger_.PredictionType prediction_type,
     unsigned int num_random_splits,
-    # sparse matrix sparse_x,
-    bool use_sparse_data,
     bool order_snps,
     bool oob_error,
     unsigned int max_depth,
