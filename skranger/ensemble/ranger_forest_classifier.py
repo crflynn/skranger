@@ -147,7 +147,8 @@ class RangerForestClassifier(RangerMixin, ClassifierMixin, BaseEstimator):
         :param array1d y: training input target classes
         :param array1d sample_weight: optional weights for input samples
         :param list split_select_weights: Vector of weights between 0 and 1 of probabilities
-            to select features for splitting.
+            to select features for splitting. Can be a single vector or a vector of vectors
+            with one vector per tree.
         :param list always_split_features:  Features which should always be selected for
             splitting. A list of column index values.
         :param list categorical_features: A list of column index values which should be
