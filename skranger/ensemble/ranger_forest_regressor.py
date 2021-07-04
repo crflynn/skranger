@@ -234,7 +234,6 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            False,  # use_sparse_data
             self.order_snps_,
             self.oob_error,
             self.max_depth,
@@ -302,7 +301,6 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
             self.holdout,
             2,  # prediction_type (terminal nodes)
             1,  # num_random_splits
-            False,  # use_sparse_data
             False,  # order_snps_
             False,  # oob_error
             0,  # max_depth
@@ -388,7 +386,6 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            False,  # use_sparse_data
             self.order_snps_,
             self.oob_error,
             self.max_depth,

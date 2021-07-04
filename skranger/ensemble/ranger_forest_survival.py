@@ -222,7 +222,6 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            False,  # use_sparse_data
             self.order_snps_,
             self.oob_error,
             self.max_depth,
@@ -283,7 +282,6 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            False,  # use_sparse_data
             self.order_snps_,
             self.oob_error,
             self.max_depth,
