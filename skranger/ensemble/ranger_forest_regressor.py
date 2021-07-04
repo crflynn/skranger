@@ -312,18 +312,17 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
         )
         return forest
 
-    def predict_quantiles(self, X, quantiles=None):
+    def predict_quantiles(self, X, quantiles):
         """Predict quantile regression target for X.
 
         :param array2d X: prediction input features
         :param list(float) quantiles: a list of quantiles on which to predict.
           If the list contains a single quantile, the result will be a 1darray.
           If there are multiple quantiles, the result will be a 2darray with
-          columns corresponding to respective quantiles. Default is ``[0.1, 0.5, 0.9]``.
+          columns corresponding to respective quantiles.
         """
         if not hasattr(self, "random_node_values_"):
             raise ValueError("Must set quantiles = True for quantile predictions.")
-        quantiles = quantiles or [0.1, 0.5, 0.9]
         check_is_fitted(self)
         X = check_array(X)
         self._check_n_features(X, reset=False)
@@ -338,13 +337,22 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
         quantile_predictions = np.nanquantile(node_values, quantiles, axis=1)
         if len(quantiles) == 1:
             return np.squeeze(quantile_predictions)
-        return quantile_predictions
+        return quantile_predictions.T
 
-    def predict(self, X):
+    def predict(self, X, quantiles=None):
         """Predict regression target for X.
 
+        If quantiles are passed, predict quantiles instead.
+
         :param array2d X: prediction input features
+        :param list(float) quantiles: a list of quantiles on which to predict.
+          If the list contains a single quantile, the result will be a 1darray.
+          If there are multiple quantiles, the result will be a 2darray with
+          columns corresponding to respective quantiles. If quantiles are not provided
+          the result is the regression target estimate.
         """
+        if quantiles is not None:
+            return self.predict_quantiles(X, quantiles)
         check_is_fitted(self)
         X = check_array(X)
         self._check_n_features(X, reset=False)

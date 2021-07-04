@@ -301,7 +301,7 @@ class TestRangerForestRegressor:
         forest.fit(X_train, y_train)
         assert not hasattr(forest, "random_node_values_")
         with pytest.raises(ValueError):
-            forest.predict_quantiles(X_test)
+            forest.predict_quantiles(X_test, quantiles=[0.2, 0.5, 0.8])
         forest = RangerForestRegressor(quantiles=True)
         forest.fit(X_train, y_train)
         assert hasattr(forest, "random_node_values_")
@@ -310,7 +310,13 @@ class TestRangerForestRegressor:
         assert np.less(quantiles_lower, quantiles_upper).all()
         assert quantiles_upper.ndim == 1
         quantiles = forest.predict_quantiles(X_test, quantiles=[0.1, 0.9])
-        assert quantiles.ndim == 2
+        assert quantiles.shape == (X_test.shape[0], 2)
+
+        # test predict method
+        pred = forest.predict(X_test, quantiles=[0.2, 0.5])
+        assert pred.shape == (X_test.shape[0], 2)
+        pred = forest.predict(X_test, quantiles=[0.2])
+        assert pred.ndim == 1
 
     def test_feature_importances_(
         self, boston_X, boston_y, importance, local_importance
