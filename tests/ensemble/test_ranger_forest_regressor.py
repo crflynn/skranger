@@ -245,6 +245,27 @@ class TestRangerForestRegressor:
             with pytest.raises(ValueError):
                 rfr.fit(boston_X, boston_y)
 
+    def test_split_select_weights(self, boston_X, boston_y):
+        n_trees = 10
+        weights = [0.1] * boston_X.shape[1]
+        rfr = RangerForestRegressor(n_estimators=n_trees, split_select_weights=weights)
+        rfr.fit(boston_X, boston_y)
+
+        weights = [0.1] * (boston_X.shape[1] - 1)
+        rfr = RangerForestRegressor(n_estimators=n_trees, split_select_weights=weights)
+
+        with pytest.raises(RuntimeError):
+            rfr.fit(boston_X, boston_y)
+
+        weights = [[0.1] * (boston_X.shape[1])] * n_trees
+        rfr = RangerForestRegressor(n_estimators=n_trees, split_select_weights=weights)
+        rfr.fit(boston_X, boston_y)
+
+        weights = [[0.1] * (boston_X.shape[1])] * (n_trees + 1)
+        rfr = RangerForestRegressor(n_estimators=n_trees, split_select_weights=weights)
+        with pytest.raises(RuntimeError):
+            rfr.fit(boston_X, boston_y)
+
     def test_regularization(self, boston_X, boston_y):
         rfr = RangerForestRegressor()
         rfr.fit(boston_X, boston_y)

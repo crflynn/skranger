@@ -211,7 +211,7 @@ cdef extern from "./ranger/src/Forest/Forest.h" namespace "ranger":
             int max_depth,
             const vector[double]& regularization_factor,
             bool regularization_usedepth,
-        )
+        ) except +
         void run(bool verbose, bool compute_oob_error)
         void saveToFile()
         vector[vector[vector[size_t]]] getChildNodeIDs()
