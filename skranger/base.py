@@ -1,11 +1,10 @@
 import bisect
 import warnings
-from collections.abc import Iterable
+from typing import Iterable
 
 import numpy as np
 from sklearn.exceptions import NotFittedError
-from sklearn.utils.validation import _check_sample_weight
-from sklearn.utils.validation import check_is_fitted
+from sklearn.utils.validation import check_is_fitted, _check_sample_weight
 
 
 class RangerMixin:

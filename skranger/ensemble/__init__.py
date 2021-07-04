@@ -1,3 +1,3 @@
-from skranger.ensemble.ranger_forest_classifier import RangerForestClassifier
-from skranger.ensemble.ranger_forest_regressor import RangerForestRegressor
-from skranger.ensemble.ranger_forest_survival import RangerForestSurvival
+from skranger.ensemble.classifier import RangerForestClassifier
+from skranger.ensemble.regressor import RangerForestRegressor
+from skranger.ensemble.survival import RangerForestSurvival

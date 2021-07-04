@@ -12,11 +12,11 @@ top = os.path.dirname(os.path.abspath(__file__))
 # requires running buildpre.py to find src in this location
 include_dirs = [
     top,
-    os.path.join(top, "skranger", "ensemble"),
-    os.path.join(top, "skranger", "ensemble", "ranger", "src"),
-    os.path.join(top, "skranger", "ensemble", "ranger", "src", "Forest"),
-    os.path.join(top, "skranger", "ensemble", "ranger", "src", "Tree"),
-    os.path.join(top, "skranger", "ensemble", "ranger", "src", "utility"),
+    os.path.join(top, "skranger"),
+    os.path.join(top, "skranger", "ranger", "src"),
+    os.path.join(top, "skranger", "ranger", "src", "Forest"),
+    os.path.join(top, "skranger", "ranger", "src", "Tree"),
+    os.path.join(top, "skranger", "ranger", "src", "utility"),
     np.get_include(),
 ]
 
