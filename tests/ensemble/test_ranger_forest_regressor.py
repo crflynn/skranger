@@ -200,13 +200,6 @@ class TestRangerForestRegressor:
 
         rfr.fit(boston_X_c, boston_y)
 
-        if respect_categorical_features in ("ignore", "order"):
-            assert rfr.categorical_features_ == []
-        else:
-            assert rfr.categorical_features_ == [
-                str(c).encode() for c in categorical_features
-            ]
-
     def test_split_rule(self, boston_X, boston_y, split_rule):
         rfr = RangerForestRegressor(split_rule=split_rule)
 
@@ -248,23 +241,23 @@ class TestRangerForestRegressor:
     def test_split_select_weights(self, boston_X, boston_y):
         n_trees = 10
         weights = [0.1] * boston_X.shape[1]
-        rfr = RangerForestRegressor(n_estimators=n_trees, split_select_weights=weights)
-        rfr.fit(boston_X, boston_y)
+        rfr = RangerForestRegressor(n_estimators=n_trees)
+        rfr.fit(boston_X, boston_y, split_select_weights=weights)
 
         weights = [0.1] * (boston_X.shape[1] - 1)
-        rfr = RangerForestRegressor(n_estimators=n_trees, split_select_weights=weights)
+        rfr = RangerForestRegressor(n_estimators=n_trees)
 
         with pytest.raises(RuntimeError):
-            rfr.fit(boston_X, boston_y)
+            rfr.fit(boston_X, boston_y, split_select_weights=weights)
 
         weights = [[0.1] * (boston_X.shape[1])] * n_trees
-        rfr = RangerForestRegressor(n_estimators=n_trees, split_select_weights=weights)
-        rfr.fit(boston_X, boston_y)
+        rfr = RangerForestRegressor(n_estimators=n_trees)
+        rfr.fit(boston_X, boston_y, split_select_weights=weights)
 
         weights = [[0.1] * (boston_X.shape[1])] * (n_trees + 1)
-        rfr = RangerForestRegressor(n_estimators=n_trees, split_select_weights=weights)
+        rfr = RangerForestRegressor(n_estimators=n_trees)
         with pytest.raises(RuntimeError):
-            rfr.fit(boston_X, boston_y)
+            rfr.fit(boston_X, boston_y, split_select_weights=weights)
 
     def test_regularization(self, boston_X, boston_y):
         rfr = RangerForestRegressor()

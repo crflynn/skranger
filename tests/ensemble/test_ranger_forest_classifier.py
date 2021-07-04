@@ -216,22 +216,14 @@ class TestRangerForestClassifier:
 
         rfc = RangerForestClassifier(
             respect_categorical_features=respect_categorical_features,
-            categorical_features=categorical_features,
         )
 
         if respect_categorical_features not in ["partition", "ignore", "order"]:
             with pytest.raises(ValueError):
-                rfc.fit(iris_X_c, iris_y)
+                rfc.fit(iris_X_c, iris_y, categorical_features=categorical_features)
             return
 
-        rfc.fit(iris_X_c, iris_y)
-
-        if respect_categorical_features in ("ignore", "order"):
-            assert rfc.categorical_features_ == []
-        else:
-            assert rfc.categorical_features_ == [
-                str(c).encode() for c in categorical_features
-            ]
+        rfc.fit(iris_X_c, iris_y, categorical_features=categorical_features)
 
     def test_split_rule(self, iris_X, iris_y, split_rule):
         rfc = RangerForestClassifier(split_rule=split_rule)
@@ -272,23 +264,23 @@ class TestRangerForestClassifier:
     def test_split_select_weights(self, iris_X, iris_y):
         n_trees = 10
         weights = [0.1] * iris_X.shape[1]
-        rfc = RangerForestClassifier(n_estimators=n_trees, split_select_weights=weights)
-        rfc.fit(iris_X, iris_y)
+        rfc = RangerForestClassifier(n_estimators=n_trees)
+        rfc.fit(iris_X, iris_y, split_select_weights=weights)
 
         weights = [0.1] * (iris_X.shape[1] - 1)
-        rfc = RangerForestClassifier(n_estimators=n_trees, split_select_weights=weights)
+        rfc = RangerForestClassifier(n_estimators=n_trees)
 
         with pytest.raises(RuntimeError):
-            rfc.fit(iris_X, iris_y)
+            rfc.fit(iris_X, iris_y, split_select_weights=weights)
 
         weights = [[0.1] * (iris_X.shape[1])] * n_trees
-        rfc = RangerForestClassifier(n_estimators=n_trees, split_select_weights=weights)
-        rfc.fit(iris_X, iris_y)
+        rfc = RangerForestClassifier(n_estimators=n_trees)
+        rfc.fit(iris_X, iris_y, split_select_weights=weights)
 
         weights = [[0.1] * (iris_X.shape[1])] * (n_trees + 1)
-        rfc = RangerForestClassifier(n_estimators=n_trees, split_select_weights=weights)
+        rfc = RangerForestClassifier(n_estimators=n_trees)
         with pytest.raises(RuntimeError):
-            rfc.fit(iris_X, iris_y)
+            rfc.fit(iris_X, iris_y, split_select_weights=weights)
 
     def test_regularization(self, iris_X, iris_y):
         rfc = RangerForestClassifier()
@@ -319,8 +311,8 @@ class TestRangerForestClassifier:
         assert rfc.use_regularization_factor_
 
     def test_always_split_features(self, iris_X, iris_y):
-        rfc = RangerForestClassifier(always_split_features=[0])
-        rfc.fit(iris_X, iris_y)
+        rfc = RangerForestClassifier()
+        rfc.fit(iris_X, iris_y, always_split_features=[0])
         # feature 0 is in every tree split
         for tree in rfc.ranger_forest_["forest"]["split_var_ids"]:
             assert 0 in tree

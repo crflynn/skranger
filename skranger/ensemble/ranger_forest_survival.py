@@ -101,9 +101,6 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
         num_random_splits=1,
         alpha=0.5,
         minprop=0.1,
-        split_select_weights=None,
-        always_split_features=None,
-        categorical_features=None,
         respect_categorical_features=None,
         scale_permutation_importance=False,
         local_importance=False,
@@ -128,9 +125,6 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
         self.num_random_splits = num_random_splits
         self.alpha = alpha
         self.minprop = minprop
-        self.split_select_weights = split_select_weights
-        self.always_split_features = always_split_features
-        self.categorical_features = categorical_features
         self.respect_categorical_features = respect_categorical_features
         self.scale_permutation_importance = scale_permutation_importance
         self.local_importance = local_importance
@@ -141,13 +135,28 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
         self.n_jobs = n_jobs
         self.seed = seed
 
-    def fit(self, X, y, sample_weight=None):
+    def fit(
+        self,
+        X,
+        y,
+        sample_weight=None,
+        split_select_weights=None,
+        always_split_features=None,
+        categorical_features=None,
+    ):
         """Fit the ranger random forest using training data.
 
         :param array2d X: training input features
         :param array2d y: training input targets, rows of (bool, float)
             representing (survival, time)
         :param array1d sample_weight: optional weights for input samples
+        :param list split_select_weights: Vector of weights between 0 and 1 of probabilities
+            to select features for splitting. Can be a single vector or a vector of vectors
+            with one vector per tree.
+        :param list always_split_features:  Features which should always be selected for
+            splitting. A list of column index values.
+        :param list categorical_features: A list of column index values which should be
+            considered categorical, or unordered.
         """
         self.tree_type_ = 5  # tree_type, TREE_SURVIVAL
 
@@ -178,17 +187,20 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
         self.feature_names_ = [str(c).encode() for c in range(X.shape[1])]
         self._check_n_features(X, reset=True)
 
-        if self.always_split_features is not None:
-            always_split_features = [
-                str(c).encode() for c in self.always_split_features
-            ]
-        else:
-            always_split_features = []
+        (
+            always_split_features,
+            use_always_split_features,
+        ) = self._check_always_split_features(always_split_features)
+
+        (
+            categorical_features,
+            use_categorical_features,
+        ) = self._check_categorical_features(categorical_features)
 
         (
             split_select_weights,
             use_split_select_weights,
-        ) = self._check_split_select_weights()
+        ) = self._check_split_select_weights(split_select_weights)
 
         # Fit the forest
         self.ranger_forest_ = ranger.ranger(
@@ -207,14 +219,14 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
             split_select_weights,
             use_split_select_weights,
             always_split_features,  # always_split_variable_names
-            bool(always_split_features),  # use_always_split_variable_names
+            use_always_split_features,  # use_always_split_variable_names
             False,  # prediction_mode
             {},  # loaded_forest
             np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
-            self.categorical_features_,  # unordered_feature_names
-            bool(self.categorical_features_),  # use_unordered_features
+            categorical_features,  # unordered_feature_names
+            use_categorical_features,  # use_unordered_features
             False,  # save_memory
             self.split_rule_,
             sample_weight,  # case_weights
@@ -265,8 +277,8 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
             False,  # write_forest
             self.importance_mode_,
             self.min_node_size,
-            self.split_select_weights or [],
-            bool(self.split_select_weights),  # use_split_select_weights
+            [],
+            False,  # use_split_select_weights
             [],  # always_split_variable_names
             False,  # use_always_split_variable_names
             True,  # prediction_mode
@@ -274,8 +286,8 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
             np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
-            self.categorical_features_,  # unordered_feature_names
-            bool(self.categorical_features_),  # use_unordered_features
+            [],  # unordered_feature_names
+            False,  # use_unordered_features
             False,  # save_memory
             self.split_rule_,
             [],  # case_weights

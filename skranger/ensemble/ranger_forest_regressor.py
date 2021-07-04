@@ -43,13 +43,6 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
         split rule.
     :param float minprop: Lower quantile of covariate distribution to be considered for
         splitting for ``maxstat`` split rule.
-    :param list split_select_weights: Vector of weights between 0 and 1 of probabilities
-        to select features for splitting. Can be a single vector or a vector of vectors
-        with one vector per tree.
-    :param list always_split_features:  Features which should always be selected for
-        splitting. A list of column index values.
-    :param list categorical_features: A list of column index values which should be
-        considered categorical, or unordered.
     :param str respect_categorical_features: One of ``ignore``, ``order``, ``partition``.
         The default is ``partition`` for the ``extratrees`` splitrule, otherwise the
         default is ``ignore``.
@@ -153,12 +146,27 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
         self.save_memory = save_memory
         self.seed = seed
 
-    def fit(self, X, y, sample_weight=None):
+    def fit(
+        self,
+        X,
+        y,
+        sample_weight=None,
+        split_select_weights=None,
+        always_split_features=None,
+        categorical_features=None,
+    ):
         """Fit the ranger random forest using training data.
 
         :param array2d X: training input features
         :param array1d y: training input targets
         :param array1d sample_weight: optional weights for input samples
+        :param list split_select_weights: Vector of weights between 0 and 1 of probabilities
+            to select features for splitting. Can be a single vector or a vector of vectors
+            with one vector per tree.
+        :param list always_split_features:  Features which should always be selected for
+            splitting. A list of column index values.
+        :param list categorical_features: A list of column index values which should be
+            considered categorical, or unordered.
         """
         self.tree_type_ = 3  # tree_type, TREE_REGRESSION
 
@@ -184,17 +192,20 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
         self.feature_names_ = [str(c).encode() for c in range(X.shape[1])]
         self._check_n_features(X, reset=True)
 
-        if self.always_split_features is not None:
-            always_split_features = [
-                str(c).encode() for c in self.always_split_features
-            ]
-        else:
-            always_split_features = []
+        (
+            always_split_features,
+            use_always_split_features,
+        ) = self._check_always_split_features(always_split_features)
+
+        (
+            categorical_features,
+            use_categorical_features,
+        ) = self._check_categorical_features(categorical_features)
 
         (
             split_select_weights,
             use_split_select_weights,
-        ) = self._check_split_select_weights()
+        ) = self._check_split_select_weights(split_select_weights)
 
         # Fit the forest
         self.ranger_forest_ = ranger.ranger(
@@ -219,8 +230,8 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
             np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
-            self.categorical_features_,  # unordered_feature_names
-            bool(self.categorical_features_),  # use_unordered_features
+            categorical_features,  # unordered_feature_names
+            use_categorical_features,  # use_unordered_features
             self.save_memory,
             self.split_rule_,
             sample_weight,  # case_weights
@@ -373,8 +384,8 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
             np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
-            self.categorical_features_,  # unordered_feature_names
-            bool(self.categorical_features_),  # use_unordered_features
+            [],  # unordered_feature_names
+            False,  # use_unordered_features
             self.save_memory,
             self.split_rule_,
             [],  # case_weights

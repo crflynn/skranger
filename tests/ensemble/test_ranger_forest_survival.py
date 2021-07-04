@@ -197,22 +197,14 @@ class TestRangerForestSurvival:
 
         rfs = RangerForestSurvival(
             respect_categorical_features=respect_categorical_features,
-            categorical_features=categorical_features,
         )
 
         if respect_categorical_features not in ["partition", "ignore", "order"]:
             with pytest.raises(ValueError):
-                rfs.fit(lung_X_c, lung_y)
+                rfs.fit(lung_X_c, lung_y, categorical_features=categorical_features)
             return
 
-        rfs.fit(lung_X_c, lung_y)
-
-        if respect_categorical_features in ("ignore", "order"):
-            assert rfs.categorical_features_ == []
-        else:
-            assert rfs.categorical_features_ == [
-                str(c).encode() for c in categorical_features
-            ]
+        rfs.fit(lung_X_c, lung_y, categorical_features=categorical_features)
 
     def test_split_rule(self, lung_X, lung_y, split_rule):
         rfs = RangerForestSurvival(split_rule=split_rule)
@@ -243,23 +235,23 @@ class TestRangerForestSurvival:
     def test_split_select_weights(self, lung_X, lung_y):
         n_trees = 10
         weights = [0.1] * lung_X.shape[1]
-        rfs = RangerForestSurvival(n_estimators=n_trees, split_select_weights=weights)
-        rfs.fit(lung_X, lung_y)
+        rfs = RangerForestSurvival(n_estimators=n_trees,)
+        rfs.fit(lung_X, lung_y, split_select_weights=weights)
 
         weights = [0.1] * (lung_X.shape[1] - 1)
-        rfs = RangerForestSurvival(n_estimators=n_trees, split_select_weights=weights)
+        rfs = RangerForestSurvival(n_estimators=n_trees)
 
         with pytest.raises(RuntimeError):
-            rfs.fit(lung_X, lung_y)
+            rfs.fit(lung_X, lung_y, split_select_weights=weights)
 
         weights = [[0.1] * (lung_X.shape[1])] * n_trees
-        rfs = RangerForestSurvival(n_estimators=n_trees, split_select_weights=weights)
-        rfs.fit(lung_X, lung_y)
+        rfs = RangerForestSurvival(n_estimators=n_trees)
+        rfs.fit(lung_X, lung_y, split_select_weights=weights)
 
         weights = [[0.1] * (lung_X.shape[1])] * (n_trees + 1)
-        rfs = RangerForestSurvival(n_estimators=n_trees, split_select_weights=weights)
+        rfs = RangerForestSurvival(n_estimators=n_trees)
         with pytest.raises(RuntimeError):
-            rfs.fit(lung_X, lung_y)
+            rfs.fit(lung_X, lung_y, split_select_weights=weights)
 
     def test_regularization(self, lung_X, lung_y):
         rfs = RangerForestSurvival()
@@ -290,8 +282,8 @@ class TestRangerForestSurvival:
         assert rfs.use_regularization_factor_
 
     def test_always_split_features(self, lung_X, lung_y):
-        rfs = RangerForestSurvival(always_split_features=[0])
-        rfs.fit(lung_X, lung_y)
+        rfs = RangerForestSurvival()
+        rfs.fit(lung_X, lung_y, always_split_features=[0])
         # feature 0 is in every tree split
         for tree in rfs.ranger_forest_["forest"]["split_var_ids"]:
             assert 0 in tree
