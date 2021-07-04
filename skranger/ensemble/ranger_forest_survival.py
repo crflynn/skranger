@@ -184,6 +184,11 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
         else:
             always_split_features = []
 
+        (
+            split_select_weights,
+            use_split_select_weights,
+        ) = self._check_split_select_weights()
+
         # Fit the forest
         self.ranger_forest_ = ranger.ranger(
             self.tree_type_,
@@ -198,8 +203,8 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
             True,  # write_forest
             self.importance_mode_,
             self.min_node_size,
-            self.split_select_weights or [],
-            bool(self.split_select_weights),  # use_split_select_weights
+            split_select_weights,
+            use_split_select_weights,
             always_split_features,  # always_split_variable_names
             bool(always_split_features),  # use_always_split_variable_names
             False,  # prediction_mode

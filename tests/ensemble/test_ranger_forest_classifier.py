@@ -269,6 +269,27 @@ class TestRangerForestClassifier:
             with pytest.raises(ValueError):
                 rfc.fit(iris_X, iris_y)
 
+    def test_split_select_weights(self, iris_X, iris_y):
+        n_trees = 10
+        weights = [0.1] * iris_X.shape[1]
+        rfc = RangerForestClassifier(n_estimators=n_trees, split_select_weights=weights)
+        rfc.fit(iris_X, iris_y)
+
+        weights = [0.1] * (iris_X.shape[1] - 1)
+        rfc = RangerForestClassifier(n_estimators=n_trees, split_select_weights=weights)
+
+        with pytest.raises(RuntimeError):
+            rfc.fit(iris_X, iris_y)
+
+        weights = [[0.1] * (iris_X.shape[1])] * n_trees
+        rfc = RangerForestClassifier(n_estimators=n_trees, split_select_weights=weights)
+        rfc.fit(iris_X, iris_y)
+
+        weights = [[0.1] * (iris_X.shape[1])] * (n_trees + 1)
+        rfc = RangerForestClassifier(n_estimators=n_trees, split_select_weights=weights)
+        with pytest.raises(RuntimeError):
+            rfc.fit(iris_X, iris_y)
+
     def test_regularization(self, iris_X, iris_y):
         rfc = RangerForestClassifier()
         rfc.fit(iris_X, iris_y)
