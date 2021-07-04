@@ -70,25 +70,6 @@ class RangerMixin:
         self._check_set_regularization(X.shape[1])
         self._set_split_rule(y)
         self.order_snps_ = self.respect_categorical_features_ == "order"
-        self._set_categorical_features()
-
-    def _set_categorical_features(self):
-        """Determine categorical feature names."""
-        if self.respect_categorical_features_ == "partition":
-            self.categorical_features_ = (
-                [str(c).encode() for c in self.categorical_features]
-                if self.categorical_features is not None
-                else []
-            )
-        elif (
-            self.respect_categorical_features_ == "ignore"
-            or self.respect_categorical_features_ == "order"
-        ):
-            self.categorical_features_ = []
-        else:
-            raise ValueError(
-                "respect ordered factors must be one of `partition`, `ignore` or `order`"
-            )
 
     def _evaluate_mtry(self, num_features):
         """Evaluate mtry if callable."""
@@ -170,16 +151,6 @@ class RangerMixin:
                     "split rule must be either logrank, extratrees, C or maxstat"
                 )
 
-    def _set_respect_categorical_features(self):
-        """Set ``respect_categorical_features`` based on ``split_rule``."""
-        if self.respect_categorical_features is None:
-            if self.split_rule == "extratrees":
-                self.respect_categorical_features_ = "partition"
-            else:
-                self.respect_categorical_features_ = "ignore"
-        else:
-            self.respect_categorical_features_ = self.respect_categorical_features
-
     def _check_set_regularization(self, num_features):
         """Check, set the regularization factor to either [] or length num_features."""
         if self.regularization_factor is None:
@@ -246,13 +217,53 @@ class RangerMixin:
             if len(self.inbag) != self.n_estimators:
                 raise ValueError("Size of inbag must be equal to n_estimators.")
 
-    def _check_split_select_weights(self):
-        if self.split_select_weights is not None and len(self.split_select_weights) > 0:
-            split_select_weights = np.atleast_2d(self.split_select_weights).tolist()
+    def _check_split_select_weights(self, split_select_weights):
+        if split_select_weights is not None and len(split_select_weights) > 0:
+            split_select_weights = np.atleast_2d(split_select_weights).tolist()
             use_split_select_weights = True
         else:
             split_select_weights = [[]]
             use_split_select_weights = False
         return split_select_weights, use_split_select_weights
+
+    def _check_always_split_features(self, always_split_features):
+        if always_split_features is not None and len(always_split_features) > 0:
+            always_split_features = [str(c).encode() for c in always_split_features]
+            use_always_split_features = True
+        else:
+            always_split_features = []
+            use_always_split_features = False
+        return always_split_features, use_always_split_features
+
+    def _set_respect_categorical_features(self):
+        """Set ``respect_categorical_features`` based on ``split_rule``."""
+        if self.respect_categorical_features is None:
+            if self.split_rule == "extratrees":
+                self.respect_categorical_features_ = "partition"
+            else:
+                self.respect_categorical_features_ = "ignore"
+        else:
+            self.respect_categorical_features_ = self.respect_categorical_features
+
+    def _check_categorical_features(self, categorical_features):
+        """Determine categorical feature names."""
+        use_categorical_features = False
+        if self.respect_categorical_features_ == "partition":
+            if categorical_features is not None and len(categorical_features) > 0:
+                categorical_features = [str(c).encode() for c in categorical_features]
+                use_categorical_features = True
+        elif (
+            self.respect_categorical_features_ == "ignore"
+            or self.respect_categorical_features_ == "order"
+        ):
+            categorical_features = []
+            use_categorical_features = False
+        else:
+            raise ValueError(
+                "respect ordered factors must be one of `partition`, `ignore` or `order`"
+            )
+        if categorical_features is None:
+            categorical_features = []
+        return categorical_features, use_categorical_features
 
     # endregion
