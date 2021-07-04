@@ -1,7 +1,6 @@
 """Scikit-learn wrapper for ranger survival."""
 import numpy as np
 from sklearn.base import BaseEstimator
-from sklearn.utils.validation import _check_sample_weight
 from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
 
@@ -143,9 +142,9 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
         :param array2d y: training input targets, rows of (bool, float)
             representing (survival, time)
         :param array1d sample_weight: optional weights for input samples
-        :param list split_select_weights: Vector of weights between 0 and 1 of probabilities
-            to select features for splitting. Can be a single vector or a vector of vectors
-            with one vector per tree.
+        :param list split_select_weights: Vector of weights between 0 and 1 of
+            probabilities to select features for splitting. Can be a single vector or a
+            vector of vectors with one vector per tree.
         :param list always_split_features:  Features which should always be selected for
             splitting. A list of column index values.
         :param list categorical_features: A list of column index values which should be
@@ -164,22 +163,12 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
         # Check the init parameters
         self._validate_parameters(X, y, sample_weight)
 
-        if sample_weight is not None:
-            sample_weight = _check_sample_weight(sample_weight, X)
-            use_sample_weight = True
-            # ranger does additional rng on samples if weights are passed.
-            # if the weights are ones, then we dont want that extra rng.
-            if np.array_equal(np.unique(sample_weight), np.array([1.0])):
-                sample_weight = []
-                use_sample_weight = False
-        else:
-            sample_weight = []
-            use_sample_weight = False
-
         # Set X info
         self.feature_names_ = [str(c).encode() for c in range(X.shape[1])]
         self._check_n_features(X, reset=True)
 
+        # Check weights
+        sample_weight, use_sample_weight = self._check_sample_weight(sample_weight, X)
         (
             always_split_features,
             use_always_split_features,
