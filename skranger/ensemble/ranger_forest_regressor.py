@@ -216,7 +216,6 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
             bool(always_split_features),  # use_always_split_feature_names
             False,  # prediction_mode
             {},  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             categorical_features,  # unordered_feature_names
@@ -234,7 +233,6 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],
@@ -283,7 +281,6 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
             False,  # use_always_split_feature_names
             True,  # prediction_mode
             self.ranger_forest_["forest"],  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             True,  # sample_with_replacement
             False,  # probability
             [],  # unordered_feature_names
@@ -301,7 +298,6 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
             self.holdout,
             2,  # prediction_type (terminal nodes)
             1,  # num_random_splits
-            False,  # order_snps_
             False,  # oob_error
             0,  # max_depth
             [],  # inbag
@@ -376,7 +372,6 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
             False,  # use_always_split_feature_names
             True,  # prediction_mode
             self.ranger_forest_["forest"],  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             [],  # unordered_feature_names
@@ -394,7 +389,6 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],
