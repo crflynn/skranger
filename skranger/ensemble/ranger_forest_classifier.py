@@ -208,7 +208,6 @@ class RangerForestClassifier(RangerMixin, ClassifierMixin, BaseEstimator):
             bool(always_split_features),  # use_always_split_variable_names
             False,  # prediction_mode
             {},  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             categorical_features,  # unordered_variable_names
@@ -226,7 +225,6 @@ class RangerForestClassifier(RangerMixin, ClassifierMixin, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],
@@ -276,7 +274,6 @@ class RangerForestClassifier(RangerMixin, ClassifierMixin, BaseEstimator):
             False,  # use_always_split_variable_names
             True,  # prediction_mode
             self.ranger_forest_["forest"],  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             [],  # unordered_feature_names
@@ -294,7 +291,6 @@ class RangerForestClassifier(RangerMixin, ClassifierMixin, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],

@@ -204,7 +204,6 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
             use_always_split_features,  # use_always_split_variable_names
             False,  # prediction_mode
             {},  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             categorical_features,  # unordered_feature_names
@@ -222,7 +221,6 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],
@@ -264,7 +262,6 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
             False,  # use_always_split_variable_names
             True,  # prediction_mode
             self.ranger_forest_["forest"],  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             [],  # unordered_feature_names
@@ -282,7 +279,6 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],
