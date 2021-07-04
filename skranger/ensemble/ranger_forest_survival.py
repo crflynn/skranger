@@ -1,7 +1,6 @@
 """Scikit-learn wrapper for ranger survival."""
 import numpy as np
 from sklearn.base import BaseEstimator
-from sklearn.utils.validation import _check_sample_weight
 from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
 
