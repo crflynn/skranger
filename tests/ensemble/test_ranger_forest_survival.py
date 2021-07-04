@@ -240,6 +240,27 @@ class TestRangerForestSurvival:
             with pytest.raises(ValueError):
                 rfs.fit(lung_X, lung_y)
 
+    def test_split_select_weights(self, lung_X, lung_y):
+        n_trees = 10
+        weights = [0.1] * lung_X.shape[1]
+        rfs = RangerForestSurvival(n_estimators=n_trees, split_select_weights=weights)
+        rfs.fit(lung_X, lung_y)
+
+        weights = [0.1] * (lung_X.shape[1] - 1)
+        rfs = RangerForestSurvival(n_estimators=n_trees, split_select_weights=weights)
+
+        with pytest.raises(RuntimeError):
+            rfs.fit(lung_X, lung_y)
+
+        weights = [[0.1] * (lung_X.shape[1])] * n_trees
+        rfs = RangerForestSurvival(n_estimators=n_trees, split_select_weights=weights)
+        rfs.fit(lung_X, lung_y)
+
+        weights = [[0.1] * (lung_X.shape[1])] * (n_trees + 1)
+        rfs = RangerForestSurvival(n_estimators=n_trees, split_select_weights=weights)
+        with pytest.raises(RuntimeError):
+            rfs.fit(lung_X, lung_y)
+
     def test_regularization(self, lung_X, lung_y):
         rfs = RangerForestSurvival()
         rfs.fit(lung_X, lung_y)

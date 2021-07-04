@@ -246,4 +246,13 @@ class RangerMixin:
             if len(self.inbag) != self.n_estimators:
                 raise ValueError("Size of inbag must be equal to n_estimators.")
 
+    def _check_split_select_weights(self):
+        if self.split_select_weights is not None and len(self.split_select_weights) > 0:
+            split_select_weights = np.atleast_2d(self.split_select_weights).tolist()
+            use_split_select_weights = True
+        else:
+            split_select_weights = [[]]
+            use_split_select_weights = False
+        return split_select_weights, use_split_select_weights
+
     # endregion
