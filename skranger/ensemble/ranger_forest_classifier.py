@@ -163,18 +163,6 @@ class RangerForestClassifier(RangerMixin, ClassifierMixin, BaseEstimator):
         # Check the init parameters
         self._validate_parameters(X, y, sample_weight)
 
-        if sample_weight is not None:
-            sample_weight = _check_sample_weight(sample_weight, X)
-            use_sample_weight = True
-            # ranger does additional rng on samples if weights are passed.
-            # if the weights are ones, then we dont want that extra rng.
-            if np.array_equal(np.unique(sample_weight), np.array([1.0])):
-                sample_weight = []
-                use_sample_weight = False
-        else:
-            sample_weight = []
-            use_sample_weight = False
-
         # Map classes to indices
         y = np.copy(y)
         self.classes_, y = np.unique(y, return_inverse=True)
@@ -184,6 +172,8 @@ class RangerForestClassifier(RangerMixin, ClassifierMixin, BaseEstimator):
         self.feature_names_ = [str(c).encode() for c in range(X.shape[1])]
         self._check_n_features(X, reset=True)
 
+        # Check weights
+        sample_weight, use_sample_weight = self._check_sample_weight(sample_weight, X)
         (
             always_split_features,
             use_always_split_features,

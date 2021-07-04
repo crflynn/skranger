@@ -4,6 +4,7 @@ from collections.abc import Iterable
 
 import numpy as np
 from sklearn.exceptions import NotFittedError
+from sklearn.utils.validation import _check_sample_weight
 from sklearn.utils.validation import check_is_fitted
 
 
@@ -216,6 +217,20 @@ class RangerMixin:
                 raise ValueError("Cannot use class sampling and inbag.")
             if len(self.inbag) != self.n_estimators:
                 raise ValueError("Size of inbag must be equal to n_estimators.")
+
+    def _check_sample_weight(self, sample_weight, X):
+        if sample_weight is not None:
+            sample_weight = _check_sample_weight(sample_weight, X)
+            use_sample_weight = True
+            # ranger does additional rng on samples if weights are passed.
+            # if the weights are ones, then we dont want that extra rng.
+            if np.array_equal(np.unique(sample_weight), np.array([1.0])):
+                sample_weight = []
+                use_sample_weight = False
+        else:
+            sample_weight = []
+            use_sample_weight = False
+        return sample_weight, use_sample_weight
 
     def _check_split_select_weights(self, split_select_weights):
         if split_select_weights is not None and len(split_select_weights) > 0:
