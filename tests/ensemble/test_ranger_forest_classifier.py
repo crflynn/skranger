@@ -5,7 +5,6 @@ import tempfile
 import numpy as np
 import pytest
 from sklearn.base import clone
-from sklearn.datasets import load_digits
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.exceptions import NotFittedError
 from sklearn.metrics import accuracy_score
