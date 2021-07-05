@@ -5,6 +5,7 @@ import tempfile
 import numpy as np
 import pytest
 from sklearn.base import clone
+from sklearn.datasets import load_digits
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.exceptions import NotFittedError
 from sklearn.metrics import accuracy_score
@@ -261,6 +262,37 @@ class TestRangerForestClassifier:
             forest = RangerForestClassifier(split_rule=split_rule, num_random_splits=2)
             with pytest.raises(ValueError):
                 forest.fit(iris_X, iris_y)
+
+    def test_class_weights(self, iris_X, iris_y):
+        X_train, X_test, y_train, y_test = train_test_split(
+            iris_X, iris_y, test_size=0.5, random_state=42
+        )
+        y_train = np.flip(y_train)
+        forest = RangerForestClassifier()
+        weights = {
+            0: 0.7,
+            1: 0.2,
+            2: 0.1,
+        }
+        forest.fit(X_train, y_train, class_weights=weights)
+        forest.predict(X_test)
+
+        forest = RangerForestClassifier()
+        m = {0: "a", 1: "b", 2: "c"}
+        y_train_str = [m.get(v) for v in y_train]
+        weights = {
+            "a": 0.7,
+            "b": 0.2,
+            "c": 0.1,
+        }
+        forest.fit(X_train, y_train_str, class_weights=weights)
+        forest.predict(X_test)
+
+        weights = {
+            0: 0.7,
+        }
+        with pytest.raises(ValueError):
+            forest.fit(X_train, y_train, class_weights=weights)
 
     def test_split_select_weights(self, iris_X, iris_y):
         n_trees = 10

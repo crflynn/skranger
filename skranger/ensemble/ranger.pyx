@@ -87,7 +87,7 @@ cpdef dict ranger(
     ranger_.SplitRule splitrule,
     vector[double]& case_weights,
     bool use_case_weights,
-    vector[double]& class_weights,
+    dict class_weights,
     bool predict_all,
     bool keep_inbag,
     vector[double]& sample_fraction,
@@ -239,10 +239,18 @@ cpdef dict ranger(
                 terminal_class_counts = loaded_forest["terminal_class_counts"]
                 (<ranger_.ForestProbability*> forest.get()).loadForest(num_trees, child_node_ids, split_var_ids, split_values, class_values, terminal_class_counts, is_ordered)
         else:
-            if treetype == ranger_.TreeType.TREE_CLASSIFICATION and not class_weights.empty():
-                (<ranger_.ForestClassification*> forest.get()).setClassWeights(class_weights)
-            elif treetype == ranger_.TreeType.TREE_PROBABILITY and not class_weights.empty():
-                (<ranger_.ForestProbability*> forest.get()).setClassWeights(class_weights)
+            if treetype == ranger_.TreeType.TREE_CLASSIFICATION and len(class_weights) > 0:
+                class_values_ = (<ranger_.ForestClassification*> forest.get()).getClassValues()
+                class_weights_ = []
+                for c in class_values_[:class_values_.size()]:
+                    class_weights_.append(class_weights[int(c)])
+                (<ranger_.ForestClassification*> forest.get()).setClassWeights(class_weights_)
+            elif treetype == ranger_.TreeType.TREE_PROBABILITY and len(class_weights) > 0:
+                class_values_ = (<ranger_.ForestProbability*> forest.get()).getClassValues()
+                class_weights_ = []
+                for c in class_values_[:class_values_.size()]:
+                    class_weights_.append(class_weights[int(c)])
+                (<ranger_.ForestProbability*> forest.get()).setClassWeights(class_weights_)
 
         deref(forest).run(verbose, oob_error)
 
