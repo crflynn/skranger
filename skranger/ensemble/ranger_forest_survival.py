@@ -212,7 +212,7 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
             self.split_rule_,
             sample_weight,  # case_weights
             use_sample_weight,  # use_case_weights
-            [],  # class_weights
+            {},  # class_weights
             False,  # predict_all
             self.keep_inbag,
             self.sample_fraction_,
@@ -270,7 +270,7 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
             self.split_rule_,
             [],  # case_weights
             False,  # use_case_weights
-            [],  # class_weights
+            {},  # class_weights
             False,  # predict_all
             self.keep_inbag,
             [1],  # sample_fraction
