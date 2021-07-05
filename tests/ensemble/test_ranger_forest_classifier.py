@@ -266,7 +266,6 @@ class TestRangerForestClassifier:
         X_train, X_test, y_train, y_test = train_test_split(
             iris_X, iris_y, test_size=0.5, random_state=42
         )
-        y_train = np.flip(y_train)
         forest = RangerForestClassifier()
         weights = {
             0: 0.7,
