@@ -11,7 +11,7 @@ from libcpp.string cimport string
 from libcpp.utility cimport move
 from libcpp.vector cimport vector
 
-from skranger.ensemble cimport ranger_
+from skranger cimport ranger_
 
 
 cdef class DataNumpy:

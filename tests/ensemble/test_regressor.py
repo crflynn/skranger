@@ -11,6 +11,7 @@ from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import RangerForestRegressor
+from skranger.tree import RangerTreeRegressor
 
 
 class TestRangerForestRegressor:
@@ -338,6 +339,29 @@ class TestRangerForestRegressor:
                 _ = forest.feature_importances_
         else:
             assert len(forest.feature_importances_) == boston_X.shape[1]
+
+    def test_estimators_(self, boston_X, boston_y):
+        forest = RangerForestRegressor(n_estimators=10)
+        with pytest.raises(AttributeError):
+            _ = forest.estimators_
+        forest.fit(boston_X, boston_y)
+        estimators = forest.estimators_
+        assert len(estimators) == 10
+        assert isinstance(estimators[0], RangerTreeRegressor)
+        check_is_fitted(estimators[0])
+
+    def test_get_estimator(self, boston_X, boston_y):
+        forest = RangerForestRegressor(n_estimators=10)
+        with pytest.raises(NotFittedError):
+            _ = forest.get_estimator(idx=0)
+        forest.fit(boston_X, boston_y)
+        forest.predict(boston_X)
+        estimator = forest.get_estimator(0)
+        check_is_fitted(estimator)
+        estimator.predict(boston_X)
+        assert isinstance(estimator, RangerTreeRegressor)
+        with pytest.raises(IndexError):
+            _ = forest.get_estimator(idx=20)
 
     def test_check_estimator(self):
         check_estimator(RangerForestRegressor())
