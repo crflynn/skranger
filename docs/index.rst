@@ -34,6 +34,9 @@ The latest release of ``skranger`` uses version `0.12.1 <https://github.com/imbs
    ranger_forest_classifier
    ranger_forest_regressor
    ranger_forest_survival
+   ranger_tree_classifier
+   ranger_tree_regressor
+   ranger_tree_survival
 
 Installation
 ------------
