@@ -2,19 +2,19 @@
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import RegressorMixin
+from sklearn.exceptions import NotFittedError
 from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from skranger import ranger
-from skranger.base import RangerMixin
+from skranger.ensemble.base import BaseRangerForest
+from skranger.tree import RangerTreeRegressor
 
 
-class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
+class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
     r"""Ranger Random Forest Regression implementation for sci-kit learn.
 
-    Provides a sklearn regressor interface to the Ranger C++ library using Cython. The
-    argument names to the constructor are similar to the C++ library and accompanied R
-    package for familiarity.
+    Provides a sklearn regressor interface to the Ranger C++ library using Cython.
 
     :param int n_estimators: The number of tree regressors to train
     :param bool verbose: Enable ranger's verbose logging
@@ -144,6 +144,26 @@ class RangerForestRegressor(RangerMixin, RegressorMixin, BaseEstimator):
         self.n_jobs = n_jobs
         self.save_memory = save_memory
         self.seed = seed
+
+    @property
+    def estimators_(self):
+        try:
+            check_is_fitted(self)
+        except NotFittedError:
+            raise AttributeError(
+                f"{self.__class__.__name__} object has no attribute 'estimators_'"
+            ) from None
+        return [
+            RangerTreeRegressor.from_forest(self, idx=idx)
+            for idx in range(self.n_estimators)
+        ]
+
+    def get_estimator(self, idx):
+        """Extract a single estimator tree from the forest.
+        :param int idx: The index of the tree to extract.
+        """
+        check_is_fitted(self)
+        return RangerTreeRegressor.from_forest(self, idx=idx)
 
     def fit(
         self,

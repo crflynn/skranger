@@ -143,6 +143,7 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
 
         # params
         instance = cls(
+            verbose=forest.verbose,
             mtry=forest.mtry,
             importance=forest.importance,
             min_node_size=forest.min_node_size,
@@ -167,8 +168,13 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
         # forest
         ranger_forest = {}
         for k, v in forest.ranger_forest_.items():
-            if isinstance(v, list):
-                ranger_forest[k] = [forest.ranger_forest_[k][idx]]
+            if k == "forest":
+                ranger_forest[k] = {}
+                for fk, fv in v.items():
+                    if isinstance(fv, list) and len(fv) > 0 and isinstance(fv[0], list):
+                        ranger_forest[k][fk] = [fv[idx]]
+                    else:
+                        ranger_forest[k][fk] = fv
             else:
                 ranger_forest[k] = v
         ranger_forest["num_trees"] = 1
@@ -178,6 +184,8 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
         instance.n_classes_ = forest.n_classes_
         instance.n_features_in_ = forest.n_features_in_
         instance.feature_names_ = forest.feature_names_
+        instance.mtry_ = forest.mtry_
+        instance.order_snps_ = forest.order_snps_
         instance.sample_fraction_ = forest.sample_fraction_
         instance.regularization_factor_ = forest.regularization_factor_
         instance.split_rule_ = forest.split_rule_
@@ -185,6 +193,7 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
         instance.respect_categorical_features_ = forest.respect_categorical_features_
         instance.importance_mode_ = forest.importance_mode_
         instance.ranger_class_order_ = forest.ranger_class_order_
+        instance.tree_type_ = forest.tree_type_
         return instance
 
     def fit(
@@ -251,10 +260,10 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
             np.asfortranarray(np.atleast_2d(y).astype("float64").transpose()),
             self.feature_names_,  # variable_names
             self.mtry_,
-            self.n_estimators,  # num_trees
+            1,  # num_trees
             self.verbose,
             self.seed,
-            self.n_jobs_,  # num_threads
+            1,  # num_threads
             True,  # write_forest
             self.importance_mode_,
             self.min_node_size,
@@ -319,10 +328,10 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
             np.asfortranarray([[]]),
             self.feature_names_,  # variable_names
             self.mtry_,
-            self.n_estimators,  # num_trees
+            1,  # num_trees
             self.verbose,
             self.seed,
-            self.n_jobs_,  # num_threads
+            1,  # num_threads
             False,  # write_forest
             self.importance_mode_,
             self.min_node_size,
@@ -359,7 +368,10 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
             self.use_regularization_factor_,
             self.regularization_usedepth,
         )
+        print(result)
         predictions = np.atleast_2d(np.array(result["predictions"]))
+        print(predictions)
+        print(self.ranger_class_order_)
         return predictions[:, self.ranger_class_order_]
 
     def predict_log_proba(self, X):

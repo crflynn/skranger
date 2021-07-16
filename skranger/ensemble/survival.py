@@ -1,19 +1,19 @@
 """Scikit-learn wrapper for ranger survival."""
 import numpy as np
 from sklearn.base import BaseEstimator
+from sklearn.exceptions import NotFittedError
 from sklearn.utils.validation import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from skranger import ranger
-from skranger.base import RangerMixin
+from skranger.ensemble.base import BaseRangerForest
+from skranger.tree import RangerTreeSurvival
 
 
-class RangerForestSurvival(RangerMixin, BaseEstimator):
+class RangerForestSurvival(BaseRangerForest, BaseEstimator):
     r"""Ranger Random Forest Survival implementation for sci-kit survival.
 
-    Provides a sksurv interface to the Ranger C++ library using Cython. The
-    argument names to the constructor are similar to the C++ library and accompanied R
-    package for familiarity.
+    Provides a sksurv interface to the Ranger C++ library using Cython.
 
     :param int n_estimators: The number of tree classifiers to train
     :param bool verbose: Enable ranger's verbose logging
@@ -126,6 +126,26 @@ class RangerForestSurvival(RangerMixin, BaseEstimator):
         self.oob_error = oob_error
         self.n_jobs = n_jobs
         self.seed = seed
+
+    @property
+    def estimators_(self):
+        try:
+            check_is_fitted(self)
+        except NotFittedError:
+            raise AttributeError(
+                f"{self.__class__.__name__} object has no attribute 'estimators_'"
+            ) from None
+        return [
+            RangerTreeSurvival.from_forest(self, idx=idx)
+            for idx in range(self.n_estimators)
+        ]
+
+    def get_estimator(self, idx):
+        """Extract a single estimator tree from the forest.
+        :param int idx: The index of the tree to extract.
+        """
+        check_is_fitted(self)
+        return RangerTreeSurvival.from_forest(self, idx=idx)
 
     def fit(
         self,

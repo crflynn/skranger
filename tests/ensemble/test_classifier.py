@@ -13,6 +13,7 @@ from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_is_fitted
 
 from skranger.ensemble import RangerForestClassifier
+from skranger.tree import RangerTreeClassifier
 
 
 class TestRangerForestClassifier:
@@ -357,6 +358,29 @@ class TestRangerForestClassifier:
                 _ = forest.feature_importances_
         else:
             assert len(forest.feature_importances_) == iris_X.shape[1]
+
+    def test_estimators_(self, iris_X, iris_y):
+        forest = RangerForestClassifier(n_estimators=10)
+        with pytest.raises(AttributeError):
+            _ = forest.estimators_
+        forest.fit(iris_X, iris_y)
+        estimators = forest.estimators_
+        assert len(estimators) == 10
+        assert isinstance(estimators[0], RangerTreeClassifier)
+        check_is_fitted(estimators[0])
+
+    def test_get_estimator(self, iris_X, iris_y):
+        forest = RangerForestClassifier(n_estimators=10)
+        with pytest.raises(NotFittedError):
+            _ = forest.get_estimator(idx=0)
+        forest.fit(iris_X, iris_y)
+        forest.predict(iris_X)
+        estimator = forest.get_estimator(0)
+        check_is_fitted(estimator)
+        estimator.predict(iris_X)
+        assert isinstance(estimator, RangerTreeClassifier)
+        with pytest.raises(IndexError):
+            _ = forest.get_estimator(idx=20)
 
     def test_check_estimator(self):
         check_estimator(RangerForestClassifier())
