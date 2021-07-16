@@ -232,6 +232,36 @@ class TestRangerTreeClassifier:
             with pytest.raises(ValueError):
                 tree.fit(iris_X, iris_y)
 
+    def test_class_weights(self, iris_X, iris_y):
+        X_train, X_test, y_train, y_test = train_test_split(
+            iris_X, iris_y, test_size=0.5, random_state=42
+        )
+        tree = RangerTreeClassifier()
+        weights = {
+            0: 0.7,
+            1: 0.2,
+            2: 0.1,
+        }
+        tree.fit(X_train, y_train, class_weights=weights)
+        tree.predict(X_test)
+
+        tree = RangerTreeClassifier()
+        m = {0: "a", 1: "b", 2: "c"}
+        y_train_str = [m.get(v) for v in y_train]
+        weights = {
+            "a": 0.7,
+            "b": 0.2,
+            "c": 0.1,
+        }
+        tree.fit(X_train, y_train_str, class_weights=weights)
+        tree.predict(X_test)
+
+        weights = {
+            0: 0.7,
+        }
+        with pytest.raises(ValueError):
+            tree.fit(X_train, y_train, class_weights=weights)
+
     def test_split_select_weights(self, iris_X, iris_y):
         n_trees = 1
         weights = [0.1] * iris_X.shape[1]

@@ -32,7 +32,6 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
     :param float/list sample_fraction: The fraction of observations to sample. The
         default is 1 when sampling with replacement, and 0.632 otherwise. This can be a
         list of class specific values.
-    :param list class_weights: Weights for the outcome classes.
     :param bool keep_inbag: If true, save how often observations are in-bag in each
         tree. These will be stored in the ``ranger_forest_`` attribute under the key
         ``"inbag_counts"``.
@@ -54,7 +53,6 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
     :param bool holdout: Hold-out all samples with case weight 0 and use these for
         feature importance and prediction error.
     :param bool oob_error: Whether to calculate out-of-bag prediction error.
-    :param int n_jobs: The number of threads. Default is number of CPU cores.
     :param bool save_memory: Save memory at the cost of speed growing trees.
     :param int seed: Random seed value.
 
@@ -93,7 +91,6 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
         max_depth=0,
         replace=True,
         sample_fraction=None,
-        class_weights=None,
         keep_inbag=False,
         inbag=None,
         split_rule="gini",
@@ -115,7 +112,6 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
         self.max_depth = max_depth
         self.replace = replace
         self.sample_fraction = sample_fraction
-        self.class_weights = class_weights
         self.keep_inbag = keep_inbag
         self.inbag = inbag
         self.split_rule = split_rule
@@ -150,7 +146,6 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
             max_depth=forest.max_depth,
             replace=forest.replace,
             sample_fraction=forest.replace,
-            class_weights=forest.class_weights,
             keep_inbag=forest.keep_inbag,
             inbag=forest.inbag,
             split_rule=forest.split_rule,
@@ -185,7 +180,6 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
         instance.n_features_in_ = forest.n_features_in_
         instance.feature_names_ = forest.feature_names_
         instance.mtry_ = forest.mtry_
-        instance.order_snps_ = forest.order_snps_
         instance.sample_fraction_ = forest.sample_fraction_
         instance.regularization_factor_ = forest.regularization_factor_
         instance.split_rule_ = forest.split_rule_
@@ -201,6 +195,7 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
         X,
         y,
         sample_weight=None,
+        class_weights=None,
         split_select_weights=None,
         always_split_features=None,
         categorical_features=None,
@@ -210,6 +205,7 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
         :param array2d X: training input features
         :param array1d y: training input target classes
         :param array1d sample_weight: optional weights for input samples
+        :param dict class_weights: A dictionary of outcome classes to weights.
         :param list split_select_weights: Vector of weights between 0 and 1 of
             probabilities to select features for splitting. Can be a single vector or a
             vector of vectors with one vector per tree.
@@ -235,6 +231,18 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
         # Set X info
         self.feature_names_ = [str(c).encode() for c in range(X.shape[1])]
         self._check_n_features(X, reset=True)
+
+        if class_weights is None:
+            class_weights = {}
+        else:
+            try:
+                class_weights = {
+                    idx: class_weights[k] for idx, k in enumerate(self.classes_)
+                }
+            except KeyError:
+                raise ValueError(
+                    "class weights must have a weight for each class"
+                ) from None
 
         # Check weights
         sample_weight, use_sample_weight = self._check_sample_weight(sample_weight, X)
@@ -273,7 +281,6 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
             bool(always_split_features),  # use_always_split_variable_names
             False,  # prediction_mode
             {},  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             categorical_features,  # unordered_variable_names
@@ -282,7 +289,7 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
             self.split_rule_,
             sample_weight,  # case_weights
             use_sample_weight,  # use_case_weights
-            self.class_weights or [],
+            class_weights,
             False,  # predict_all
             self.keep_inbag,
             self.sample_fraction_,
@@ -291,7 +298,6 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],
@@ -341,7 +347,6 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
             False,  # use_always_split_variable_names
             True,  # prediction_mode
             self.ranger_forest_["forest"],  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             [],  # unordered_feature_names
@@ -350,7 +355,7 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
             self.split_rule_,
             [],  # case_weights
             False,  # use_case_weights
-            self.class_weights or [],
+            {},  # class_weights
             False,  # predict_all
             self.keep_inbag,
             [1],  # sample_fraction
@@ -359,7 +364,6 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],
@@ -368,10 +372,7 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
             self.use_regularization_factor_,
             self.regularization_usedepth,
         )
-        print(result)
         predictions = np.atleast_2d(np.array(result["predictions"]))
-        print(predictions)
-        print(self.ranger_class_order_)
         return predictions[:, self.ranger_class_order_]
 
     def predict_log_proba(self, X):

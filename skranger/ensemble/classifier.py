@@ -31,7 +31,6 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
     :param float/list sample_fraction: The fraction of observations to sample. The
         default is 1 when sampling with replacement, and 0.632 otherwise. This can be a
         list of class specific values.
-    :param list class_weights: Weights for the outcome classes.
     :param bool keep_inbag: If true, save how often observations are in-bag in each
         tree. These will be stored in the ``ranger_forest_`` attribute under the key
         ``"inbag_counts"``.
@@ -91,7 +90,6 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
         max_depth=0,
         replace=True,
         sample_fraction=None,
-        class_weights=None,
         keep_inbag=False,
         inbag=None,
         split_rule="gini",
@@ -115,7 +113,6 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
         self.max_depth = max_depth
         self.replace = replace
         self.sample_fraction = sample_fraction
-        self.class_weights = class_weights
         self.keep_inbag = keep_inbag
         self.inbag = inbag
         self.split_rule = split_rule
@@ -156,6 +153,7 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
         X,
         y,
         sample_weight=None,
+        class_weights=None,
         split_select_weights=None,
         always_split_features=None,
         categorical_features=None,
@@ -165,6 +163,7 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
         :param array2d X: training input features
         :param array1d y: training input target classes
         :param array1d sample_weight: optional weights for input samples
+        :param dict class_weights: A dictionary of outcome classes to weights.
         :param list split_select_weights: Vector of weights between 0 and 1 of
             probabilities to select features for splitting. Can be a single vector or a
             vector of vectors with one vector per tree.
@@ -186,6 +185,18 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
         y = np.copy(y)
         self.classes_, y = np.unique(y, return_inverse=True)
         self.n_classes_ = len(self.classes_)
+
+        if class_weights is None:
+            class_weights = {}
+        else:
+            try:
+                class_weights = {
+                    idx: class_weights[k] for idx, k in enumerate(self.classes_)
+                }
+            except KeyError:
+                raise ValueError(
+                    "class weights must have a weight for each class"
+                ) from None
 
         # Set X info
         self.feature_names_ = [str(c).encode() for c in range(X.shape[1])]
@@ -228,7 +239,6 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
             bool(always_split_features),  # use_always_split_variable_names
             False,  # prediction_mode
             {},  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             categorical_features,  # unordered_variable_names
@@ -237,7 +247,7 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
             self.split_rule_,
             sample_weight,  # case_weights
             use_sample_weight,  # use_case_weights
-            self.class_weights or [],
+            class_weights,
             False,  # predict_all
             self.keep_inbag,
             self.sample_fraction_,
@@ -246,7 +256,6 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],
@@ -296,7 +305,6 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
             False,  # use_always_split_variable_names
             True,  # prediction_mode
             self.ranger_forest_["forest"],  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             [],  # unordered_feature_names
@@ -305,7 +313,7 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
             self.split_rule_,
             [],  # case_weights
             False,  # use_case_weights
-            self.class_weights or [],
+            {},  # class_weights
             False,  # predict_all
             self.keep_inbag,
             [1],  # sample_fraction
@@ -314,7 +322,6 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],
@@ -324,7 +331,6 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
             self.regularization_usedepth,
         )
         predictions = np.atleast_2d(np.array(result["predictions"]))
-        print(predictions)
         return predictions[:, self.ranger_class_order_]
 
     def predict_log_proba(self, X):

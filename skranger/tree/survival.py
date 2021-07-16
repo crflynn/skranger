@@ -178,7 +178,6 @@ class RangerTreeSurvival(BaseRangerTree, BaseEstimator):
         instance.feature_names_ = forest.feature_names_
         instance.sample_fraction_ = forest.sample_fraction_
         instance.mtry_ = forest.mtry_
-        instance.order_snps_ = forest.order_snps_
         instance.regularization_factor_ = forest.regularization_factor_
         instance.split_rule_ = forest.split_rule_
         instance.use_regularization_factor_ = forest.use_regularization_factor_
@@ -265,7 +264,6 @@ class RangerTreeSurvival(BaseRangerTree, BaseEstimator):
             use_always_split_features,  # use_always_split_variable_names
             False,  # prediction_mode
             {},  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             categorical_features,  # unordered_feature_names
@@ -274,7 +272,7 @@ class RangerTreeSurvival(BaseRangerTree, BaseEstimator):
             self.split_rule_,
             sample_weight,  # case_weights
             use_sample_weight,  # use_case_weights
-            [],  # class_weights
+            {},  # class_weights
             False,  # predict_all
             self.keep_inbag,
             self.sample_fraction_,
@@ -283,7 +281,6 @@ class RangerTreeSurvival(BaseRangerTree, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],
@@ -325,7 +322,6 @@ class RangerTreeSurvival(BaseRangerTree, BaseEstimator):
             False,  # use_always_split_variable_names
             True,  # prediction_mode
             self.ranger_forest_["forest"],  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             [],  # unordered_feature_names
@@ -334,7 +330,7 @@ class RangerTreeSurvival(BaseRangerTree, BaseEstimator):
             self.split_rule_,
             [],  # case_weights
             False,  # use_case_weights
-            [],  # class_weights
+            {},  # class_weights
             False,  # predict_all
             self.keep_inbag,
             [1],  # sample_fraction
@@ -343,7 +339,6 @@ class RangerTreeSurvival(BaseRangerTree, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],

@@ -236,7 +236,6 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
             bool(always_split_features),  # use_always_split_feature_names
             False,  # prediction_mode
             {},  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             categorical_features,  # unordered_feature_names
@@ -245,7 +244,7 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
             self.split_rule_,
             sample_weight,  # case_weights
             use_sample_weight,  # use_case_weights
-            [],  # class_weights
+            {},  # class_weights
             False,  # predict_all
             self.keep_inbag,
             self.sample_fraction_,
@@ -254,7 +253,6 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],
@@ -303,7 +301,6 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
             False,  # use_always_split_feature_names
             True,  # prediction_mode
             self.ranger_forest_["forest"],  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             True,  # sample_with_replacement
             False,  # probability
             [],  # unordered_feature_names
@@ -312,7 +309,7 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
             1,  # split_rule
             [],  # case_weights
             False,  # use_case_weights
-            [],  # class_weights
+            {},  # class_weights
             False,  # predict_all
             self.keep_inbag,
             [1],  # sample_fraction
@@ -321,7 +318,6 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
             self.holdout,
             2,  # prediction_type (terminal nodes)
             1,  # num_random_splits
-            False,  # order_snps_
             False,  # oob_error
             0,  # max_depth
             [],  # inbag
@@ -396,7 +392,6 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
             False,  # use_always_split_feature_names
             True,  # prediction_mode
             self.ranger_forest_["forest"],  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             [],  # unordered_feature_names
@@ -405,7 +400,7 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
             self.split_rule_,
             [],  # case_weights
             False,  # use_case_weights
-            [],  # class_weights
+            {},  # class_weights
             False,  # predict_all
             self.keep_inbag,
             [1],  # sample_fraction
@@ -414,7 +409,6 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],

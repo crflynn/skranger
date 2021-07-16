@@ -224,7 +224,6 @@ class RangerForestSurvival(BaseRangerForest, BaseEstimator):
             use_always_split_features,  # use_always_split_variable_names
             False,  # prediction_mode
             {},  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             categorical_features,  # unordered_feature_names
@@ -233,7 +232,7 @@ class RangerForestSurvival(BaseRangerForest, BaseEstimator):
             self.split_rule_,
             sample_weight,  # case_weights
             use_sample_weight,  # use_case_weights
-            [],  # class_weights
+            {},  # class_weights
             False,  # predict_all
             self.keep_inbag,
             self.sample_fraction_,
@@ -242,7 +241,6 @@ class RangerForestSurvival(BaseRangerForest, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],
@@ -284,7 +282,6 @@ class RangerForestSurvival(BaseRangerForest, BaseEstimator):
             False,  # use_always_split_variable_names
             True,  # prediction_mode
             self.ranger_forest_["forest"],  # loaded_forest
-            np.asfortranarray([[]]),  # snp_data
             self.replace,  # sample_with_replacement
             False,  # probability
             [],  # unordered_feature_names
@@ -293,7 +290,7 @@ class RangerForestSurvival(BaseRangerForest, BaseEstimator):
             self.split_rule_,
             [],  # case_weights
             False,  # use_case_weights
-            [],  # class_weights
+            {},  # class_weights
             False,  # predict_all
             self.keep_inbag,
             [1],  # sample_fraction
@@ -302,7 +299,6 @@ class RangerForestSurvival(BaseRangerForest, BaseEstimator):
             self.holdout,
             1,  # prediction_type
             self.num_random_splits,
-            self.order_snps_,
             self.oob_error,
             self.max_depth,
             self.inbag or [],

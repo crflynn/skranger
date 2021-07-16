@@ -22,7 +22,6 @@ class RangerMixin:
         self._check_inbag(sample_weights)
         self._check_set_regularization(X.shape[1])
         self._set_split_rule(y)
-        self.order_snps_ = self.respect_categorical_features_ == "order"
 
     def _evaluate_mtry(self, num_features):
         """Evaluate mtry if callable."""
