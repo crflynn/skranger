@@ -178,6 +178,7 @@ class TestRangerTreeSurvival:
 
     def test_split_rule(self, lung_X, lung_y, split_rule):
         tree = RangerTreeSurvival(split_rule=split_rule)
+        assert tree.criterion == split_rule
 
         if split_rule not in ["logrank", "extratrees", "C", "C_ignore_ties", "maxstat"]:
             with pytest.raises(ValueError):

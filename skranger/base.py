@@ -8,6 +8,11 @@ from skranger import ranger
 
 
 class RangerMixin:
+    @property
+    def criterion(self):
+        """Compatibility alias for split rule."""
+        return self.split_rule
+
     # region validation
     def _validate_parameters(self, X, y, sample_weights):
         """Validate ranger parameters and set defaults."""

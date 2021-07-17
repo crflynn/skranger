@@ -199,6 +199,7 @@ class TestRangerTreeClassifier:
 
     def test_split_rule(self, iris_X, iris_y, split_rule):
         tree = RangerTreeClassifier(split_rule=split_rule)
+        assert tree.criterion == split_rule
 
         if split_rule not in ["gini", "extratrees", "hellinger"]:
             with pytest.raises(ValueError):
