@@ -39,7 +39,8 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
         observation. Can be used for stratified sampling.
     :param str split_rule: One of ``gini``, ``extratrees``, ``hellinger``;
         default ``gini``.
-    :param int num_random_splits: The number of trees for the ``extratrees`` splitrule.
+    :param int num_random_splits: The number of random splits to consider for the
+        ``extratrees`` splitrule.
     :param str respect_categorical_features: One of ``ignore``, ``order``, ``partition``.
         The default is ``partition`` for the ``extratrees`` splitrule, otherwise the
         default is ``ignore``.
@@ -309,6 +310,14 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
         self.ranger_class_order_ = np.argsort(
             np.array(self.ranger_forest_["forest"]["class_values"]).astype(int)
         )
+        sample_weight = sample_weight if len(sample_weight) > 0 else np.ones(len(X))
+
+        terminal_node_forest = self._get_terminal_node_forest(X)
+        terminal_nodes = np.atleast_2d(terminal_node_forest["predictions"]).astype(int)
+        self._set_leaf_samples(terminal_nodes)
+        self._set_sample_weights(sample_weight)
+        self._set_node_values(y, sample_weight)
+        self._set_n_classes()
         return self
 
     def predict(self, X):

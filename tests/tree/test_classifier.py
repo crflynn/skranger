@@ -9,6 +9,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.exceptions import NotFittedError
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
+from sklearn.tree._tree import csr_matrix
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_is_fitted
 
@@ -198,6 +199,7 @@ class TestRangerTreeClassifier:
 
     def test_split_rule(self, iris_X, iris_y, split_rule):
         tree = RangerTreeClassifier(split_rule=split_rule)
+        assert tree.criterion == split_rule
 
         if split_rule not in ["gini", "extratrees", "hellinger"]:
             with pytest.raises(ValueError):
@@ -338,3 +340,50 @@ class TestRangerTreeClassifier:
 
     def test_check_estimator(self):
         check_estimator(RangerTreeClassifier())
+
+    def test_get_depth(self, iris_X, iris_y):
+        tree = RangerTreeClassifier()
+        tree.fit(iris_X, iris_y)
+        depth = tree.get_depth()
+        assert isinstance(depth, int)
+        assert depth > 0
+
+    def test_get_n_leaves(self, iris_X, iris_y):
+        tree = RangerTreeClassifier()
+        tree.fit(iris_X, iris_y)
+        leaves = tree.get_n_leaves()
+        assert isinstance(leaves, int)
+        assert np.all(leaves > 0)
+
+    def test_apply(self, iris_X, iris_y):
+        tree = RangerTreeClassifier()
+        tree.fit(iris_X, iris_y)
+        leaves = tree.apply(iris_X)
+        assert isinstance(leaves, np.ndarray)
+        assert np.all(leaves > 0)
+        assert len(leaves) == len(iris_X)
+
+    def test_decision_path(self, iris_X, iris_y):
+        tree = RangerTreeClassifier()
+        tree.fit(iris_X, iris_y)
+        paths = tree.decision_path(iris_X)
+        assert isinstance(paths, csr_matrix)
+        assert paths.shape[0] == len(iris_X)
+
+    def test_tree_interface(self, iris_X, iris_y):
+        tree = RangerTreeClassifier()
+        tree.fit(iris_X, iris_y)
+        # access attributes the way we would expect to in sklearn
+        tree_ = tree.tree_
+        children_left = tree_.children_left
+        children_right = tree_.children_right
+        feature = tree_.feature
+        threshold = tree_.threshold
+        max_depth = tree_.max_depth
+        n_node_samples = tree_.n_node_samples
+        weighted_n_node_samples = tree_.weighted_n_node_samples
+        node_count = tree_.node_count
+        capacity = tree_.capacity
+        n_outputs = tree_.n_outputs
+        n_classes = tree_.n_classes
+        value = tree_.value

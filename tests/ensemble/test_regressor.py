@@ -204,6 +204,7 @@ class TestRangerForestRegressor:
 
     def test_split_rule(self, boston_X, boston_y, split_rule):
         forest = RangerForestRegressor(split_rule=split_rule)
+        assert forest.criterion == split_rule
 
         if split_rule not in ["variance", "extratrees", "maxstat", "beta"]:
             with pytest.raises(ValueError):

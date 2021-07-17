@@ -37,7 +37,8 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
         observation. Can be used for stratified sampling.
     :param str split_rule: One of ``variance``, ``extratrees``, ``maxstat``, ``beta``;
         default ``variance``.
-    :param int num_random_splits: The number of trees for the ``extratrees`` splitrule.
+    :param int num_random_splits: The number of random splits to consider for the
+        ``extratrees`` splitrule.
     :param float alpha: Significance threshold to allow splitting for the ``maxstat``
         split rule.
     :param float minprop: Lower quantile of covariate distribution to be considered for
@@ -261,10 +262,14 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
             False,  # use_regularization_factor
             self.regularization_usedepth,
         )
+        sample_weight = sample_weight if len(sample_weight) > 0 else np.ones(len(X))
+
+        # build the leaf samples
+        terminal_node_forest = self._get_terminal_node_forest(X)
+        terminal_nodes = np.atleast_2d(terminal_node_forest["predictions"]).astype(int)
+        self._set_leaf_samples(terminal_nodes)
 
         if self.quantiles:
-            forest = self._get_terminal_node_forest(X)
-            terminal_nodes = np.array(forest["predictions"]).astype(int)
             self.random_node_values_ = np.empty(
                 (np.max(terminal_nodes) + 1, self.n_estimators)
             )
@@ -274,59 +279,10 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
                 np.random.shuffle(idx)
                 self.random_node_values_[terminal_nodes[idx, tree], tree] = y[idx]
 
+        self._set_sample_weights(sample_weight)
+        self._set_node_values(y, sample_weight)
+        self._set_n_classes()
         return self
-
-    def _get_terminal_node_forest(self, X):
-        """Get a terminal node forest for X.
-
-        :param array2d X: prediction input features
-        """
-        # many fields defaulted here which are unused
-        forest = ranger.ranger(
-            self.tree_type_,
-            np.asfortranarray(X.astype("float64")),
-            np.asfortranarray([[]]),
-            self.feature_names_,  # variable_names
-            0,  # m_try
-            self.n_estimators,  # num_trees
-            self.verbose,
-            self.seed,
-            self.n_jobs_,  # num_threads
-            False,  # write_forest
-            0,  # importance_mode
-            0,  # min_node_size
-            [],  # split_select_weights
-            False,  # use_split_select_weights
-            [],  # always_split_feature_names
-            False,  # use_always_split_feature_names
-            True,  # prediction_mode
-            self.ranger_forest_["forest"],  # loaded_forest
-            True,  # sample_with_replacement
-            False,  # probability
-            [],  # unordered_feature_names
-            False,  # use_unordered_features
-            False,  # save_memory
-            1,  # split_rule
-            [],  # case_weights
-            False,  # use_case_weights
-            {},  # class_weights
-            False,  # predict_all
-            self.keep_inbag,
-            [1],  # sample_fraction
-            0,  # alpha
-            0,  # minprop
-            self.holdout,
-            2,  # prediction_type (terminal nodes)
-            1,  # num_random_splits
-            False,  # oob_error
-            0,  # max_depth
-            [],  # inbag
-            False,  # use_inbag
-            [],  # regularization_factor_
-            False,  # use_regularization_factor_
-            False,  # regularization_usedepth
-        )
-        return forest
 
     def predict_quantiles(self, X, quantiles):
         """Predict quantile regression target for X.

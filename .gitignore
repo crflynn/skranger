@@ -149,3 +149,5 @@ skranger/ranger.html
 
 # src copy to deal with symlinks
 skranger/ranger/
+
+*.svg
