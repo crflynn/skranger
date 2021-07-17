@@ -3,6 +3,14 @@ from sklearn.tree._tree import csr_matrix
 
 
 class Tree:
+    """The low-level tree interface.
+
+    Tree objects can be accessed using the ``tree_`` attribute on fitted
+    decision tree estimators. Instances of ``Tree`` provide methods and
+    properties describing the underlying structure and attributes of the
+    tree.
+    """
+
     def __init__(self, ranger_forest):
         self.ranger_forest = ranger_forest
 
