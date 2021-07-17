@@ -7,6 +7,7 @@ import pytest
 from sklearn.base import clone
 from sklearn.exceptions import NotFittedError
 from sklearn.model_selection import train_test_split
+from sklearn.tree._tree import csr_matrix
 from sklearn.utils.estimator_checks import check_estimator
 from sklearn.utils.validation import check_is_fitted
 
@@ -263,3 +264,50 @@ class TestRangerTreeRegressor:
 
     def test_check_estimator(self):
         check_estimator(RangerTreeRegressor())
+
+    def test_get_depth(self, boston_X, boston_y):
+        tree = RangerTreeRegressor()
+        tree.fit(boston_X, boston_y)
+        depth = tree.get_depth()
+        assert isinstance(depth, int)
+        assert depth > 0
+
+    def test_get_n_leaves(self, boston_X, boston_y):
+        tree = RangerTreeRegressor()
+        tree.fit(boston_X, boston_y)
+        leaves = tree.get_n_leaves()
+        assert isinstance(leaves, int)
+        assert np.all(leaves > 0)
+
+    def test_apply(self, boston_X, boston_y):
+        tree = RangerTreeRegressor()
+        tree.fit(boston_X, boston_y)
+        leaves = tree.apply(boston_X)
+        assert isinstance(leaves, np.ndarray)
+        assert np.all(leaves > 0)
+        assert len(leaves) == len(boston_X)
+
+    def test_decision_path(self, boston_X, boston_y):
+        tree = RangerTreeRegressor()
+        tree.fit(boston_X, boston_y)
+        paths = tree.decision_path(boston_X)
+        assert isinstance(paths, csr_matrix)
+        assert paths.shape[0] == len(boston_X)
+
+    def test_tree_interface(self, boston_X, boston_y):
+        tree = RangerTreeRegressor()
+        tree.fit(boston_X, boston_y)
+        # access attributes the way we would expect to in sklearn
+        tree_ = tree.tree_
+        children_left = tree_.children_left
+        children_right = tree_.children_right
+        feature = tree_.feature
+        threshold = tree_.threshold
+        max_depth = tree_.max_depth
+        # n_node_samples = tree_.n_node_samples
+        # weighted_n_node_samples = tree_.weighted_n_node_samples
+        node_count = tree_.node_count
+        capacity = tree_.capacity
+        n_outputs = tree_.n_outputs
+        # n_classes = tree_.n_classes
+        # value = tree_.value
