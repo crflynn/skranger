@@ -88,6 +88,7 @@ class Tree:
 
     def apply(self, X):
         """Calculate the leaf index for each sample.
+
         :param array2d X: training input features
         """
         return np.apply_along_axis(self._apply, 1, X)
@@ -108,6 +109,7 @@ class Tree:
 
     def decision_path(self, X):
         """Calculate the decision path through the tree for each sample.
+
         :param array2d X: training input features
         """
         if hasattr(X, "values"):  # pd.Dataframe
