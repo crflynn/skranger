@@ -38,7 +38,8 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
         observation. Can be used for stratified sampling.
     :param str split_rule: One of ``gini``, ``extratrees``, ``hellinger``;
         default ``gini``.
-    :param int num_random_splits: The number of trees for the ``extratrees`` splitrule.
+    :param int num_random_splits: The number of random splits to consider for the
+        ``extratrees`` splitrule.
     :param str respect_categorical_features: One of ``ignore``, ``order``, ``partition``.
         The default is ``partition`` for the ``extratrees`` splitrule, otherwise the
         default is ``ignore``.

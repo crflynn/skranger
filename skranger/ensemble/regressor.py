@@ -37,7 +37,8 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
         observation. Can be used for stratified sampling.
     :param str split_rule: One of ``variance``, ``extratrees``, ``maxstat``, ``beta``;
         default ``variance``.
-    :param int num_random_splits: The number of trees for the ``extratrees`` splitrule.
+    :param int num_random_splits: The number of random splits to consider for the
+        ``extratrees`` splitrule.
     :param float alpha: Significance threshold to allow splitting for the ``maxstat``
         split rule.
     :param float minprop: Lower quantile of covariate distribution to be considered for
