@@ -267,7 +267,67 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
         self.ranger_class_order_ = np.argsort(
             np.array(self.ranger_forest_["forest"]["class_values"]).astype(int)
         )
+        sample_weight = sample_weight if sample_weight != [] else np.ones(len(X))
+
+        terminal_node_forest = self._get_terminal_node_forest(X)
+        terminal_nodes = np.atleast_2d(terminal_node_forest["predictions"]).astype(int)
+        self._set_leaf_samples(terminal_nodes)
+        self._set_sample_weights(sample_weight)
+        self._set_node_values(y, sample_weight)
+        self._set_n_classes()
         return self
+
+    def _get_terminal_node_forest(self, X):
+        """Get a terminal node forest for X.
+
+        :param array2d X: prediction input features
+        """
+        # many fields defaulted here which are unused
+        forest = ranger.ranger(
+            self.tree_type_,
+            np.asfortranarray(X.astype("float64")),
+            np.asfortranarray([[]]),
+            self.feature_names_,  # variable_names
+            0,  # m_try
+            self.n_estimators,  # num_trees
+            self.verbose,
+            self.seed,
+            self.n_jobs_,  # num_threads
+            False,  # write_forest
+            0,  # importance_mode
+            0,  # min_node_size
+            [],  # split_select_weights
+            False,  # use_split_select_weights
+            [],  # always_split_feature_names
+            False,  # use_always_split_feature_names
+            True,  # prediction_mode
+            self.ranger_forest_["forest"],  # loaded_forest
+            True,  # sample_with_replacement
+            False,  # probability
+            [],  # unordered_feature_names
+            False,  # use_unordered_features
+            False,  # save_memory
+            1,  # split_rule
+            [],  # case_weights
+            False,  # use_case_weights
+            {},  # class_weights
+            False,  # predict_all
+            self.keep_inbag,
+            [1],  # sample_fraction
+            0,  # alpha
+            0,  # minprop
+            self.holdout,
+            2,  # prediction_type (terminal nodes)
+            1,  # num_random_splits
+            False,  # oob_error
+            0,  # max_depth
+            [],  # inbag
+            False,  # use_inbag
+            [],  # regularization_factor_
+            False,  # use_regularization_factor_
+            False,  # regularization_usedepth
+        )
+        return forest
 
     def predict(self, X):
         """Predict classes from X.

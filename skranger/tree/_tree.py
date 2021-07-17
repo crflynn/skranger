@@ -44,11 +44,10 @@ class Tree:
         # single output only
         return 1
 
-    # TODO
-    # @property
-    # def n_classes(self):
-    #     """The quantity of classes."""
-    #     return np.array([self.ranger_forest["n_classes"]])
+    @property
+    def n_classes(self):
+        """The quantity of classes."""
+        return np.array([self.ranger_forest["n_classes"]])
 
     def get_depth(self):
         """Calculate the maximum depth of the tree."""
@@ -155,47 +154,41 @@ class Tree:
             ]
         )
 
-    # TODO
-    # @property
-    # def n_node_samples(self):
-    #     """The number of samples reaching each node."""
-    #     n_samples = [
-    #         len(node) if node else 0 for node in self.ranger_forest["leaf_samples"][0]
-    #     ]
-    #     self._get_n_node_samples(
-    #         self.children_left, self.children_right, self._root_node_index, n_samples
-    #     )
-    #     return np.array(n_samples)
-    #
-    # def _get_n_node_samples(self, left, right, idx, n_samples):
-    #     left_n_node_samples = (
-    #         n_samples[idx]
-    #         if left[idx] == -1
-    #         else self._get_n_node_samples(left, right, left[idx], n_samples)
-    #     )
-    #     right_n_node_samples = (
-    #         n_samples[idx]
-    #         if right[idx] == -1
-    #         else self._get_n_node_samples(left, right, right[idx], n_samples)
-    #     )
-    #     n_samples[idx] = left_n_node_samples + right_n_node_samples
-    #     return n_samples[idx]
-    #
-    #
-    # @property
-    # def weighted_n_node_samples(self):
-    #     """The sum of the weights of the samples reaching each node."""
-    #     weighted_n_samples = self.ranger_forest["leaf_weights"][0].copy()
-    #     self._get_n_node_samples(
-    #         self.children_left,
-    #         self.children_right,
-    #         self._root_node_index,
-    #         weighted_n_samples,
-    #     )
-    #     return np.array(weighted_n_samples)
-    #
-    # @property
-    # def value(self):
-    #     """The constant prediction value of each node."""
-    #     values = self.ranger_forest["node_values"][0]
-    #     return np.reshape(values, (len(values), 1, 1))
+    @property
+    def n_node_samples(self):
+        """The number of samples reaching each node."""
+        n_samples = [
+            len(node) if node else 0
+            for node in self.ranger_forest["forest"]["leaf_samples"][0]
+        ]
+        self._get_n_node_samples(self.children_left, self.children_right, 0, n_samples)
+        return np.array(n_samples)
+
+    def _get_n_node_samples(self, left, right, idx, n_samples):
+        left_n_node_samples = (
+            n_samples[idx]
+            if left[idx] == -1
+            else self._get_n_node_samples(left, right, left[idx], n_samples)
+        )
+        right_n_node_samples = (
+            n_samples[idx]
+            if right[idx] == -1
+            else self._get_n_node_samples(left, right, right[idx], n_samples)
+        )
+        n_samples[idx] = left_n_node_samples + right_n_node_samples
+        return n_samples[idx]
+
+    @property
+    def weighted_n_node_samples(self):
+        """The sum of the weights of the samples reaching each node."""
+        weighted_n_samples = self.ranger_forest["forest"]["leaf_weights"][0].copy()
+        self._get_n_node_samples(
+            self.children_left, self.children_right, 0, weighted_n_samples,
+        )
+        return np.array(weighted_n_samples)
+
+    @property
+    def value(self):
+        """The constant prediction value of each node."""
+        values = self.ranger_forest["forest"]["node_values"][0]
+        return np.reshape(values, (len(values), 1, 1))

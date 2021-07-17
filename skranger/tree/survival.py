@@ -218,7 +218,7 @@ class RangerTreeSurvival(BaseRangerTree, BaseEstimator):
         # convert 1d array of 2tuples to 2d array
         # ranger expects the time first, and status second
         # since we follow the scikit-survival convention, we fliplr
-        y = np.fliplr(np.array(y.tolist()))
+        yr = np.fliplr(np.array(y.tolist()))
 
         # Check the init parameters
         self._validate_parameters(X, y, sample_weight)
@@ -248,7 +248,7 @@ class RangerTreeSurvival(BaseRangerTree, BaseEstimator):
         self.ranger_forest_ = ranger.ranger(
             self.tree_type_,
             np.asfortranarray(X.astype("float64")),
-            np.asfortranarray(y.astype("float64")),
+            np.asfortranarray(yr.astype("float64")),
             self.feature_names_,  # variable_names
             self.mtry_,
             1,  # num_trees
@@ -296,6 +296,14 @@ class RangerTreeSurvival(BaseRangerTree, BaseEstimator):
         self.cumulative_hazard_function_ = np.array(
             self.ranger_forest_["forest"]["cumulative_hazard_function"], dtype=object
         )
+        sample_weight = sample_weight if sample_weight != [] else np.ones(len(X))
+
+        terminal_node_forest = self._get_terminal_node_forest(X)
+        terminal_nodes = np.atleast_2d(terminal_node_forest["predictions"]).astype(int)
+        self._set_leaf_samples(terminal_nodes)
+        self._set_sample_weights(sample_weight)
+        self._set_node_values(np.array(y.tolist()), sample_weight)
+        self._set_n_classes()
         return self
 
     def _predict(self, X):

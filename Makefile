@@ -63,6 +63,11 @@ test:
 	poetry run pytest --cov=skranger --cov-report=html tests/
 	open htmlcov/index.html
 
+.PHONY: xtest
+xtest:
+	poetry run pytest --cov=skranger -n auto --cov-report=html tests/
+	open htmlcov/index.html
+
 .PHONY: dtest
 dtest:
 	docker run -t skranger run pytest

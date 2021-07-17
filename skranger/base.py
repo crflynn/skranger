@@ -4,6 +4,8 @@ from typing import Iterable
 import numpy as np
 from sklearn.utils.validation import _check_sample_weight
 
+from skranger import ranger
+
 
 class RangerMixin:
     # region validation
@@ -231,5 +233,135 @@ class RangerMixin:
         if categorical_features is None:
             categorical_features = []
         return categorical_features, use_categorical_features
+
+    # endregion
+
+    # region trees
+    def _set_sample_weights(self, sample_weight):
+        """Set leaf weights for access in ``Tree``."""
+        self.ranger_forest_["forest"]["leaf_weights"] = []
+        for tree in self.ranger_forest_["forest"]["leaf_samples"]:
+            self.ranger_forest_["forest"]["leaf_weights"].append([])
+            for node in tree:
+                self.ranger_forest_["forest"]["leaf_weights"][-1].append(
+                    sum([sample_weight[idx] for idx in node])
+                )
+
+    def _get_sample_values(self, values):
+        """Map the leaf samples to corresponding values.
+
+        Used to get corresponding sample weights or targets.
+        """
+        mapped_values = []
+        for tree in self.ranger_forest_["forest"]["leaf_samples"]:
+            mapped_values.append([])
+            for node in tree:
+                mapped_values[-1].append([values[idx] for idx in node])
+        return mapped_values
+
+    def _get_values(self, left, right, idx, values):
+        """Recursively sum the child values through a tree."""
+        left_values = (
+            values[idx]
+            if left[idx] == 0
+            else self._get_values(left, right, left[idx], values)
+        )
+        right_values = (
+            values[idx]
+            if right[idx] == 0
+            else self._get_values(left, right, right[idx], values)
+        )
+        values[idx] = left_values + right_values
+        return values[idx]
+
+    def _set_node_values(self, y, sample_weight):
+        """Set the node values for ``Tree.value``."""
+        forest_values = self._get_sample_values(y)
+        forest_weights = self._get_sample_values(sample_weight)
+        self.ranger_forest_["forest"]["node_values"] = []
+        for idx in range(self.ranger_forest_["num_trees"]):
+            left = self.ranger_forest_["forest"]["child_node_ids"][idx][0]
+            right = self.ranger_forest_["forest"]["child_node_ids"][idx][1]
+            root = 0
+            values = forest_values[idx]
+            self._get_values(
+                left, right, root, values,
+            )
+            weights = forest_weights[idx]
+            self._get_values(
+                left, right, root, weights,
+            )
+            values = [
+                np.average(v, weights=w, axis=0) if v else np.nan
+                for v, w in zip(values, weights)
+            ]
+            self.ranger_forest_["forest"]["node_values"].append(values)
+
+    def _set_n_classes(self):
+        """Set num classes for ``Tree.n_classes``."""
+        # for accessing in Tree
+        self.ranger_forest_["n_classes"] = getattr(self, "n_classes_", 1)
+
+    def _set_leaf_samples(self, terminal_nodes):
+        leaf_samples = []
+        for tidx, tree in enumerate(terminal_nodes.T):
+            n_nodes = len(self.ranger_forest_["forest"]["child_node_ids"][tidx][0])
+            tree_leaf_samples = [[] for _ in range(n_nodes)]
+            for idx, terminal_node in enumerate(tree):
+                tree_leaf_samples[terminal_node].append(idx)
+            leaf_samples.append(tree_leaf_samples)
+        self.ranger_forest_["forest"]["leaf_samples"] = leaf_samples
+
+    def _get_terminal_node_forest(self, X):
+        """Get a terminal node forest for X.
+
+        :param array2d X: prediction input features
+        """
+        # many fields defaulted here which are unused
+        forest = ranger.ranger(
+            self.tree_type_,
+            np.asfortranarray(X.astype("float64")),
+            np.asfortranarray([[]]),
+            self.feature_names_,  # variable_names
+            0,  # m_try
+            getattr(self, "n_estimators", 1),  # num_trees
+            self.verbose,
+            self.seed,
+            getattr(self, "n_jobs_", 1),  # num_threads
+            False,  # write_forest
+            0,  # importance_mode
+            0,  # min_node_size
+            [],  # split_select_weights
+            False,  # use_split_select_weights
+            [],  # always_split_feature_names
+            False,  # use_always_split_feature_names
+            True,  # prediction_mode
+            self.ranger_forest_["forest"],  # loaded_forest
+            True,  # sample_with_replacement
+            False,  # probability
+            [],  # unordered_feature_names
+            False,  # use_unordered_features
+            False,  # save_memory
+            1,  # split_rule
+            [],  # case_weights
+            False,  # use_case_weights
+            {},  # class_weights
+            False,  # predict_all
+            self.keep_inbag,
+            [1],  # sample_fraction
+            0,  # alpha
+            0,  # minprop
+            self.holdout,
+            2,  # prediction_type (terminal nodes)
+            1,  # num_random_splits
+            False,  # oob_error
+            0,  # max_depth
+            [],  # inbag
+            False,  # use_inbag
+            [],  # regularization_factor_
+            False,  # use_regularization_factor_
+            False,  # regularization_usedepth
+        )
+        return forest
 
     # endregion

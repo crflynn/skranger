@@ -256,6 +256,14 @@ class RangerForestSurvival(BaseRangerForest, BaseEstimator):
         self.cumulative_hazard_function_ = np.array(
             self.ranger_forest_["forest"]["cumulative_hazard_function"], dtype=object
         )
+        sample_weight = sample_weight if sample_weight != [] else np.ones(len(X))
+
+        terminal_node_forest = self._get_terminal_node_forest(X)
+        terminal_nodes = np.atleast_2d(terminal_node_forest["predictions"]).astype(int)
+        self._set_leaf_samples(terminal_nodes)
+        self._set_sample_weights(sample_weight)
+        self._set_node_values(y, sample_weight)
+        self._set_n_classes()
         return self
 
     def _predict(self, X):

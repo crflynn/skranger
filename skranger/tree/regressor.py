@@ -299,6 +299,14 @@ class RangerTreeRegressor(BaseRangerTree, RegressorMixin, BaseEstimator):
             False,  # use_regularization_factor
             self.regularization_usedepth,
         )
+        sample_weight = sample_weight if sample_weight != [] else np.ones(len(X))
+
+        terminal_node_forest = self._get_terminal_node_forest(X)
+        terminal_nodes = np.atleast_2d(terminal_node_forest["predictions"]).astype(int)
+        self._set_leaf_samples(terminal_nodes)
+        self._set_sample_weights(sample_weight)
+        self._set_node_values(y, sample_weight)
+        self._set_n_classes()
         return self
 
     def predict(self, X):
