@@ -310,7 +310,7 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
         self.ranger_class_order_ = np.argsort(
             np.array(self.ranger_forest_["forest"]["class_values"]).astype(int)
         )
-        sample_weight = sample_weight if sample_weight != [] else np.ones(len(X))
+        sample_weight = sample_weight if len(sample_weight) > 0 else np.ones(len(X))
 
         terminal_node_forest = self._get_terminal_node_forest(X)
         terminal_nodes = np.atleast_2d(terminal_node_forest["predictions"]).astype(int)

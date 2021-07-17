@@ -3,7 +3,6 @@ import pytest
 from skranger.ensemble import RangerForestRegressor
 
 
-@pytest.mark.skip()
 def test_plot():
     from matplotlib import pyplot as plt
     from sklearn.datasets import load_boston
