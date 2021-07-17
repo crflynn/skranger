@@ -147,10 +147,10 @@ class Tree:
     @property
     def threshold(self):
         """Threshold values on which nodes are split."""
-        # sklearn uses -2, ranger uses -1
+        # sklearn uses -2, ranger uses 0
         return np.array(
             [
-                -2 if v == -1 else v
+                -2 if v == 0 else v
                 for v in self.ranger_forest["forest"]["split_values"][0]
             ]
         )
