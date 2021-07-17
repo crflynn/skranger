@@ -13,7 +13,6 @@ def test_plot():
     forest = RangerForestRegressor()
     forest.fit(boston_X, boston_y)
     estimator = forest.get_estimator(0)
-    estimator.criterion = "mse"
     plt.figure()
     plot_tree(
         estimator, impurity=False,  # impurity not yet implemented
