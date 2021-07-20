@@ -1,6 +1,21 @@
 Release Changelog
 -----------------
 
+0.5.0 (2021-07-20)
+~~~~~~~~~~~~~~~~~~
+
+* Move ``split_select_weights``, ``always_split_features``, ``categorical_features`` params from init to fit methods.
+* Sample weight checking is now a base class method.
+* Remove sparse matrix args from bindings.
+* Fix a bug with the output of ``predict_quantiles`` not being oriented properly for multiple quantiles
+* Regression's ``predict_quantiles`` now requires a passed list of quantiles and the default is removed
+* Regression's ``predict`` now takes an optional list of quantiles
+* Remove ``snp_data`` and ``order_snps`` from bindings
+* Moves ``class_weights`` to fit in classifier, and changes the arg type to a dictionary.
+* Add ``RangerTreeClassifier``, ``RangerTreeRegressor``, and ``RangerTreeSurvival`` decision tree estimators which inherit between ``RangerMixin`` and ``BaseRangerTree``. Also provide a ``BaseRangerForest`` class for ensemble estimators.
+* Add a low level ``Tree`` class which implements most of the ``sklearn.tree._tree.Tree`` interface.
+* Fix incorrect documentation for ``num_random_splits``.
+
 0.4.1 (2021-07-04)
 ~~~~~~~~~~~~~~~~~~
 
