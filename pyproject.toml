@@ -9,7 +9,7 @@ homepage = "https://github.com/crflynn/skranger"
 repository = "https://github.com/crflynn/skranger"
 documentation = "https://github.com/crflynn/skranger"
 include = [
-    "skranger/ensemble/ranger/**/*",
+    "skranger/ranger/**/*",
     "CHANGELOG.rst",
     "LICENSE.txt",
     "README.rst",
