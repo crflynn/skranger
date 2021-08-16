@@ -61,6 +61,9 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
     :param int n_jobs: The number of threads. Default is number of CPU cores.
     :param bool save_memory: Save memory at the cost of speed growing trees.
     :param int seed: Random seed value.
+    :param bool enable_tree_details: When ``True``, perform additional calculations
+        for building the underlying decision trees. Must be enabled for ``estimators_``
+        and ``get_estimator`` to work.
 
     :ivar int n_features_in\_: The number of features (columns) from the fit input
         ``X``.
@@ -116,6 +119,7 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
         n_jobs=-1,
         save_memory=False,
         seed=42,
+        enable_tree_details=False,
     ):
         self.n_estimators = n_estimators
         self.verbose = verbose
@@ -145,6 +149,7 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
         self.n_jobs = n_jobs
         self.save_memory = save_memory
         self.seed = seed
+        self.enable_tree_details = enable_tree_details
 
     @property
     def estimators_(self):
@@ -154,6 +159,8 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
             raise AttributeError(
                 f"{self.__class__.__name__} object has no attribute 'estimators_'"
             ) from None
+        if not self.enable_tree_details:
+            raise ValueError("enable_tree_details must be True prior to training")
         return [
             RangerTreeRegressor.from_forest(self, idx=idx)
             for idx in range(self.n_estimators)
@@ -164,6 +171,8 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
         :param int idx: The index of the tree to extract.
         """
         check_is_fitted(self)
+        if not self.enable_tree_details:
+            raise ValueError("enable_tree_details must be True prior to training")
         return RangerTreeRegressor.from_forest(self, idx=idx)
 
     def fit(
@@ -279,9 +288,10 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
                 np.random.shuffle(idx)
                 self.random_node_values_[terminal_nodes[idx, tree], tree] = y[idx]
 
-        self._set_sample_weights(sample_weight)
-        self._set_node_values(y, sample_weight)
-        self._set_n_classes()
+        if self.enable_tree_details:
+            self._set_sample_weights(sample_weight)
+            self._set_node_values(y, sample_weight)
+            self._set_n_classes()
         return self
 
     def predict_quantiles(self, X, quantiles):

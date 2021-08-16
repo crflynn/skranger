@@ -346,6 +346,10 @@ class TestRangerForestRegressor:
         with pytest.raises(AttributeError):
             _ = forest.estimators_
         forest.fit(boston_X, boston_y)
+        with pytest.raises(ValueError):
+            _ = forest.estimators_
+        forest = RangerForestRegressor(n_estimators=10, enable_tree_details=True)
+        forest.fit(boston_X, boston_y)
         estimators = forest.estimators_
         assert len(estimators) == 10
         assert isinstance(estimators[0], RangerTreeRegressor)
@@ -356,9 +360,11 @@ class TestRangerForestRegressor:
         with pytest.raises(NotFittedError):
             _ = forest.get_estimator(idx=0)
         forest.fit(boston_X, boston_y)
-        forest.predict(boston_X)
+        with pytest.raises(ValueError):
+            _ = forest.get_estimator(0)
+        forest = RangerForestRegressor(n_estimators=10, enable_tree_details=True)
+        forest.fit(boston_X, boston_y)
         estimator = forest.get_estimator(0)
-        check_is_fitted(estimator)
         estimator.predict(boston_X)
         assert isinstance(estimator, RangerTreeRegressor)
         with pytest.raises(IndexError):

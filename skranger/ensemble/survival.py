@@ -56,6 +56,9 @@ class RangerForestSurvival(BaseRangerForest, BaseEstimator):
     :param bool oob_error: Whether to calculate out-of-bag prediction error.
     :param int n_jobs: The number of threads. Default is number of CPU cores.
     :param int seed: Random seed value.
+    :param bool enable_tree_details: When ``True``, perform additional calculations
+        for building the underlying decision trees. Must be enabled for ``estimators_``
+        and ``get_estimator`` to work.
 
     :ivar int n_features_in\_: The number of features (columns) from the fit input ``X``.
     :ivar list feature_names\_: Names for the features of the fit input ``X``.
@@ -103,6 +106,7 @@ class RangerForestSurvival(BaseRangerForest, BaseEstimator):
         oob_error=False,
         n_jobs=0,
         seed=42,
+        enable_tree_details=False,
     ):
         self.n_estimators = n_estimators
         self.verbose = verbose
@@ -127,6 +131,7 @@ class RangerForestSurvival(BaseRangerForest, BaseEstimator):
         self.oob_error = oob_error
         self.n_jobs = n_jobs
         self.seed = seed
+        self.enable_tree_details = enable_tree_details
 
     @property
     def estimators_(self):
@@ -136,6 +141,8 @@ class RangerForestSurvival(BaseRangerForest, BaseEstimator):
             raise AttributeError(
                 f"{self.__class__.__name__} object has no attribute 'estimators_'"
             ) from None
+        if not self.enable_tree_details:
+            raise ValueError("enable_tree_details must be True prior to training")
         return [
             RangerTreeSurvival.from_forest(self, idx=idx)
             for idx in range(self.n_estimators)
@@ -146,6 +153,8 @@ class RangerForestSurvival(BaseRangerForest, BaseEstimator):
         :param int idx: The index of the tree to extract.
         """
         check_is_fitted(self)
+        if not self.enable_tree_details:
+            raise ValueError("enable_tree_details must be True prior to training")
         return RangerTreeSurvival.from_forest(self, idx=idx)
 
     def fit(
@@ -257,14 +266,17 @@ class RangerForestSurvival(BaseRangerForest, BaseEstimator):
         self.cumulative_hazard_function_ = np.array(
             self.ranger_forest_["forest"]["cumulative_hazard_function"], dtype=object
         )
-        sample_weight = sample_weight if len(sample_weight) > 0 else np.ones(len(X))
 
-        terminal_node_forest = self._get_terminal_node_forest(X)
-        terminal_nodes = np.atleast_2d(terminal_node_forest["predictions"]).astype(int)
-        self._set_leaf_samples(terminal_nodes)
-        self._set_sample_weights(sample_weight)
-        self._set_node_values(y, sample_weight)
-        self._set_n_classes()
+        if self.enable_tree_details:
+            sample_weight = sample_weight if len(sample_weight) > 0 else np.ones(len(X))
+            terminal_node_forest = self._get_terminal_node_forest(X)
+            terminal_nodes = np.atleast_2d(terminal_node_forest["predictions"]).astype(
+                int
+            )
+            self._set_leaf_samples(terminal_nodes)
+            self._set_sample_weights(sample_weight)
+            self._set_node_values(y, sample_weight)
+            self._set_n_classes()
         return self
 
     def _predict(self, X):
