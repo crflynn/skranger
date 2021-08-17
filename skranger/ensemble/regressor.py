@@ -1,6 +1,4 @@
 """Scikit-learn wrapper for ranger regression."""
-import logging
-
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import RegressorMixin
