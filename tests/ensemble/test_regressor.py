@@ -313,12 +313,16 @@ class TestRangerForestRegressor:
         assert quantiles_upper.ndim == 1
         quantiles = forest.predict_quantiles(X_test, quantiles=[0.1, 0.9])
         assert quantiles.shape == (X_test.shape[0], 2)
+        assert np.sum(np.isnan(quantiles_lower)) == 0
+        assert np.sum(np.isnan(quantiles_upper)) == 0
 
         # test predict method
         pred = forest.predict(X_test, quantiles=[0.2, 0.5])
         assert pred.shape == (X_test.shape[0], 2)
+        assert np.sum(np.isnan(pred)) == 0
         pred = forest.predict(X_test, quantiles=[0.2])
         assert pred.ndim == 1
+        assert np.sum(np.isnan(pred)) == 0
 
     def test_feature_importances_(
         self, boston_X, boston_y, importance, local_importance

@@ -316,7 +316,7 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
             node_values[:, tree] = self.random_node_values_[
                 terminal_nodes[:, tree], tree
             ]
-        quantile_predictions = np.nanquantile(node_values, quantiles, axis=1)
+        quantile_predictions = np.quantile(node_values, quantiles, axis=1)
         if len(quantiles) == 1:
             return np.squeeze(quantile_predictions)
         return quantile_predictions.T
