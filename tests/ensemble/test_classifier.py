@@ -395,6 +395,10 @@ class TestRangerForestClassifier:
         with pytest.raises(AttributeError):
             _ = forest.estimators_
         forest.fit(iris_X, iris_y)
+        with pytest.raises(ValueError):
+            _ = forest.estimators_
+        forest = RangerForestClassifier(n_estimators=10, enable_tree_details=True)
+        forest.fit(iris_X, iris_y)
         estimators = forest.estimators_
         assert len(estimators) == 10
         assert isinstance(estimators[0], RangerTreeClassifier)
@@ -405,9 +409,11 @@ class TestRangerForestClassifier:
         with pytest.raises(NotFittedError):
             _ = forest.get_estimator(idx=0)
         forest.fit(iris_X, iris_y)
-        forest.predict(iris_X)
+        with pytest.raises(ValueError):
+            _ = forest.get_estimator(0)
+        forest = RangerForestClassifier(n_estimators=10, enable_tree_details=True)
+        forest.fit(iris_X, iris_y)
         estimator = forest.get_estimator(0)
-        check_is_fitted(estimator)
         estimator.predict(iris_X)
         assert isinstance(estimator, RangerTreeClassifier)
         with pytest.raises(IndexError):
