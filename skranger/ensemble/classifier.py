@@ -58,7 +58,7 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
     :param int seed: Random seed value.
     :param bool enable_tree_details: When ``True``, perform additional calculations
         for building the underlying decision trees. Must be enabled for ``estimators_``
-        and ``get_estimator`` to work.
+        and ``get_estimator`` to work. Very slow.
 
     :ivar ndarray classes\_: The class labels determined from the fit input ``y``.
     :ivar int n_classes\_: The number of unique class labels from the fit input ``y``.

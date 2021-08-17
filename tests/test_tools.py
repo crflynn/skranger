@@ -3,14 +3,14 @@ import pytest
 from skranger.ensemble import RangerForestRegressor
 
 
-@pytest.mark.skip()
+# @pytest.mark.skip()
 def test_plot():
     from matplotlib import pyplot as plt
     from sklearn.datasets import load_boston
     from sklearn.tree import plot_tree
 
     boston_X, boston_y = load_boston(return_X_y=True)
-    forest = RangerForestRegressor()
+    forest = RangerForestRegressor(enable_tree_details=True)
     forest.fit(boston_X, boston_y)
     estimator = forest.get_estimator(0)
     plt.figure()

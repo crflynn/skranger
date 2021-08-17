@@ -1,4 +1,6 @@
 """Scikit-learn wrapper for ranger regression."""
+import logging
+
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import RegressorMixin
@@ -63,7 +65,7 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
     :param int seed: Random seed value.
     :param bool enable_tree_details: When ``True``, perform additional calculations
         for building the underlying decision trees. Must be enabled for ``estimators_``
-        and ``get_estimator`` to work.
+        and ``get_estimator`` to work. Very slow.
 
     :ivar int n_features_in\_: The number of features (columns) from the fit input
         ``X``.
@@ -276,7 +278,6 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
         # build the leaf samples
         terminal_node_forest = self._get_terminal_node_forest(X)
         terminal_nodes = np.atleast_2d(terminal_node_forest["predictions"]).astype(int)
-        self._set_leaf_samples(terminal_nodes)
 
         if self.quantiles:
             self.random_node_values_ = np.empty(
@@ -289,6 +290,7 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
                 self.random_node_values_[terminal_nodes[idx, tree], tree] = y[idx]
 
         if self.enable_tree_details:
+            self._set_leaf_samples(terminal_nodes)
             self._set_sample_weights(sample_weight)
             self._set_node_values(y, sample_weight)
             self._set_n_classes()
