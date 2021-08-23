@@ -1,6 +1,13 @@
 Release Changelog
 -----------------
 
+0.6.0 (2021-08-23)
+~~~~~~~~~~~~~~~~~~
+
+* Remove numpy from dependency spec; numpy is already a requirement of scikit-learn
+* Change tree detail training code to be optional due to expensive operations
+* Change quantile regression to use ``np.quantile`` in lieu of `np.nanquantile`` for faster predictions
+
 0.5.0 (2021-07-20)
 ~~~~~~~~~~~~~~~~~~
 
