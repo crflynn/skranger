@@ -146,7 +146,7 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
             min_node_size=forest.min_node_size,
             max_depth=forest.max_depth,
             replace=forest.replace,
-            sample_fraction=forest.replace,
+            sample_fraction=forest.sample_fraction,
             keep_inbag=forest.keep_inbag,
             inbag=forest.inbag,
             split_rule=forest.split_rule,
