@@ -5,8 +5,10 @@ Release Changelog
 ~~~~~~~~~~~~~~~~~~
 
 * Remove numpy from dependency spec; numpy is already a requirement of scikit-learn
-* Change tree detail training code to be optional due to expensive operations
+* Change tree detail training code to be optional in ensembles due to expensive operations
 * Change quantile regression to use ``np.quantile`` in lieu of `np.nanquantile`` for faster predictions
+* Fix bug in tree classmethods when setting ``sample_fraction``
+* Added more documentation around tree detail calculations
 
 0.5.0 (2021-07-20)
 ~~~~~~~~~~~~~~~~~~
