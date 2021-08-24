@@ -242,20 +242,22 @@ class RangerMixin:
     # endregion
 
     # region trees
-    def _set_sample_weights(self, sample_weight):
+    def _set_sample_weights(self, sample_weights):
         """Set leaf weights for access in ``Tree``."""
-        self.ranger_forest_["forest"]["leaf_weights"] = []
-        for tree in self.ranger_forest_["forest"]["leaf_samples"]:
-            self.ranger_forest_["forest"]["leaf_weights"].append([])
-            for node in tree:
-                self.ranger_forest_["forest"]["leaf_weights"][-1].append(
-                    sum([sample_weight[idx] for idx in node])
-                )
+        weights = []
+        for tree in sample_weights:
+            tree_weights = []
+            for idx, node in enumerate(tree):
+                tree_weights.append(sum(node))
+            weights.append(tree_weights)
+        self.ranger_forest_["forest"]["leaf_weights"] = weights
 
     def _get_sample_values(self, values):
         """Map the leaf samples to corresponding values.
 
-        Used to get corresponding sample weights or targets.
+        Create a similarly structured set of lists by mapping the leaf sample indexes
+        to corresponding values passed. Used for mapping leaf samples to target values
+        or sample weights.
         """
         mapped_values = []
         for tree in self.ranger_forest_["forest"]["leaf_samples"]:
@@ -283,6 +285,7 @@ class RangerMixin:
         """Set the node values for ``Tree.value``."""
         forest_values = self._get_sample_values(y)
         forest_weights = self._get_sample_values(sample_weight)
+        self._set_sample_weights(forest_weights)
         self.ranger_forest_["forest"]["node_values"] = []
         for idx in range(self.ranger_forest_["num_trees"]):
             left = self.ranger_forest_["forest"]["child_node_ids"][idx][0]
@@ -308,17 +311,32 @@ class RangerMixin:
         self.ranger_forest_["n_classes"] = getattr(self, "n_classes_", 1)
 
     def _set_leaf_samples(self, terminal_nodes):
+        """Set the leaf samples using the terminal nodes.
+
+        Collect all of the record indexes that fall into each terminal node. The
+        resulting ``leaf_samples`` value will be a list of lists of lists. The outer
+        list is a collection of tree lists. The tree lists are collections of node
+        lists. The node lists contain record indexes for terminal nodes only. The index
+        of the node lists correspond to the node index in the respective tree.
+        """
         leaf_samples = []
-        for tidx, tree in enumerate(terminal_nodes.T):
-            n_nodes = len(self.ranger_forest_["forest"]["child_node_ids"][tidx][0])
+        for tree_idx, tree in enumerate(terminal_nodes.T):
+            n_nodes = len(self.ranger_forest_["forest"]["child_node_ids"][tree_idx][0])
             tree_leaf_samples = [[] for _ in range(n_nodes)]
-            for idx, terminal_node in enumerate(tree):
-                tree_leaf_samples[terminal_node].append(idx)
+            for record_idx, terminal_node in enumerate(tree):
+                tree_leaf_samples[terminal_node].append(record_idx)
             leaf_samples.append(tree_leaf_samples)
         self.ranger_forest_["forest"]["leaf_samples"] = leaf_samples
 
     def _get_terminal_node_forest(self, X):
         """Get a terminal node forest for X.
+
+        Uses a trained forest to return the terminal node ids of each record of ``X``
+        for each tree. Returns a dictionary.
+
+        The returned value of key ``predictions`` will hold a list of
+        lists. The inner list is the list of terminal nodes of each tree for a record.
+        The outer list entries correspond to each record of ``X``.
 
         :param array2d X: prediction input features
         """

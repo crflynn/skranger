@@ -285,7 +285,6 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
                 int
             )
             self._set_leaf_samples(terminal_nodes)
-            self._set_sample_weights(sample_weight)
             self._set_node_values(y, sample_weight)
             self._set_n_classes()
         return self

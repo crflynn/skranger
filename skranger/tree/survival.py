@@ -144,7 +144,7 @@ class RangerTreeSurvival(BaseRangerTree, BaseEstimator):
             min_node_size=forest.min_node_size,
             max_depth=forest.max_depth,
             replace=forest.replace,
-            sample_fraction=forest.replace,
+            sample_fraction=forest.sample_fraction,
             keep_inbag=forest.keep_inbag,
             inbag=forest.inbag,
             split_rule=forest.split_rule,
@@ -302,7 +302,6 @@ class RangerTreeSurvival(BaseRangerTree, BaseEstimator):
         terminal_node_forest = self._get_terminal_node_forest(X)
         terminal_nodes = np.atleast_2d(terminal_node_forest["predictions"]).astype(int)
         self._set_leaf_samples(terminal_nodes)
-        self._set_sample_weights(sample_weight)
         self._set_node_values(np.array(y.tolist()), sample_weight)
         self._set_n_classes()
         return self
