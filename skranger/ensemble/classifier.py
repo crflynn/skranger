@@ -57,7 +57,7 @@ class RangerForestClassifier(BaseRangerForest, ClassifierMixin, BaseEstimator):
     :param bool save_memory: Save memory at the cost of speed growing trees.
     :param int seed: Random seed value.
     :param bool enable_tree_details: When ``True``, perform additional calculations
-        for building the underlying decision trees. Must be enabled for ``estimators_``
+        for detailing the underlying decision trees. Must be enabled for ``estimators_``
         and ``get_estimator`` to work. Very slow.
 
     :ivar ndarray classes\_: The class labels determined from the fit input ``y``.
