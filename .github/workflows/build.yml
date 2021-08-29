@@ -50,6 +50,10 @@ jobs:
     - name: Install deps
       if: steps.cache-deps.outputs.cache-hit != 'true'
       run: |
+        poetry install --no-root
+
+    - name: Install
+      run: |
         poetry install
 
     - name: Format
@@ -118,6 +122,10 @@ jobs:
     - name: Install deps
       if: steps.cache-deps.outputs.cache-hit != 'true'
       run: |
+        poetry install --no-root
+
+    - name: Install
+      run: |
         poetry install
 
     - name: Test
@@ -178,6 +186,10 @@ jobs:
 
     - name: Install deps
       if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: |
+        poetry install --no-root
+
+    - name: Install
       run: |
         poetry install
 
