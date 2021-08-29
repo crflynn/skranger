@@ -42,14 +42,14 @@ jobs:
         poetry run pip install pip==20.0.2
         poetry run pip install -U setuptools wheel
 
-    - name: Install deps
-      if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: |
-        poetry install --no-root
-
     - name: Build
       run: |
         poetry run python buildpre.py
+        poetry build
+
+    - name: Install deps
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: |
         poetry install
 
     - name: Format
@@ -110,14 +110,14 @@ jobs:
         poetry run pip install pip==20.0.2
         poetry run pip install -U setuptools wheel
 
-    - name: Install deps
-      if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: |
-        poetry install --no-root
-
     - name: Build
       run: |
         poetry run python buildpre.py
+        poetry build
+
+    - name: Install deps
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: |
         poetry install
 
     - name: Test
@@ -171,14 +171,14 @@ jobs:
         poetry run pip install pip==20.0.2
         poetry run pip install -U setuptools wheel
 
-    - name: Install deps
-      if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: |
-        poetry install --no-root
-
     - name: Build
       run: |
         poetry run python buildpre.py
+        poetry build
+
+    - name: Install deps
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: |
         poetry install
 
     - name: Test
