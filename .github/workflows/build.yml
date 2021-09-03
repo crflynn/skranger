@@ -42,14 +42,6 @@ jobs:
         poetry run pip install pip==20.0.2
         poetry run pip install -U setuptools wheel
 
-    - name: Install tools
-      # pip 20.1 fails on generation of multiple .egg-info dirs
-      run: |
-        asdf install
-        poetry config virtualenvs.create false
-        poetry run pip install pip==20.0.2
-        poetry run pip install -U setuptools wheel
-
     - name: Build
       run: |
         poetry run pip install cython oldest-supported-numpy
