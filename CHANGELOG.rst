@@ -1,6 +1,11 @@
 Release Changelog
 -----------------
 
+0.6.1 (2021-09-05)
+~~~~~~~~~~~~~~~~~~
+
+* Use oldest supported numpy for builds
+
 0.6.0 (2021-08-23)
 ~~~~~~~~~~~~~~~~~~
 
