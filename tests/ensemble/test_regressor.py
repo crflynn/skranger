@@ -323,6 +323,13 @@ class TestRangerForestRegressor:
         pred = forest.predict(X_test, quantiles=[0.2])
         assert pred.ndim == 1
         assert np.sum(np.isnan(pred)) == 0
+        
+        # test with single record
+        boston_X_record = boston_X[0:1, :]
+        pred = forest.predict(boston_X_record, quantiles=[0.2, 0.5])
+        assert pred.shape == (1, 2)
+        assert np.sum(np.isnan(pred)) == 0
+
 
     def test_feature_importances_(
         self, boston_X, boston_y, importance, local_importance
