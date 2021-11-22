@@ -311,7 +311,7 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
         forest = self._get_terminal_node_forest(X)
         terminal_nodes = np.array(forest["predictions"]).astype(int)
         if len(terminal_nodes.shape) < 2:
-            terminal_nodes = np.reshape(terminal_nodes, (1, -1))
+            terminal_nodes = np.atleast_2d(terminal_nodes)
         node_values = 0.0 * terminal_nodes
         for tree in range(self.n_estimators):
             node_values[:, tree] = self.random_node_values_[
