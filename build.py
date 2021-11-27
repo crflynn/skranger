@@ -1,4 +1,5 @@
 import os
+import sys
 from setuptools import Extension
 from setuptools import setup
 
@@ -57,16 +58,23 @@ def create_extension(module_name):
 
 ext_modules = [create_extension(name) for name in find_pyx_files("skranger")]
 
-setup(
-    ext_modules=cythonize(
-        ext_modules,
-        gdb_debug=False,
-        force=True,
-        annotate=False,
-        compiler_directives={"language_level": "3"},
+
+def build_ext():
+    setup(
+        name="skranger",
+        ext_modules=cythonize(
+            ext_modules,
+            gdb_debug=False,
+            force=True,
+            annotate=False,
+            compiler_directives={"language_level": "3"},
+        ),
     )
-)
+
+
+if "clean" in sys.argv or "build_ext" in sys.argv:
+    build_ext()
 
 
 def build(setup_kwargs):
-    setup_kwargs.update({"ext_modules": ext_modules})
+    build_ext()
