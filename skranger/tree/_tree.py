@@ -201,4 +201,4 @@ class Tree:
     def value(self):
         """The constant prediction value of each node."""
         values = self.ranger_forest["forest"]["node_values"][0]
-        return np.reshape(values, (len(values), 1, 1))
+        return np.reshape(values, (len(values), 1, self.n_classes[0]))

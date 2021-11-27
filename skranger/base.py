@@ -299,10 +299,18 @@ class RangerMixin:
             self._get_values(
                 left, right, root, weights,
             )
-            values = [
-                np.average(v, weights=w, axis=0) if v else np.nan
-                for v, w in zip(values, weights)
-            ]
+            if getattr(self, "_estimator_type", None) == "classifier":
+                values = [
+                    np.bincount(v, weights=w, minlength=self.n_classes_).tolist()
+                    if v
+                    else np.nan
+                    for v, w in zip(values, weights)
+                ]
+            else:
+                values = [
+                    np.average(v, weights=w, axis=0) if v else np.nan
+                    for v, w in zip(values, weights)
+                ]
             self.ranger_forest_["forest"]["node_values"].append(values)
 
     def _set_n_classes(self):

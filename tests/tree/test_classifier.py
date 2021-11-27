@@ -387,3 +387,4 @@ class TestRangerTreeClassifier:
         n_outputs = tree_.n_outputs
         n_classes = tree_.n_classes
         value = tree_.value
+        assert value.shape == (node_count, 1, len(np.unique(iris_y)))
