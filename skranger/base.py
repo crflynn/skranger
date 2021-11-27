@@ -299,7 +299,7 @@ class RangerMixin:
             self._get_values(
                 left, right, root, weights,
             )
-            if self._estimator_type == "classifier":
+            if getattr(self, "_estimator_type", None) == "classifier":
                 values = [
                     np.bincount(v, weights=w, minlength=self.n_classes_).tolist()
                     if v
