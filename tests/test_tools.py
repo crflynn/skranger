@@ -60,7 +60,7 @@ def test_plot():
 
 
 @pytest.mark.skipif(
-    sys.version_info > (3, 9) and os.getenv("CI"), reason="requires < 3.9"
+    sys.version_info > (3, 9) and os.getenv("CI") is not None, reason="requires < 3.9"
 )
 def test_shap_regressor(boston_X, boston_y):
     from shap import TreeExplainer
@@ -75,7 +75,7 @@ def test_shap_regressor(boston_X, boston_y):
 
 
 @pytest.mark.skipif(
-    sys.version_info > (3, 9) and os.getenv("CI"), reason="requires < 3.9"
+    sys.version_info > (3, 9) and os.getenv("CI") is not None, reason="requires < 3.9"
 )
 def test_shap_classifier(iris_X, iris_y):
     from shap import TreeExplainer
