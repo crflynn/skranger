@@ -148,7 +148,7 @@ class Tree:
         # sklearn uses -2, ranger uses 0
         return np.array(
             [
-                -2 if n == -1 else v
+                -2 if n == 0 else v
                 for n, v in zip(
                     self.ranger_forest["forest"]["child_node_ids"][0][0],
                     self.ranger_forest["forest"]["split_var_ids"][0],
@@ -162,8 +162,11 @@ class Tree:
         # sklearn uses -2, ranger uses 0
         return np.array(
             [
-                -2 if v == 0 else v
-                for v in self.ranger_forest["forest"]["split_values"][0]
+                -2 if n == 0 else v
+                for n, v in zip(
+                    self.ranger_forest["forest"]["child_node_ids"][0][0],
+                    self.ranger_forest["forest"]["split_values"][0],
+                )
             ]
         )
 
