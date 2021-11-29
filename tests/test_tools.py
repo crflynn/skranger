@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 import pytest
 from shap import TreeExplainer
 from sklearn.ensemble import RandomForestClassifier
@@ -20,9 +22,20 @@ def getclass(klass):
     return __class__override
 
 
-Tree.__getattribute__ = getclass(SKTree)
-RangerForestRegressor.__getattribute__ = getclass(RandomForestRegressor)
-RangerForestClassifier.__getattribute__ = getclass(RandomForestClassifier)
+@contextmanager
+def patch_sklearn():
+    tree_orig = Tree.__getattribute__
+    Tree.__getattribute__ = getclass(SKTree)
+    reg_orig = RangerForestRegressor.__getattribute__
+    RangerForestRegressor.__getattribute__ = getclass(RandomForestRegressor)
+    cls_orig = RangerForestClassifier.__getattribute__
+    RangerForestClassifier.__getattribute__ = getclass(RandomForestClassifier)
+    yield
+    Tree.__getattribute__ = tree_orig
+    RangerForestRegressor.__getattribute__ = reg_orig
+    RangerForestClassifier.__getattribute__ = cls_orig
+
+
 # endregion
 
 
@@ -48,8 +61,9 @@ def test_plot():
 def test_shap_regressor(boston_X, boston_y):
     forest = RangerForestRegressor(enable_tree_details=True)
     forest.fit(boston_X, boston_y)
-    explainer = TreeExplainer(model=forest)
-    shap_values = explainer.shap_values(boston_X)
+    with patch_sklearn():
+        explainer = TreeExplainer(model=forest)
+        shap_values = explainer.shap_values(boston_X)
     print(shap_values)
 
 
@@ -57,8 +71,9 @@ def test_shap_classifier(iris_X, iris_y):
     forest = RangerForestClassifier(enable_tree_details=True)
     forest.fit(iris_X, iris_y)
 
-    explainer = TreeExplainer(model=forest)
-    shap_values = explainer.shap_values(iris_X)
+    with patch_sklearn():
+        explainer = TreeExplainer(model=forest)
+        shap_values = explainer.shap_values(iris_X)
     print(shap_values)
 
 
