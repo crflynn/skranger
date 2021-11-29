@@ -141,6 +141,7 @@ jobs:
     - name: Install system deps
       run: |
         brew install llvm
+        brew link llvm --force
 
     - name: Install asdf
       uses: asdf-vm/actions/setup@v1.0.1
