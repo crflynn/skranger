@@ -61,6 +61,7 @@ def test_plot():
 def test_shap_regressor(boston_X, boston_y):
     forest = RangerForestRegressor(enable_tree_details=True)
     forest.fit(boston_X, boston_y)
+
     with patch_sklearn():
         explainer = TreeExplainer(model=forest)
         shap_values = explainer.shap_values(boston_X)
