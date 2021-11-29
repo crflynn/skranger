@@ -136,7 +136,6 @@ jobs:
       with:
         submodules: 'recursive'
 
-      # sqlite for coverage
       # llvm for shap
     - name: Install system deps
       run: |
