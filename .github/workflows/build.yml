@@ -139,7 +139,8 @@ jobs:
       # llvm for shap
     - name: Install system deps
       run: |
-        brew install llvm
+        brew update
+        brew upgrade llvm
         brew link llvm --force
 
     - name: Install asdf
