@@ -184,9 +184,6 @@ jobs:
 
     - name: Install deps
       run: |
-        export PATH="/usr/local/opt/llvm/bin:$PATH"
-        export LDFLAGS="${LDFLAGS} -L/usr/local/opt/llvm/lib"
-        export CPPFLAGS="${CPPFLAGS}-I/usr/local/opt/llvm/include"
         poetry install --no-root
 
     - name: Test
