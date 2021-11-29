@@ -181,9 +181,10 @@ jobs:
         poetry run python build.py build_ext --inplace --force
 
     - name: Install deps
-      env:
-        LLVM_CONFIG: /usr/local/bin/llvm-config
       run: |
+        export PATH="/usr/local/opt/llvm/bin:$PATH"
+        export LDFLAGS="${LDFLAGS} -L/usr/local/opt/llvm/lib"
+        export CPPFLAGS="${CPPFLAGS}-I/usr/local/opt/llvm/include"
         poetry install --no-root
 
     - name: Test
