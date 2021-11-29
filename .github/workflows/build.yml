@@ -103,7 +103,6 @@ jobs:
         asdf local python ${{ matrix.python-version }}
 
     - name: Install tools
-      # pip 20.1 fails on generation of multiple .egg-info dirs
       run: |
         asdf install
         poetry config virtualenvs.create false
@@ -141,7 +140,6 @@ jobs:
       run: |
         brew update
         brew install llvm@9
-        brew link llvm --force
 
     - name: Install asdf
       uses: asdf-vm/actions/setup@v1.0.1
@@ -170,7 +168,6 @@ jobs:
         asdf local python ${{ matrix.python-version }}
 
     - name: Install tools
-      # pip 20.1 fails on generation of multiple .egg-info dirs
       run: |
         asdf install
         poetry config virtualenvs.create false
