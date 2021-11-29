@@ -128,7 +128,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        python-version: [3.7.12, 3.8.12]
+        python-version: [3.7.12, 3.8.12, 3.9.8]
 
     steps:
     - name: Checkout
@@ -139,8 +139,6 @@ jobs:
       # llvm for shap
     - name: Install system deps
       run: |
-        brew update
-        brew upgrade llvm
         brew link llvm --force
 
     - name: Install asdf
@@ -183,6 +181,8 @@ jobs:
         poetry run python build.py build_ext --inplace --force
 
     - name: Install deps
+      env:
+        LLVM_CONFIG: /usr/local/bin/llvm-config
       run: |
         poetry install --no-root
 
