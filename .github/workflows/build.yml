@@ -140,7 +140,7 @@ jobs:
       # llvm for shap
     - name: Install system deps
       run: |
-        brew install -y llvm
+        brew install llvm
 
     - name: Install asdf
       uses: asdf-vm/actions/setup@v1.0.1
