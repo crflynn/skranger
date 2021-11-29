@@ -69,11 +69,12 @@ jobs:
       with:
         submodules: 'recursive'
 
-    # required for coverage
-    - name: Install sqlite
+      # sqlite for coverage
+      # llvm for shap
+    - name: Install system deps
       run: |
         sudo apt-get update
-        sudo apt-get install -y libsqlite3-dev
+        sudo apt-get install -y libsqlite3-dev llvm
 
     - name: Install asdf
       uses: asdf-vm/actions/setup@v1.0.1
@@ -134,6 +135,12 @@ jobs:
       uses: actions/checkout@v1
       with:
         submodules: 'recursive'
+
+      # sqlite for coverage
+      # llvm for shap
+    - name: Install system deps
+      run: |
+        brew install -y llvm
 
     - name: Install asdf
       uses: asdf-vm/actions/setup@v1.0.1
