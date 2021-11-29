@@ -29,3 +29,29 @@ and ``value`` attributes of the ``Tree`` class.
 .. autoclass:: skranger.tree._tree.Tree
     :members:
     :inherited-members:
+
+
+SHAP
+----
+
+``RangerForestRegressor`` and ``RangerForestClassifier`` can be used with shap. A
+context manager is provided which patches ``skranger`` objects so that they work
+with shap.
+
+.. code-block:: python
+
+    from shap import TreeExplainer
+    from sklearn.datasets import load_iris
+    from sklearn.model_selection import train_test_split
+    from skranger.ensemble import RangerForestClassifier
+    from skranger.utils import shap_patch
+
+    X, y = load_iris(return_X_y=True)
+    X_train, X_test, y_train, y_test = train_test_split(X, y)
+
+    forest = RangerForestClassifier(enable_tree_details=True).fit(X_train, y_train)
+
+    with shap_patch():
+        explainer = TreeExplainer(model=forest)
+
+    values = explainer.shap_values(X_test)
