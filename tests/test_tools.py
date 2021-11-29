@@ -11,8 +11,6 @@ from skranger.ensemble import RangerForestClassifier
 from skranger.ensemble import RangerForestRegressor
 from skranger.tree._tree import Tree
 
-py_major = sys.version_info.major
-py_minor = sys.version_info.minor
 
 # region trick shap into thinking skranger objects are sklearn objects
 # so that shap will process them.
@@ -61,7 +59,7 @@ def test_plot():
     )
 
 
-@pytest.mark.skipif(py_major == 3 and py_minor >= 9)
+@pytest.mark.skipif(sys.version_info > (3, 9), reason="requires < 3.9")
 def test_shap_regressor(boston_X, boston_y):
     forest = RangerForestRegressor(enable_tree_details=True)
     forest.fit(boston_X, boston_y)
@@ -72,7 +70,7 @@ def test_shap_regressor(boston_X, boston_y):
     print(shap_values)
 
 
-@pytest.mark.skipif(py_major == 3 and py_minor >= 9)
+@pytest.mark.skipif(sys.version_info > (3, 9), reason="requires < 3.9")
 def test_shap_classifier(iris_X, iris_y):
     forest = RangerForestClassifier(enable_tree_details=True)
     forest.fit(iris_X, iris_y)
