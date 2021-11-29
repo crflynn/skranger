@@ -69,11 +69,12 @@ jobs:
       with:
         submodules: 'recursive'
 
-    # required for coverage
-    - name: Install sqlite
+      # sqlite for coverage
+      # llvm for shap
+    - name: Install system deps
       run: |
         sudo apt-get update
-        sudo apt-get install -y libsqlite3-dev
+        sudo apt-get install -y libsqlite3-dev llvm
 
     - name: Install asdf
       uses: asdf-vm/actions/setup@v1.0.1
@@ -102,7 +103,6 @@ jobs:
         asdf local python ${{ matrix.python-version }}
 
     - name: Install tools
-      # pip 20.1 fails on generation of multiple .egg-info dirs
       run: |
         asdf install
         poetry config virtualenvs.create false
@@ -135,6 +135,12 @@ jobs:
       with:
         submodules: 'recursive'
 
+      # llvm for shap
+    - name: Install system deps
+      run: |
+        brew update
+        brew install llvm@9
+
     - name: Install asdf
       uses: asdf-vm/actions/setup@v1.0.1
 
@@ -162,7 +168,6 @@ jobs:
         asdf local python ${{ matrix.python-version }}
 
     - name: Install tools
-      # pip 20.1 fails on generation of multiple .egg-info dirs
       run: |
         asdf install
         poetry config virtualenvs.create false
