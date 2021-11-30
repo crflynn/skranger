@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestRegressor
 
 from skranger.ensemble import RangerForestClassifier
 from skranger.ensemble import RangerForestRegressor
-from skranger.utils import shap_patch
+from skranger.utils.shap import shap_patch
 
 
 @pytest.mark.skip()
