@@ -44,7 +44,7 @@ with shap.
     from sklearn.datasets import load_iris
     from sklearn.model_selection import train_test_split
     from skranger.ensemble import RangerForestClassifier
-    from skranger.utils import shap_patch
+    from skranger.utils.shap import shap_patch
 
     X, y = load_iris(return_X_y=True)
     X_train, X_test, y_train, y_test = train_test_split(X, y)
