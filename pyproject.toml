@@ -10,9 +10,9 @@ repository = "https://github.com/crflynn/skranger"
 documentation = "https://github.com/crflynn/skranger"
 include = [
     "skranger/ranger/**/*",
-    "CHANGELOG.rst",
-    "LICENSE.txt",
-    "README.rst",
+    { path="CHANGELOG.rst", format="sdist" },
+    { path="LICENSE.txt", format="sdist" },
+    { path="README.rst", format="sdist" },
 ]
 build = "build.py"
 keywords = ["random", "forest", "ranger", "machine", "learning"]
