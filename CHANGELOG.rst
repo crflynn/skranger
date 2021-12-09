@@ -1,6 +1,16 @@
 Release Changelog
 -----------------
 
+0.7.0 (2021-12-08)
+~~~~~~~~~~~~~~~~~~
+
+* Drop support for Python 3.6
+* Fix quantile regression predictions for single record
+* Fix Tree.value for classifiers
+* Fix Tree.feature to use proper value for leaf nodes
+* Allow ``skranger`` predictors to work with shap using ``skranger.utils.shap.shap_patch`` context manager
+* Fix package includes to prevent installing extra files to ``site-packages``
+
 0.6.1 (2021-09-05)
 ~~~~~~~~~~~~~~~~~~
 
