@@ -92,6 +92,7 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
     def __init__(
         self,
         n_estimators=100,
+        *,
         verbose=False,
         mtry=0,
         importance="none",

@@ -11,7 +11,7 @@ class Tree:
     tree.
     """
 
-    def __init__(self, ranger_forest):
+    def __init__(self, *, ranger_forest):
         self.ranger_forest = ranger_forest
 
     @property

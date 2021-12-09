@@ -85,6 +85,7 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
 
     def __init__(
         self,
+        *,
         verbose=False,
         mtry=0,
         importance="none",

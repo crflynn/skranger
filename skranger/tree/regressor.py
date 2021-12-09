@@ -85,6 +85,7 @@ class RangerTreeRegressor(BaseRangerTree, RegressorMixin, BaseEstimator):
 
     def __init__(
         self,
+        *,
         verbose=False,
         mtry=0,
         importance="none",
