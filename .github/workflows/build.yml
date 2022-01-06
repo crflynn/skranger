@@ -30,9 +30,9 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/.asdf
-        key: v8-${{ runner.os }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
+        key: v9-${{ runner.os }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
         restore-keys: |
-          v8-${{ runner.os }}-asdf-
+          v9-${{ runner.os }}-asdf-
 
     - name: Install tools
       # pip 20.1 fails on generation of multiple .egg-info dirs
@@ -89,9 +89,9 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/.asdf
-        key: v8-${{ runner.os }}-${{ matrix.python-version }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
+        key: v9-${{ runner.os }}-${{ matrix.python-version }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
         restore-keys: |
-          v8-${{ runner.os }}-${{ matrix.python-version }}-asdf-
+          v9-${{ runner.os }}-${{ matrix.python-version }}-asdf-
 
     - name: Install python
       if: steps.cache-deps.outputs.cache-hit != 'true'
@@ -154,9 +154,9 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/.asdf
-        key: v8-${{ runner.os }}-${{ matrix.python-version }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
+        key: v9-${{ runner.os }}-${{ matrix.python-version }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
         restore-keys: |
-          v8-${{ runner.os }}-${{ matrix.python-version }}-asdf-
+          v9-${{ runner.os }}-${{ matrix.python-version }}-asdf-
 
     - name: Install python
       if: steps.cache-deps.outputs.cache-hit != 'true'
