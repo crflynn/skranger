@@ -8,10 +8,7 @@ def copy_ranger_source():
     """Copy the ranger cpp source, following symlinks."""
     src = os.path.join(top, "ranger", "cpp_version")
     dst = os.path.join(top, "skranger", "ranger")
-    try:
-        shutil.rmtree(dst)
-    except FileNotFoundError:
-        pass
+    shutil.rmtree(dst, ignore_errors=True)
     shutil.copytree(src, dst, symlinks=False)
 
 

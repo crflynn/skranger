@@ -12,7 +12,7 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Set the poetry version explicitly
-ENV POETRY_VERSION=1.1.4
+ENV POETRY_VERSION=1.1.11
 # Unbuffer the logger so we always get logs
 ENV PYTHONUNBUFFERED=1
 # Update the path for poetry python

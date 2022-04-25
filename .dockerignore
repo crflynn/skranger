@@ -10,3 +10,4 @@ htmlcov/
 *.egg-info/
 .coverage
 .DS_Store
+wheelhouse/
