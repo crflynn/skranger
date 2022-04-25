@@ -12,14 +12,16 @@ def copy_ranger_source():
     shutil.copytree(src, dst, symlinks=False)
 
 
-def patch_make_unique():
-    """Patch ranger calls to ``make_unique``.
+def disambiguate_ranger_make_unique():
+    """Rewrite ranger calls to ``make_unique``.
 
-    This enables us to compile on windows by ensuring we call ``ranger::make_unique``
-    rather than ``std::make_unique``
+    This enables us to compile on Windows by ensuring we call ``ranger::make_unique``
+    explicitly via the namespace. This removes ambiguity since windows compiles with
+    C++14 which is when ``make_unique`` was added to ``std``.
     """
     for root, dirs, files in os.walk(dst, topdown=False):
         for file in files:
+            # don't rewrite the definition
             if file != "utility.h":
                 with open(os.path.join(root, file), "r") as f:
                     contents = f.read()
@@ -29,4 +31,4 @@ def patch_make_unique():
 
 
 copy_ranger_source()
-patch_make_unique()
+disambiguate_ranger_make_unique()
