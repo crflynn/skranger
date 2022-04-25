@@ -1,4 +1,4 @@
-name: build_and_test
+name: build and test
 
 on:
   push:
@@ -8,59 +8,13 @@ on:
     branches:
       - master
 jobs:
-  fmt:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-      with:
-        submodules: 'recursive'
-
-    - name: Install asdf
-      uses: asdf-vm/actions/setup@v1.0.1
-
-    - name: Install asdf plugins
-      run: |
-        asdf plugin add python
-        asdf plugin add poetry
-
-    - name: Cache dependencies
-      id: cache-deps
-      uses: actions/cache@v1
-      with:
-        path: ~/.asdf
-        key: v8-${{ runner.os }}-asdf-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
-        restore-keys: |
-          v8-${{ runner.os }}-asdf-
-
-    - name: Install tools
-      run: |
-        asdf install
-        poetry config virtualenvs.create false
-        poetry run pip install -U pip setuptools wheel
-
-    - name: Build
-      run: |
-        poetry run pip install cython oldest-supported-numpy
-        poetry run python buildpre.py
-        poetry run python build.py build_ext --inplace --force
-
-    - name: Install deps
-      run: |
-        poetry install --no-root
-
-    - name: Format
-      run: |
-        poetry run isort -y -c
-        poetry run black --check .
-
   build_and_test:
     name: build and test ${{ matrix.py }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-2019, macos-10.15]
+        # TODO windows-2019
+        os: [ubuntu-20.04, macos-10.15]
         py: [3.7.12, 3.8.12, 3.9.8]
 
     steps:
@@ -72,13 +26,13 @@ jobs:
       # sqlite for coverage
       # llvm for shap
     - name: Install linux system deps
-      if:  ${{ matrix.os }} == ubuntu-20.04
+      if:  ${{ matrix.os == 'ubuntu-20.04' }}
       run: |
         sudo apt-get update
         sudo apt-get install -y libsqlite3-dev llvm
 
     - name: Install macos system deps
-      if:  ${{ matrix.os }} == macos-10.15
+      if:  ${{ matrix.os == 'macos-10.15' }}
       run: |
         brew update
         brew install llvm@9
@@ -126,7 +80,7 @@ jobs:
         poetry install --no-root
 
     - name: Format
-      if:  ${{ matrix.os }} == ubuntu-20.04
+      if:  ${{ matrix.os == 'ubuntu-20.04' }}
       run: |
         poetry run isort -y -c
         poetry run black --check .
