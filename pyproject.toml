@@ -27,8 +27,8 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7.0"
-scikit-learn = "^1.0"
+python = "^3.8.0"
+scikit-learn = ">=1.0"
 
 [tool.poetry.dev-dependencies]
 cython = "^3.0a5"
