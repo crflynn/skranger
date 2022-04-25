@@ -34,7 +34,7 @@ docs:
 
 .PHONY: fmt
 fmt:
-	poetry run isort -y
+	poetry run isort .
 	poetry run black .
 
 .PHONY: publish

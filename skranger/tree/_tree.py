@@ -199,7 +199,10 @@ class Tree:
         """The sum of the weights of the samples reaching each node."""
         weighted_n_samples = self.ranger_forest["forest"]["leaf_weights"][0].copy()
         self._get_n_node_samples(
-            self.children_left, self.children_right, 0, weighted_n_samples,
+            self.children_left,
+            self.children_right,
+            0,
+            weighted_n_samples,
         )
         return np.array(weighted_n_samples)
 

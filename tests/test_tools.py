@@ -22,10 +22,12 @@ def test_plot():
     estimator = forest.get_estimator(0)
     plt.figure()
     plot_tree(
-        estimator, impurity=False,  # impurity not yet implemented
+        estimator,
+        impurity=False,  # impurity not yet implemented
     )
     plt.savefig(
-        "tree.svg", bbox_inches="tight",  # don't truncate
+        "tree.svg",
+        bbox_inches="tight",  # don't truncate
     )
 
 

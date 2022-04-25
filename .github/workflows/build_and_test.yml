@@ -80,9 +80,8 @@ jobs:
         poetry install --no-root
 
     - name: Format
-      if:  ${{ matrix.os == 'ubuntu-20.04' }}
       run: |
-        poetry run isort -y -c
+        poetry run isort --check .
         poetry run black --check .
 
     - name: Test

@@ -32,8 +32,8 @@ scikit-learn = "^1.0"
 
 [tool.poetry.dev-dependencies]
 cython = "^3.0a5"
-black = {version = "^19.10b0", allow-prereleases = true}
-isort = "^4.3.21"
+black = "^22.3.0"
+isort = "^5.10.1"
 pytest = "^6.2.2"
 sphinx = "^3.0.3"
 sphinx-rtd-theme = "^0.4.3"
@@ -79,7 +79,6 @@ include_trailing_comma = true
 force_grid_wrap = 0
 use_parentheses = true
 line_length = 88
-known_standard_library = ["setuptools"]
 
 [tool.pytest.ini_options]
 filterwarnings = [
