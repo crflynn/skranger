@@ -34,7 +34,7 @@ docs:
 
 .PHONY: fmt
 fmt:
-	poetry run isort -y
+	poetry run isort .
 	poetry run black .
 
 .PHONY: publish
@@ -43,7 +43,7 @@ publish: clean sdist
 
 .PHONY: release
 release: clean sdist
-	ghr -u crflynn -r skranger -c $(shell git rev-parse HEAD) -delete -b "release" -n $(shell poetry version -s) $(shell poetry version -s) dist/*.tar.gz
+	ghr -u crflynn -r skranger -c $(shell git rev-parse HEAD) -delete -b "release" -n v$(shell poetry version -s) v$(shell poetry version -s) dist/*.tar.gz
 
 .PHONY: sdist
 sdist: copy

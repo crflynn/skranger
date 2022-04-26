@@ -1,10 +1,10 @@
 import os
 import sys
-from setuptools import Extension
-from setuptools import setup
 
 import numpy as np
 from Cython.Build import cythonize
+from setuptools import Extension
+from setuptools import setup
 
 # skranger project directory
 top = os.path.dirname(os.path.abspath(__file__))

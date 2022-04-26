@@ -215,7 +215,7 @@ class RangerTreeClassifier(BaseRangerTree, ClassifierMixin):
             splitting. A list of column index values.
         :param list categorical_features: A list of column index values which should be
             considered categorical, or unordered.
-       """
+        """
         self.tree_type_ = 9  # tree_type, TREE_PROBABILITY enables predict_proba
 
         # Check input

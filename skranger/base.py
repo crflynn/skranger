@@ -293,11 +293,17 @@ class RangerMixin:
             root = 0
             values = forest_values[idx]
             self._get_values(
-                left, right, root, values,
+                left,
+                right,
+                root,
+                values,
             )
             weights = forest_weights[idx]
             self._get_values(
-                left, right, root, weights,
+                left,
+                right,
+                root,
+                weights,
             )
             if getattr(self, "_estimator_type", None) == "classifier":
                 values = [

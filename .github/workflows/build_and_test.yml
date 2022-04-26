@@ -1,0 +1,83 @@
+name: build and test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build_and_test:
+    name: build and test ${{ matrix.py }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # TODO windows-2019
+        os: [ubuntu-20.04, macos-10.15]
+        py: [3.8.12, 3.9.8]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+
+      # sqlite for coverage
+      # llvm for shap
+    - name: Install linux system deps
+      if:  ${{ matrix.os == 'ubuntu-20.04' }}
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libsqlite3-dev llvm
+
+      # llvm for shap
+    - name: Install macos system deps
+      if:  ${{ matrix.os == 'macos-10.15' }}
+      run: |
+        brew update
+        brew install llvm@9
+
+    - name: Set up python
+      id: setup-python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.py }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: 1.1.11
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+        installer-parallel: true
+
+    - name: Cache dependencies
+      id: cache-deps
+      uses: actions/cache@v2
+      with:
+        path: .venv
+        key: v1-${{ runner.os }}-${{ matrix.py }}-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
+        restore-keys: |
+          v1-${{ runner.os }}-${{ matrix.py }}-
+
+    - name: Build
+      run: |
+        poetry run pip install -U pip wheel
+        poetry run pip install setuptools cython oldest-supported-numpy
+        poetry run python buildpre.py
+        poetry run python build.py build_ext --inplace --force
+
+    - name: Install deps
+      run: |
+        poetry install --no-interaction --no-root
+
+    - name: Format
+      run: |
+        poetry run isort --check .
+        poetry run black --check .
+
+    - name: Test
+      run: |
+        poetry run pytest tests/

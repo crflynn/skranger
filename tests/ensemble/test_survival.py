@@ -238,7 +238,9 @@ class TestRangerForestSurvival:
     def test_split_select_weights(self, lung_X, lung_y):
         n_trees = 10
         weights = [0.1] * lung_X.shape[1]
-        forest = RangerForestSurvival(n_estimators=n_trees,)
+        forest = RangerForestSurvival(
+            n_estimators=n_trees,
+        )
         forest.fit(lung_X, lung_y, split_select_weights=weights)
 
         weights = [0.1] * (lung_X.shape[1] - 1)

@@ -3,6 +3,7 @@ import sys
 
 import cython
 import numpy as np
+
 cimport numpy as np
 from cython.operator cimport dereference as deref
 from libcpp cimport bool

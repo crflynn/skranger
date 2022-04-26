@@ -244,7 +244,9 @@ class TestRangerTreeSurvival:
 
         # regularization vector is used
         reg = [0.5]
-        tree = RangerTreeSurvival(regularization_factor=reg,)
+        tree = RangerTreeSurvival(
+            regularization_factor=reg,
+        )
         tree.fit(lung_X, lung_y)
         assert tree.regularization_factor_ == reg
         assert tree.use_regularization_factor_
