@@ -1,6 +1,13 @@
 Release Changelog
 -----------------
 
+0.8.0rc1 (2022-04-25)
+~~~~~~~~~~~~~~~~~~~~~
+
+* Drop support for Python 3.7
+* Add support for Windows
+* Update scikit-learn constraint to 1.0
+
 0.7.0 (2021-12-08)
 ~~~~~~~~~~~~~~~~~~
 

@@ -3,10 +3,10 @@ skranger
 
 |build| |wheels| |rtd| |pypi| |pyversions|
 
-.. |build| image:: https://github.com/crflynn/skranger/workflows/build_and_test/badge.svg
+.. |build| image:: https://github.com/crflynn/skranger/actions/workflows/build_and_test.yml/badge.svg
     :target: https://github.com/crflynn/skranger/actions
 
-.. |wheels| image:: https://github.com/crflynn/skranger-wheels/workflows/release/badge.svg
+.. |wheels| image:: https://github.com/crflynn/skranger/actions/workflows/release.yml/badge.svg
     :target: https://github.com/crflynn/skranger/actions
 
 .. |rtd| image:: https://img.shields.io/readthedocs/skranger.svg
