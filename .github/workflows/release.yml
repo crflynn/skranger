@@ -22,33 +22,34 @@ jobs:
         py: ["cp38-*", "cp39-*", "cp310-*"]
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
 
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.4.0
-        env:
-          CIBW_BUILD: ${{ matrix.py }}
-          CIBW_ARCHS: auto
-          CIBW_ARCHS_LINUX: auto64
-          CIBW_BEFORE_BUILD: python buildpre.py
-          CIBW_TEST_COMMAND: python -c "import skranger; print(skranger.__version__); from skranger import ranger"
-          # targets without wheels for numpy/scipy
-          CIBW_TEST_SKIP: "*cp310-win32* *musl*"
+    - name: Build wheels
+      uses: pypa/cibuildwheel@v2.4.0
+      env:
+        CIBW_BUILD: ${{ matrix.py }}
+        CIBW_ARCHS: auto
+        CIBW_ARCHS_LINUX: auto64
+        CIBW_BEFORE_BUILD: python buildpre.py
+        CIBW_TEST_COMMAND: python -c "import skranger; print(skranger.__version__); from skranger import ranger"
+        # targets without wheels for numpy/scipy
+        CIBW_TEST_SKIP: "*cp310-win32* *musl*"
 
-      - name: Show wheelhouse
-        run: |
-          ls wheelhouse
+    - name: Show wheelhouse
+      run: |
+        ls wheelhouse
 
-      - name: Publish on tag
-        if: github.event_name == 'release' && github.event.action == 'published'
-        env:
-          TWINE_USERNAME: crflynn
-        run: |
-          pip install --upgrade twine
-          twine upload $wheelhouse/*.whl
+    - name: Publish on tag
+      if: github.event_name == 'release' && github.event.action == 'published'
+      env:
+        TWINE_USERNAME: crflynn
+        TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+      run: |
+        pip install --upgrade twine
+        twine upload $wheelhouse/*.whl
 
   build_sdist:
     name: build sdist
@@ -87,6 +88,7 @@ jobs:
       if: github.event_name == 'release' && github.event.action == 'published'
       env:
         TWINE_USERNAME: crflynn
+        TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
       run: |
         pip install --upgrade twine
         twine upload dist/*.tar.gz
