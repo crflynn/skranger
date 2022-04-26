@@ -47,7 +47,7 @@ jobs:
       if: github.event_name == 'release' && github.event.action == 'published'
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.py }}
+        python-version: 3.9
 
     - name: Publish on tag
       if: github.event_name == 'release' && github.event.action == 'published'
