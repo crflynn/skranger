@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  release:
+    types:
+      - published
 #  pull_request:
 #    branches:
 #      - master
@@ -40,7 +43,7 @@ jobs:
           ls wheelhouse
 
       - name: Publish on tag
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        if: github.event_name == 'release' && github.event.action == 'published'
         env:
           TWINE_USERNAME: crflynn
         run: |
@@ -81,7 +84,7 @@ jobs:
         ls dist
 
     - name: Publish on tag
-      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+      if: github.event_name == 'release' && github.event.action == 'published'
       env:
         TWINE_USERNAME: crflynn
       run: |
