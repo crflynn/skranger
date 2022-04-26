@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - master
-  pull_request:
-    branches:
-      - master
+#  pull_request:
+#    branches:
+#      - master
 
 jobs:
   build_wheels:
@@ -35,16 +35,15 @@ jobs:
           # targets without wheels for numpy/scipy
           CIBW_TEST_SKIP: "*cp310-win32* *musl*"
 
-      - name: showfiles
+      - name: show wheelhouse
         run: |
           ls wheelhouse
 
-      - name: condit
+      - name: publish on tag
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        env:
+          TWINE_USERNAME: crflynn
         run: |
-          echo 'push v'
+          pip install --upgrade twine
+          twine upload $wheelhouse/*.whl
 
-      - name: condit
-        if: github.event_name == 'pull_request'
-        run: |
-          echo 'push'
