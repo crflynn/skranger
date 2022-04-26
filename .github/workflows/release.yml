@@ -56,7 +56,7 @@ jobs:
         TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
       run: |
         pip install --upgrade twine
-        twine upload $wheelhouse/*.whl
+        twine upload wheelhouse/*.whl
 
   build_sdist:
     name: build sdist
