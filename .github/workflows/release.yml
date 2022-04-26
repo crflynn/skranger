@@ -42,6 +42,13 @@ jobs:
       run: |
         ls wheelhouse
 
+    - name: Set up python
+      id: setup-python
+      if: github.event_name == 'release' && github.event.action == 'published'
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.py }}
+
     - name: Publish on tag
       if: github.event_name == 'release' && github.event.action == 'published'
       env:
