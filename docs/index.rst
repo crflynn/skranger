@@ -6,13 +6,13 @@
 skranger
 ========
 
-|actions| |wheels| |rtd| |pypi| |pyversions|
+|build| |wheels| |rtd| |pypi| |pyversions|
 
-.. |actions| image:: https://github.com/crflynn/skranger/workflows/build/badge.svg?logo=travis
+.. |build| image:: https://github.com/crflynn/skranger/workflows/build_and_test/badge.svg
     :target: https://github.com/crflynn/skranger/actions
 
-.. |wheels| image:: https://github.com/crflynn/skranger-wheels/workflows/wheels/badge.svg
-    :target: https://github.com/crflynn/skranger-wheels/actions
+.. |wheels| image:: https://github.com/crflynn/skranger-wheels/workflows/release/badge.svg
+    :target: https://github.com/crflynn/skranger/actions
 
 .. |rtd| image:: https://img.shields.io/readthedocs/skranger.svg
     :target: http://skranger.readthedocs.io/en/latest/
