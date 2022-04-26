@@ -4,66 +4,66 @@ on:
   push:
     branches:
       - master
-  pull_request:
-    branches:
-      - master
+#  pull_request:
+#    branches:
+#      - master
 
 jobs:
-#  build_wheels:
-#    name: build ${{ matrix.py }} wheels on ${{ matrix.os }}
-#    runs-on: ${{ matrix.os }}
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        os: [ubuntu-20.04, windows-2019, macos-10.15]
-#        py: ["cp38-*", "cp39-*", "cp310-*"]
-#
-#    steps:
-#      - name: checkout
-#        uses: actions/checkout@v2
-#        with:
-#          submodules: 'recursive'
-#
-#      - name: build wheels
-#        uses: pypa/cibuildwheel@v2.4.0
-#        env:
-#          CIBW_BUILD: ${{ matrix.py }}
-#          CIBW_ARCHS: auto
-#          CIBW_ARCHS_LINUX: auto64
-#          CIBW_BEFORE_BUILD: python buildpre.py
-#          CIBW_TEST_COMMAND: python -c "import skranger; print(skranger.__version__); from skranger import ranger"
-#          # targets without wheels for numpy/scipy
-#          CIBW_TEST_SKIP: "*cp310-win32* *musl*"
-#
-#      - name: show wheelhouse
-#        run: |
-#          ls wheelhouse
-#
-#      - name: publish on tag
-#        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-#        env:
-#          TWINE_USERNAME: crflynn
-#        run: |
-#          pip install --upgrade twine
-#          twine upload $wheelhouse/*.whl
+  build_wheels:
+    name: build ${{ matrix.py }} wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04, windows-2019, macos-10.15]
+        py: ["cp38-*", "cp39-*", "cp310-*"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.4.0
+        env:
+          CIBW_BUILD: ${{ matrix.py }}
+          CIBW_ARCHS: auto
+          CIBW_ARCHS_LINUX: auto64
+          CIBW_BEFORE_BUILD: python buildpre.py
+          CIBW_TEST_COMMAND: python -c "import skranger; print(skranger.__version__); from skranger import ranger"
+          # targets without wheels for numpy/scipy
+          CIBW_TEST_SKIP: "*cp310-win32* *musl*"
+
+      - name: Show wheelhouse
+        run: |
+          ls wheelhouse
+
+      - name: Publish on tag
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        env:
+          TWINE_USERNAME: crflynn
+        run: |
+          pip install --upgrade twine
+          twine upload $wheelhouse/*.whl
 
   build_sdist:
     name: build sdist
     runs-on: ubuntu-20.04
 
     steps:
-    - name: checkout
+    - name: Checkout
       uses: actions/checkout@v2
       with:
         submodules: 'recursive'
 
-    - name: set up python
+    - name: Set up python
       id: setup-python
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.py }}
 
-    - name: install poetry
+    - name: Install poetry
       uses: snok/install-poetry@v1
       with:
         version: 1.1.11
@@ -71,16 +71,16 @@ jobs:
         virtualenvs-in-project: true
         installer-parallel: true
 
-    - name: create sdist
+    - name: Create sdist
       run: |
         poetry run python buildpre.py
         poetry build -f sdist
 
-    - name: show dist
+    - name: Show dist
       run: |
         ls dist
 
-    - name: publish on tag
+    - name: Publish on tag
       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
       env:
         TWINE_USERNAME: crflynn
