@@ -32,10 +32,10 @@ jobs:
       env:
         CIBW_BUILD: ${{ matrix.py }}
         CIBW_ARCHS: auto
+        # targets without wheels for numpy/scipy
+        CIBW_SKIP: "*cp310*linux_i686* *cp310-win32* *musl*"
         CIBW_BEFORE_BUILD: python buildpre.py
         CIBW_TEST_COMMAND: python -c "import skranger; print(skranger.__version__); from skranger import ranger"
-        # targets without wheels for numpy/scipy
-        CIBW_TEST_SKIP: "*cp310-win32* *musl*"
 
     - name: Show wheelhouse
       run: |
