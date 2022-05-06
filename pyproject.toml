@@ -45,7 +45,7 @@ cibuildwheel = "^2.4.0"
 Sphinx = "^4.5.0"
 
 [build-system]
-requires = ["poetry==1.1.11", "setuptools", "cython", "oldest-supported-numpy"]
+requires = ["poetry-core>=1.0.0", "setuptools", "cython", "oldest-supported-numpy"]
 build-backend = "poetry.masonry.api"
 
 [tool.black]
