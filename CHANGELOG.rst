@@ -1,10 +1,16 @@
 Release Changelog
 -----------------
 
+0.8.0 (2022-05-06)
+~~~~~~~~~~~~~~~~~~
+
+* Replace poetry with poetry-core as a build dependency
+
 0.8.0rc1 (2022-04-25)
 ~~~~~~~~~~~~~~~~~~~~~
 
 * Drop support for Python 3.7
+* Add support for Python 3.10
 * Add support for Windows
 * Update scikit-learn constraint to 1.0
 
