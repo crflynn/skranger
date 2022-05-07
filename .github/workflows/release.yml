@@ -37,6 +37,8 @@ jobs:
         CIBW_SKIP: "*cp310*linux_i686* *cp310-win32* *musl*"
         CIBW_BEFORE_BUILD: python buildpre.py
         CIBW_TEST_COMMAND: python -c "import skranger; print(skranger.__version__); from skranger import ranger"
+        # can build but not test m1 builds
+        CIBW_TEST_SKIP: "*-macosx_arm64 *_universal2:arm64"
 
     - name: Show wheelhouse
       run: |
