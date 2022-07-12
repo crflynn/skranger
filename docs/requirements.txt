@@ -35,7 +35,7 @@ numpy==1.22.3
 packaging==21.3; python_version >= "3.7" and python_version < "3.9" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6")
 pandas==1.4.2; python_version >= "3.8"
 pathspec==0.9.0; python_full_version >= "3.6.2"
-pillow==9.1.0; python_version >= "3.7"
+pillow==9.2.0; python_version >= "3.7"
 platformdirs==2.5.2; python_version >= "3.7" and python_full_version >= "3.6.2"
 pluggy==1.0.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 py==1.11.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
