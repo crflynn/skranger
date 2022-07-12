@@ -17,7 +17,7 @@ class BaseRangerForest(RangerMixin):
                 f"'{self.__class__.__name__}' object has no attribute 'feature_importances_'"
             ) from None
         try:
-            return self.ranger_forest_["variable_importance"]
+            return np.array(self.ranger_forest_["variable_importance"])
         except KeyError:
             raise ValueError(
                 "importance must be set to something other than 'none'"
