@@ -71,11 +71,11 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "bracex"
-version = "2.2.1"
+version = "2.3.post1"
 description = "Bash style brace expander."
 category = "dev"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [[package]]
 name = "certifi"
@@ -98,7 +98,7 @@ unicode_backport = ["unicodedata2"]
 
 [[package]]
 name = "cibuildwheel"
-version = "2.4.0"
+version = "2.8.1"
 description = "Build Python wheels on CI with minimal configuration."
 category = "dev"
 optional = false
@@ -109,17 +109,17 @@ bashlex = "!=0.13"
 bracex = "*"
 certifi = "*"
 filelock = "*"
-packaging = "*"
+packaging = ">=20.9"
 platformdirs = "*"
-tomli = "*"
+tomli = {version = "*", markers = "python_version < \"3.11\""}
 
 [package.extras]
-all = ["mkdocs-include-markdown-plugin (==2.8.0)", "mkdocs (==1.0.4)", "jinja2 (==3.0.3)", "pymdown-extensions", "mkdocs-macros-plugin", "jinja2", "pytest (>=6)", "pytest-timeout", "pytest-xdist", "click", "ghapi", "pip-tools", "pygithub", "pyyaml", "requests", "rich (>=9.6)", "packaging (>=21.0)", "mypy (>=0.901)", "types-jinja2", "types-certifi", "types-toml", "types-pyyaml", "types-click", "types-requests"]
+all = ["mkdocs-include-markdown-plugin (==2.8.0)", "mkdocs (==1.0.4)", "jinja2 (==3.0.3)", "pymdown-extensions", "mkdocs-macros-plugin", "markdown (<3.4)", "jinja2", "pytest (>=6)", "pytest-timeout", "pytest-xdist", "build", "tomli-w", "click", "ghapi", "pip-tools", "pygithub", "pyyaml", "requests", "rich (>=9.6)", "packaging (>=21.0)", "mypy (>=0.901)", "types-jinja2", "types-certifi", "types-toml", "types-pyyaml", "types-click", "types-requests"]
 bin = ["click", "ghapi", "pip-tools", "pygithub", "pyyaml", "requests", "rich (>=9.6)", "packaging (>=21.0)"]
-dev = ["mypy (>=0.901)", "types-jinja2", "types-certifi", "types-toml", "types-pyyaml", "types-click", "types-requests", "jinja2", "pytest (>=6)", "pytest-timeout", "pytest-xdist", "click", "ghapi", "pip-tools", "pygithub", "pyyaml", "requests", "rich (>=9.6)", "packaging (>=21.0)"]
-docs = ["mkdocs-include-markdown-plugin (==2.8.0)", "mkdocs (==1.0.4)", "jinja2 (==3.0.3)", "pymdown-extensions", "mkdocs-macros-plugin"]
+dev = ["mypy (>=0.901)", "types-jinja2", "types-certifi", "types-toml", "types-pyyaml", "types-click", "types-requests", "jinja2", "pytest (>=6)", "pytest-timeout", "pytest-xdist", "build", "tomli-w", "click", "ghapi", "pip-tools", "pygithub", "pyyaml", "requests", "rich (>=9.6)", "packaging (>=21.0)"]
+docs = ["mkdocs-include-markdown-plugin (==2.8.0)", "mkdocs (==1.0.4)", "jinja2 (==3.0.3)", "pymdown-extensions", "mkdocs-macros-plugin", "markdown (<3.4)"]
 mypy = ["mypy (>=0.901)", "types-jinja2", "types-certifi", "types-toml", "types-pyyaml", "types-click", "types-requests"]
-test = ["jinja2", "pytest (>=6)", "pytest-timeout", "pytest-xdist"]
+test = ["jinja2", "pytest (>=6)", "pytest-timeout", "pytest-xdist", "build", "tomli-w"]
 
 [[package]]
 name = "click"
@@ -196,7 +196,7 @@ testing = ["pre-commit"]
 
 [[package]]
 name = "filelock"
-version = "3.6.0"
+version = "3.7.1"
 description = "A platform independent file lock."
 category = "dev"
 optional = false
@@ -870,7 +870,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8.0"
-content-hash = "74a80d45ce680cdc9464810da8a112821c484978bae8ba70ef76b3a5780241ed"
+content-hash = "d46cd5ad2f4ee75768c53da26251529985d51c1412d17c1096dae3587f5656a6"
 
 [metadata.files]
 alabaster = [
@@ -918,10 +918,7 @@ black = [
     {file = "black-22.3.0-py3-none-any.whl", hash = "sha256:bc58025940a896d7e5356952228b68f793cf5fcb342be703c3a2669a1488cb72"},
     {file = "black-22.3.0.tar.gz", hash = "sha256:35020b8886c022ced9282b51b5a875b6d1ab0c387b31a065b84db7c33085ca79"},
 ]
-bracex = [
-    {file = "bracex-2.2.1-py3-none-any.whl", hash = "sha256:096c4b788bf492f7af4e90ef8b5bcbfb99759ae3415ea1b83c9d29a5ed8f9a94"},
-    {file = "bracex-2.2.1.tar.gz", hash = "sha256:1c8d1296e00ad9a91030ccb4c291f9e4dc7c054f12c707ba3c5ff3e9a81bcd21"},
-]
+bracex = []
 certifi = [
     {file = "certifi-2021.10.8-py2.py3-none-any.whl", hash = "sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569"},
     {file = "certifi-2021.10.8.tar.gz", hash = "sha256:78884e7c1d4b00ce3cea67b44566851c4343c120abd683433ce934a68ea58872"},
@@ -930,10 +927,7 @@ charset-normalizer = [
     {file = "charset-normalizer-2.0.12.tar.gz", hash = "sha256:2857e29ff0d34db842cd7ca3230549d1a697f96ee6d3fb071cfa6c7393832597"},
     {file = "charset_normalizer-2.0.12-py3-none-any.whl", hash = "sha256:6881edbebdb17b39b4eaaa821b438bf6eddffb4468cf344f09f89def34a8b1df"},
 ]
-cibuildwheel = [
-    {file = "cibuildwheel-2.4.0-py3-none-any.whl", hash = "sha256:bf8ac06cd032fca2cea7561f67cda914654ac8129f3d36469761b4f6049161fb"},
-    {file = "cibuildwheel-2.4.0.tar.gz", hash = "sha256:f16fc827cea992f49e67c491372bb6b65c132cfa895ef9921f6b1efa80a99b0a"},
-]
+cibuildwheel = []
 click = [
     {file = "click-8.1.2-py3-none-any.whl", hash = "sha256:24e1a4a9ec5bf6299411369b208c1df2188d9eb8d916302fe6bf03faed227f1e"},
     {file = "click-8.1.2.tar.gz", hash = "sha256:479707fe14d9ec9a0757618b7a100a0ae4c4e236fac5b7f80ca68028141a1a72"},
@@ -1021,10 +1015,7 @@ execnet = [
     {file = "execnet-1.9.0-py2.py3-none-any.whl", hash = "sha256:a295f7cc774947aac58dde7fdc85f4aa00c42adf5d8f5468fc630c1acf30a142"},
     {file = "execnet-1.9.0.tar.gz", hash = "sha256:8f694f3ba9cc92cab508b152dcfe322153975c29bda272e2fd7f3f00f36e47c5"},
 ]
-filelock = [
-    {file = "filelock-3.6.0-py3-none-any.whl", hash = "sha256:f8314284bfffbdcfa0ff3d7992b023d4c628ced6feb957351d4c48d059f56bc0"},
-    {file = "filelock-3.6.0.tar.gz", hash = "sha256:9cd540a9352e432c7246a48fe4e8712b10acb1df2ad1f30e8c070b82ae1fed85"},
-]
+filelock = []
 fonttools = [
     {file = "fonttools-4.33.2-py3-none-any.whl", hash = "sha256:b4da40696829845ea8c1cb33ce51c552179754cbee7ab4e8b96a6bcf421f437a"},
     {file = "fonttools-4.33.2.zip", hash = "sha256:696fe922a271584c3ec8325ba31d4001a4fd6c4953b22900b767f1cb53ce1044"},
