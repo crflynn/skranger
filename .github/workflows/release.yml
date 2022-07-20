@@ -32,7 +32,7 @@ jobs:
       env:
         CIBW_BUILD: ${{ matrix.py }}
         CIBW_ARCHS: auto
-        CIBW_ARCHS_MACOS: x86_64 universal2
+        CIBW_ARCHS_MACOS: x86_64 arm64
         # targets without wheels for numpy/scipy
         CIBW_SKIP: "*cp310*linux_i686* *cp310-win32* *musl*"
         CIBW_BEFORE_BUILD: python buildpre.py
