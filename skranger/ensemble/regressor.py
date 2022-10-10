@@ -92,7 +92,6 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
     def __init__(
         self,
         n_estimators=100,
-        *,
         verbose=False,
         mtry=0,
         importance="none",
@@ -278,7 +277,14 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
         terminal_node_forest = self._get_terminal_node_forest(X)
         terminal_nodes = np.atleast_2d(terminal_node_forest["predictions"]).astype(int)
 
-        if self.quantiles:
+        use_quantiles = False
+        if isinstance(self.quantiles, (list, np.ndarray)):
+            if len(self.quantiles) > 0:
+                use_quantiles = True
+        else:
+            use_quantiles = self.quantiles
+
+        if use_quantiles:
             self.random_node_values_ = np.empty(
                 (np.max(terminal_nodes) + 1, self.n_estimators)
             )
@@ -336,6 +342,8 @@ class RangerForestRegressor(BaseRangerForest, RegressorMixin, BaseEstimator):
         """
         if quantiles is not None:
             return self.predict_quantiles(X, quantiles)
+        if isinstance(self.quantiles, (list, np.ndarray)):
+            return self.predict_quantiles(X, self.quantiles)
         check_is_fitted(self)
         X = check_array(X)
         self._check_n_features(X, reset=False)
