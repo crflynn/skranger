@@ -32,10 +32,10 @@ jobs:
       uses: pypa/cibuildwheel@v2.12.3
       env:
         CIBW_BUILD: ${{ matrix.py }}
-        CIBW_ARCHS: auto64
+        CIBW_ARCHS: auto
         CIBW_ARCHS_MACOS: x86_64 arm64
         # targets without wheels for numpy/scipy
-#        CIBW_SKIP: "*cp310*linux_i686* *cp310-win32* *musl*"
+        CIBW_SKIP: "*cp310*linux_i686* *cp310-win32* *musl*"
         CIBW_BEFORE_BUILD: python buildpre.py
         CIBW_TEST_COMMAND: python -c "import skranger; print(skranger.__version__); from skranger import ranger"
         # can build but not test m1 builds
