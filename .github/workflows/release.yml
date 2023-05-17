@@ -38,8 +38,8 @@ jobs:
         CIBW_ARCHS_MACOS: x86_64 # arm64
         # targets without wheels for numpy/scipy
         CIBW_SKIP: "*cp310*linux_i686* *cp310-win32* *musl*"
-        CIBW_BEFORE_ALL: python -m pip install -U pip && python buildpre.py && python -m pip install setuptools cython oldest-supported-numpy
-        CIBW_BEFORE_BUILD: python build_.py clean && python build_.py build_ext --inplace --force
+        CIBW_BEFORE_ALL: python -m pip install -U pip && python buildpre.py
+        CIBW_BEFORE_BUILD: python -m pip install setuptools cython oldest-supported-numpy && python build_.py clean && python build_.py build_ext --inplace --force
         CIBW_BEFORE_TEST: python -m pip install -U pip
         CIBW_TEST_COMMAND: python -c "import skranger; print(skranger.__version__); from skranger import ranger"
         # can build but not test m1 builds
