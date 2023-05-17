@@ -1,7 +1,7 @@
 .PHONY: build
 build:
-	poetry run python build.py clean
-	poetry run python build.py build_ext --inplace --force
+	poetry run python build_.py clean
+	poetry run python build_.py build_ext --inplace --force
 
 .PHONY: clean
 clean:
