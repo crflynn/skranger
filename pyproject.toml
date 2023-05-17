@@ -14,7 +14,7 @@ include = [
     { path="LICENSE.txt", format="sdist" },
     { path="README.rst", format="sdist" },
 ]
-build = "build.py"
+build = "build_.py"
 keywords = ["random", "forest", "ranger", "machine", "learning"]
 classifiers = [
     "Development Status :: 4 - Beta",
