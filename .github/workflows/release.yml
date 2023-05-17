@@ -24,7 +24,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: 'recursive'
 
@@ -38,8 +38,8 @@ jobs:
         CIBW_ARCHS_MACOS: x86_64 # arm64
         # targets without wheels for numpy/scipy
         CIBW_SKIP: "*cp310*linux_i686* *cp310-win32* *musl*"
-        CIBW_BEFORE_ALL: python -m pip install pip --upgrade; python buildpre.py
-        CIBW_BEFORE_TEST: python -m pip install pip --upgrade
+        CIBW_BEFORE_ALL: python -m pip install -U pip; python buildpre.py
+        CIBW_BEFORE_TEST: python -m pip install -U pip
         CIBW_TEST_COMMAND: python -c "import skranger; print(skranger.__version__); from skranger import ranger"
         # can build but not test m1 builds
         CIBW_TEST_SKIP: "*-macosx_arm64 *_universal2:arm64"
