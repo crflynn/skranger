@@ -10,7 +10,7 @@ repository = "https://github.com/crflynn/skranger"
 documentation = "https://github.com/crflynn/skranger"
 include = [
     { path="skranger/ranger/**/*" },
-    { path="skranger/ranger*" },
+    { path="skranger/ranger*", format="wheel" },
     { path="CHANGELOG.rst", format="sdist" },
     { path="LICENSE.txt", format="sdist" },
     { path="README.rst", format="sdist" },
