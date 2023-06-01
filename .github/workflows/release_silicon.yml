@@ -42,7 +42,7 @@ jobs:
         CIBW_TEST_COMMAND: python -c "import skranger; print(skranger.__version__); from skranger import ranger"
         # can build but not test m1 builds
         CIBW_TEST_SKIP: "*-macosx_arm64 *_universal2:arm64"
-        CIBW_REPAIR_WHEEL_COMMAND_MACOS: "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}; pip install wheel==0.40; wheel tags --platform-tag macosx_12_0_arm64 ${echo ./wheelhouse/*-macosx_12_0_x86_64.whl}; rm ./wheelhouse/*-macosx_12_0_x86_64.whl"
+        CIBW_REPAIR_WHEEL_COMMAND_MACOS: "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}; pip install wheel==0.40; wheel tags --platform-tag macosx_12_0_arm64 $(echo ./wheelhouse/*-macosx_12_0_x86_64.whl); rm ./wheelhouse/*-macosx_12_0_x86_64.whl"
         CIBW_BUILD_VERBOSITY: 3
 
     - name: Show wheelhouse
