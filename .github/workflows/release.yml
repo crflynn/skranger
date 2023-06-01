@@ -21,10 +21,6 @@ jobs:
       matrix:
         os: [ubuntu-20.04, windows-2019, macos-12]
         py: ["cp38-*", "cp39-*", "cp310-*", "cp311-*"]
-        exclude:
-          # the wheel created doesn't work
-          - os: macos-12
-            py: cp38-*
 
     steps:
     - name: Checkout
@@ -39,7 +35,8 @@ jobs:
         CIBW_BUILD_FRONTEND: "build"
         CIBW_ARCHS_LINUX: auto64
         CIBW_ARCHS_WINDOWS: auto64
-        CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
+        CIBW_ARCHS_MACOS: x86_64 # universal2 arm64
+        CIBW_ENVIRONMENT_MACOS: SYSTEM_VERSION_COMPAT=0  # https://github.com/pypa/cibuildwheel/issues/1410#issuecomment-1425627829
         CIBW_SKIP: "*musl*"
         CIBW_BEFORE_ALL: python -m pip install -U pip && python buildpre.py
         CIBW_BEFORE_TEST: python -m pip install -U pip
