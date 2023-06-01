@@ -16,7 +16,7 @@ jobs:
       matrix:
         # TODO windows-2019
         os: [ubuntu-20.04, macos-10.15]
-        py: [3.8.12, 3.9.8]
+        py: [3.8.16, 3.9.16, 3.10.11, 3.11.3]
 
     steps:
     - name: Checkout
@@ -67,7 +67,7 @@ jobs:
         poetry run pip install -U pip wheel
         poetry run pip install setuptools cython oldest-supported-numpy
         poetry run python buildpre.py
-        poetry run python build.py build_ext --inplace --force
+        poetry run python build_.py build_ext --inplace --force
 
     - name: Install deps
       run: |
