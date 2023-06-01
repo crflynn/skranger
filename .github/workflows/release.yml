@@ -22,6 +22,7 @@ jobs:
         os: [ubuntu-20.04, windows-2019, macos-12]
         py: ["cp38-*", "cp39-*", "cp310-*", "cp311-*"]
         exclude:
+          # the wheel created doesn't work
           - os: macos-12
             py: cp38-*
 
@@ -38,15 +39,14 @@ jobs:
         CIBW_BUILD_FRONTEND: "build"
         CIBW_ARCHS_LINUX: auto64
         CIBW_ARCHS_WINDOWS: auto64
-        CIBW_ARCHS_MACOS: x86_64 universal2
-        # targets without wheels for numpy/scipy
+        CIBW_ARCHS_MACOS: universal2
         CIBW_SKIP: "*musl*"
         CIBW_BEFORE_ALL: python -m pip install -U pip && python buildpre.py
         CIBW_BEFORE_TEST: python -m pip install -U pip
         CIBW_TEST_COMMAND: python -c "import skranger; print(skranger.__version__); from skranger import ranger"
         # can build but not test m1 builds
         CIBW_TEST_SKIP: "*-macosx_arm64 *_universal2:arm64"
-        # unsure how to make this work with manylinux wheels so just dont make them
+        # unsure how to make this work with manylinux wheels so just don't make them
         CIBW_REPAIR_WHEEL_COMMAND_LINUX: ""
         CIBW_BUILD_VERBOSITY: 3
 
