@@ -21,9 +21,9 @@ jobs:
       matrix:
         os: [ubuntu-20.04, windows-2019, macos-12]
         py: ["cp38-*", "cp39-*", "cp310-*", "cp311-*"]
-        exclude:
-          - os: macos-12
-            py: cp38-*
+#        exclude:
+#          - os: macos-12
+#            py: cp38-*
 
     steps:
     - name: Checkout
@@ -36,11 +36,11 @@ jobs:
       env:
         CIBW_BUILD: ${{ matrix.py }}
         CIBW_BUILD_FRONTEND: "build"
-        CIBW_ARCHS_LINUX: auto
+        CIBW_ARCHS_LINUX: auto64
         CIBW_ARCHS_WINDOWS: auto64
-        CIBW_ARCHS_MACOS: x86_64 # arm64
+        CIBW_ARCHS_MACOS: auto64
         # targets without wheels for numpy/scipy
-        CIBW_SKIP: "*linux_i686* *cp310-win32* *musl*"
+        CIBW_SKIP: "*musl*"
         CIBW_BEFORE_ALL: python -m pip install -U pip && python buildpre.py
         CIBW_BEFORE_TEST: python -m pip install -U pip
         CIBW_TEST_COMMAND: python -c "import skranger; print(skranger.__version__); from skranger import ranger"
