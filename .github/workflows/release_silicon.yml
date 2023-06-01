@@ -1,5 +1,8 @@
 # we do this because poetry doesn't name/tag the wheel properly
 # https://github.com/pypa/cibuildwheel/issues/1349
+# solution taken from
+# https://github.com/pypa/cibuildwheel/pull/1416
+# https://gist.github.com/anderssonjohan/49f07e33fc5cb2420515a8ac76dc0c95
 name: build wheels silicon
 
 on:
