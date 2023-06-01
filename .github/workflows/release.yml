@@ -38,7 +38,7 @@ jobs:
         CIBW_BUILD_FRONTEND: "build"
         CIBW_ARCHS_LINUX: auto64
         CIBW_ARCHS_WINDOWS: auto64
-        CIBW_ARCHS_MACOS: auto64
+        CIBW_ARCHS_MACOS: x86_64 universal2
         # targets without wheels for numpy/scipy
         CIBW_SKIP: "*musl*"
         CIBW_BEFORE_ALL: python -m pip install -U pip && python buildpre.py
