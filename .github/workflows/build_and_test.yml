@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         # TODO windows-2019
-        os: [ubuntu-20.04, macos-10.15]
+        os: [ubuntu-20.04, macos-12]
         py: [3.8.16, 3.9.16, 3.10.11, 3.11.3]
 
     steps:
