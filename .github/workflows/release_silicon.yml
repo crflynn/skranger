@@ -51,6 +51,11 @@ jobs:
       run: |
         ls wheelhouse
 
+    - uses: actions/upload-artifact@v3
+      with:
+        name: wheels
+        path: wheelhouse
+
     - name: Set up python
       id: setup-python
       if: github.event_name == 'release' && github.event.action == 'published'
