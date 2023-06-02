@@ -69,3 +69,8 @@ jobs:
     - name: Show dist
       run: |
         ls dist
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: dist
+        path: dist
