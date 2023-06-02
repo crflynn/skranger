@@ -41,7 +41,7 @@ jobs:
         CIBW_ENVIRONMENT_MACOS: SYSTEM_VERSION_COMPAT=0  # https://github.com/pypa/cibuildwheel/issues/1410#issuecomment-1425627829
         CIBW_BEFORE_ALL: python -m pip install -U pip && python buildpre.py
         CIBW_BEFORE_TEST: python -m pip install -U pip
-        CIBW_TEST_COMMAND: python -c "import skranger; print(skranger.__version__); from skranger import ranger"
+        CIBW_TEST_COMMAND: python -c "import skranger; print(skranger.__version__); from skranger.ranger import ranger"
         # can build but not test m1 builds
         CIBW_TEST_SKIP: "*-macosx_arm64 *_universal2:arm64"
         CIBW_REPAIR_WHEEL_COMMAND_MACOS: "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}; pip install wheel==0.40; wheel tags --platform-tag macosx_12_0_arm64 $(echo {dest_dir}/*-macosx_12_0_x86_64.whl); rm {dest_dir}/*-macosx_12_0_x86_64.whl"
