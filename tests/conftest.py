@@ -183,5 +183,6 @@ def split_rule(request):
 @pytest.fixture
 def patch_numpy():
     import numpy
+
     numpy.bool = bool
     return bool
