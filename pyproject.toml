@@ -10,11 +10,12 @@ repository = "https://github.com/crflynn/skranger"
 documentation = "https://github.com/crflynn/skranger"
 include = [
     { path="skranger/ranger/**/*" },
+    { path="skranger/ranger*", format="wheel" },
     { path="CHANGELOG.rst", format="sdist" },
     { path="LICENSE.txt", format="sdist" },
     { path="README.rst", format="sdist" },
 ]
-build = "build.py"
+#build = "build_.py"
 keywords = ["random", "forest", "ranger", "machine", "learning"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -26,11 +27,14 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 
+[tool.poetry.build]
+script = "build_.py"
+
 [tool.poetry.dependencies]
 python = "^3.8.0"
 scikit-learn = ">=1.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 cython = "^3.0a5"
 black = "^22.3.0"
 isort = "^5.10.1"
@@ -40,9 +44,10 @@ pandas = "^1.0.3"
 pytest-cov = "^2.9.0"
 matplotlib = "^3.3.2"
 pytest-xdist = "^2.3.0"
-shap = {version = "^0.40.0", python = "<3.9"}  # llvm/numba doesnt work on 3.9
-cibuildwheel = "^2.4.0"
+shap = {version = "^0.41.0", python = "<3.10"}
 Sphinx = "^4.5.0"
+cibuildwheel = "*"
+setuptools = "^67.8.0"
 
 [build-system]
 requires = ["poetry-core", "setuptools", "cython", "oldest-supported-numpy"]

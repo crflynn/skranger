@@ -72,8 +72,11 @@ def build_ext():
     )
 
 
-if "clean" in sys.argv or "build_ext" in sys.argv:
-    build_ext()
+# if "clean" in sys.argv or "build_ext" in sys.argv:
+sys.argv.append("build_ext")
+sys.argv.append("--inplace")
+sys.argv.append("--force")
+build_ext()
 
 
 def build(setup_kwargs):

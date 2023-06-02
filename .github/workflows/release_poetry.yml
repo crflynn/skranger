@@ -1,4 +1,4 @@
-name: build and test
+name: build with poetry
 
 on:
   push:
@@ -14,7 +14,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # TODO windows-2019
         os: [ubuntu-20.04, macos-12]
         py: [3.8.16, 3.9.16, 3.10.11, 3.11.3]
 
@@ -64,20 +63,14 @@ jobs:
 
     - name: Build
       run: |
-        poetry run pip install -U pip wheel
-        poetry run pip install setuptools cython oldest-supported-numpy
         poetry run python buildpre.py
-        poetry run python build_.py build_ext --inplace --force
+        poetry build
 
-    - name: Install deps
+    - name: Show dist
       run: |
-        poetry install --no-interaction --no-root
+        ls dist
 
-    - name: Format
-      run: |
-        poetry run isort --check .
-        poetry run black --check .
-
-    - name: Test
-      run: |
-        poetry run pytest tests/
+    - uses: actions/upload-artifact@v3
+      with:
+        name: dist
+        path: dist
