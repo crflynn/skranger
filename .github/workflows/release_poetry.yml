@@ -1,0 +1,70 @@
+name: build and test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build_and_test:
+    name: build and test ${{ matrix.py }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, windows-2019, macos-12]
+        py: [3.8.16, 3.9.16, 3.10.11, 3.11.3]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: 'recursive'
+
+      # sqlite for coverage
+      # llvm for shap
+    - name: Install linux system deps
+      if:  ${{ matrix.os == 'ubuntu-20.04' }}
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libsqlite3-dev llvm
+
+      # llvm for shap
+    - name: Install macos system deps
+      if:  ${{ matrix.os == 'macos-10.15' }}
+      run: |
+        brew update
+        brew install llvm@9
+
+    - name: Set up python
+      id: setup-python
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.py }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: 1.5.1
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+        installer-parallel: true
+
+    - name: Cache dependencies
+      id: cache-deps
+      uses: actions/cache@v2
+      with:
+        path: .venv
+        key: v1-${{ runner.os }}-${{ matrix.py }}-${{ hashFiles(format('{0}{1}', github.workspace, '/poetry.lock')) }}
+        restore-keys: |
+          v1-${{ runner.os }}-${{ matrix.py }}-
+
+    - name: Build
+      run: |
+        poetry build
+
+    - name: Show dist
+      run: |
+        ls dist

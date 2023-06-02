@@ -15,7 +15,7 @@ include = [
     { path="LICENSE.txt", format="sdist" },
     { path="README.rst", format="sdist" },
 ]
-build = "build_.py"
+#build = "build_.py"
 keywords = ["random", "forest", "ranger", "machine", "learning"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -26,6 +26,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Topic :: Scientific/Engineering",
 ]
+
+[tool.poetry.build]
+script = "build_.py"
 
 [tool.poetry.dependencies]
 python = "^3.8.0"
