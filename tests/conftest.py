@@ -182,6 +182,7 @@ def split_rule(request):
 
 @pytest.fixture
 def patch_numpy():
+    """Patching numpy since shap doesn't handle the deprecation of numpy.bool."""
     import numpy
 
     numpy.bool = bool
