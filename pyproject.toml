@@ -41,7 +41,7 @@ pandas = "^1.0.3"
 pytest-cov = "^2.9.0"
 matplotlib = "^3.3.2"
 pytest-xdist = "^2.3.0"
-shap = {version = "^0.40.0", python = "<3.9"}  # llvm/numba doesnt work on 3.9
+shap = {version = "^0.41.0", python = "<3.10"}
 Sphinx = "^4.5.0"
 cibuildwheel = "*"
 

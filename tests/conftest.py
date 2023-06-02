@@ -5,8 +5,8 @@ import numpy as np
 import pandas as pd
 import pytest
 from scipy.io.arff import loadarff
-from sklearn.datasets import load_boston
 from sklearn.datasets import load_iris
+from sklearn.datasets import load_wine
 
 
 def load_veterans_lung_cancer():
@@ -20,19 +20,19 @@ def load_veterans_lung_cancer():
     return X, y
 
 
-_boston_X, _boston_y = load_boston(return_X_y=True)
+_wine_X, _wine_y = load_wine(return_X_y=True)
 _iris_X, _iris_y = load_iris(return_X_y=True)
 _lung_X, _lung_y = load_veterans_lung_cancer()
 
 
 @pytest.fixture
-def boston_X():
-    return _boston_X
+def wine_X():
+    return _wine_X
 
 
 @pytest.fixture
-def boston_y():
-    return _boston_y
+def wine_y():
+    return _wine_y
 
 
 @pytest.fixture
@@ -65,19 +65,19 @@ def iris_X_mod(mod):
 
 
 @pytest.fixture
-def boston_X_mod(mod):
+def wine_X_mod(mod):
     if mod == "none":
-        return _boston_X
+        return _wine_X
     elif mod == "random":
         np.random.seed(42)
-        return np.concatenate((_boston_X, np.random.uniform(size=(_boston_X.shape))), 1)
+        return np.concatenate((_wine_X, np.random.uniform(size=(_wine_X.shape))), 1)
     elif mod == "const":
         np.random.seed(42)
         return np.concatenate(
             (
-                _boston_X,
-                np.random.uniform(size=(_boston_X.shape)),
-                np.zeros(shape=(_boston_X.shape)),
+                _wine_X,
+                np.random.uniform(size=(_wine_X.shape)),
+                np.zeros(shape=(_wine_X.shape)),
             ),
             1,
         )
@@ -178,3 +178,10 @@ def mtry(request):
 )
 def split_rule(request):
     return request.param
+
+
+@pytest.fixture
+def patch_numpy():
+    import numpy
+    numpy.bool = bool
+    return bool

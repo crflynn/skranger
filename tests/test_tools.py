@@ -13,12 +13,12 @@ from skranger.utils.shap import shap_patch
 @pytest.mark.skip()
 def test_plot():
     from matplotlib import pyplot as plt
-    from sklearn.datasets import load_boston
+    from sklearn.datasets import load_wine
     from sklearn.tree import plot_tree
 
-    boston_X, boston_y = load_boston(return_X_y=True)
+    wine_X, wine_y = load_wine(return_X_y=True)
     forest = RangerForestRegressor(enable_tree_details=True)
-    forest.fit(boston_X, boston_y)
+    forest.fit(wine_X, wine_y)
     estimator = forest.get_estimator(0)
     plt.figure()
     plot_tree(
@@ -34,22 +34,22 @@ def test_plot():
 @pytest.mark.skipif(
     sys.version_info > (3, 9) and os.getenv("CI") is not None, reason="requires < 3.9"
 )
-def test_shap_regressor(boston_X, boston_y):
+def test_shap_regressor(wine_X, wine_y, patch_numpy):
     from shap import TreeExplainer
 
     forest = RangerForestRegressor(enable_tree_details=True)
-    forest.fit(boston_X, boston_y)
+    forest.fit(wine_X, wine_y)
 
     with shap_patch():
         explainer = TreeExplainer(model=forest)
-    shap_values = explainer.shap_values(boston_X)
+    shap_values = explainer.shap_values(wine_X)
     print(shap_values)
 
 
 @pytest.mark.skipif(
     sys.version_info > (3, 9) and os.getenv("CI") is not None, reason="requires < 3.9"
 )
-def test_shap_classifier(iris_X, iris_y):
+def test_shap_classifier(iris_X, iris_y, patch_numpy):
     from shap import TreeExplainer
 
     forest = RangerForestClassifier(enable_tree_details=True)
@@ -62,14 +62,14 @@ def test_shap_classifier(iris_X, iris_y):
 
 
 @pytest.mark.skip()
-def test_shap_sklearn_regressor(boston_X, boston_y):
+def test_shap_sklearn_regressor(wine_X, wine_y):
     from shap import TreeExplainer
 
     forest = RandomForestRegressor()
-    forest.fit(boston_X, boston_y)
+    forest.fit(wine_X, wine_y)
 
     explainer = TreeExplainer(model=forest)
-    shap_values = explainer.shap_values(boston_X)
+    shap_values = explainer.shap_values(wine_X)
     print(shap_values)
 
 
