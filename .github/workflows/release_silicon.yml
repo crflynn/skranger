@@ -36,7 +36,7 @@ jobs:
       uses: pypa/cibuildwheel@v2.12.3
       env:
         CIBW_BUILD: ${{ matrix.py }}
-        CIBW_BUILD_FRONTEND: "build"
+        CIBW_BUILD_FRONTEND: "pip"
         CIBW_ARCHS_MACOS: arm64
         CIBW_ENVIRONMENT_MACOS: SYSTEM_VERSION_COMPAT=0  # https://github.com/pypa/cibuildwheel/issues/1410#issuecomment-1425627829
         CIBW_BEFORE_ALL: python -m pip install -U pip && python buildpre.py

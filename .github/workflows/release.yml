@@ -31,7 +31,7 @@ jobs:
       uses: pypa/cibuildwheel@v2.12.3
       env:
         CIBW_BUILD: ${{ matrix.py }}
-        CIBW_BUILD_FRONTEND: "build"
+        CIBW_BUILD_FRONTEND: "pip"
         CIBW_ARCHS_LINUX: auto64
         CIBW_ARCHS_WINDOWS: auto64
         CIBW_ARCHS_MACOS: x86_64 # universal2 arm64
