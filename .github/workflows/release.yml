@@ -38,7 +38,7 @@ jobs:
         CIBW_ENVIRONMENT_MACOS: SYSTEM_VERSION_COMPAT=0  # https://github.com/pypa/cibuildwheel/issues/1410#issuecomment-1425627829
         CIBW_SKIP: "*musl*"
         CIBW_BEFORE_ALL: python -m pip install -U pip && python buildpre.py
-        CIBW_BEFORE_BUILD: python build_.py build_ext --inplace --force
+        CIBW_BEFORE_BUILD: python -m pip install setuptools cython oldest-supported-numpy && python build_.py build_ext --inplace --force
         CIBW_BEFORE_TEST: python -m pip install -U pip
         CIBW_TEST_COMMAND: python -c "import skranger; print(skranger.__version__); from skranger.ranger import ranger"
         # can build but not test m1 builds
