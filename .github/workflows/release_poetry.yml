@@ -63,6 +63,7 @@ jobs:
 
     - name: Build
       run: |
+        poetry run python buildpre.py
         poetry build
 
     - name: Show dist
